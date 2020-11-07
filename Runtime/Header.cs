@@ -1,10 +1,10 @@
 using System;
 
-namespace HttpRequests
+namespace UnityHttpRequests
 {
 
     // Memory layout must be exactly compatible with its counterpart in the c header
-    public ref struct Header {
+    public struct Header {
         public StringRef Name;
         public StringRef Value;
     }

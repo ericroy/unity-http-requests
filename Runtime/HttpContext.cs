@@ -1,73 +1,87 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
-namespace HttpRequests
+namespace UnityHttpRequests
 {
-    public class HttpContext {
-        Header[] headersScratch;
-        Response[] responsesScratch;
-        IntPtr context = 0;
-        
+
+    public unsafe class HttpContext
+    {
         public event RequestCompleteDelegate RequestComplete;
+        public delegate void RequestCompleteDelegate(ref Response result);
 
-        public delegate RequestCompleteDelegate(ref Response result);
+        private Header[] headersBuffer;
+        private Response[] responsesBuffer;
+        private IntPtr context = IntPtr.Zero;
 
-        public unsafe HttpContext(int responsesCapacity = 8, int headersCapacity = 8) {
-            if (responsesCapacity < 1) {
+        public HttpContext(int responsesCapacity = 8, int headersCapacity = 8)
+        {
+            if (responsesCapacity < 1)
+            {
                 throw new Exception("Responses capacity must be at least 1");
             }
-            responsesScratch = new Response[responsesCapacity];
+            responsesBuffer = new Response[responsesCapacity];
 
-            if (headersCapacity < 1) {
+            if (headersCapacity < 1)
+            {
                 throw new Exception("Headers capacity must be at least 1");
             }
-            headersScratch = new Header[headersCapacity];
+            headersBuffer = new Header[headersCapacity];
 
-            context = UHR_CreateContext();
-            if (context == Constants.HttpContextInvalid) {
+            context = UHR_CreateHttpContext();
+            if (context == Constants.HttpContextInvalid)
+            {
                 StringRef err;
-                fixed (StringRef* pErr = &err) {
-                    UHR_GetLastError(pErr);
-                }
+                UHR_GetLastError(&err);
                 throw new Exception("Failed to create HttpContext: " + err.ToStringAlloc());
             }
         }
 
-        public ~HttpContext() {
-            if (context != 0) {
-                UHR_DestroyContext(context);
-                context = 0;
+        ~HttpContext()
+        {
+            if (context != IntPtr.Zero)
+            {
+                UHR_DestroyHttpContext(context);
+                context = IntPtr.Zero;
             }
         }
 
-        public int Get(string url, Dictionary<string, string> headers = null) {
-            return StartRequest(url, Method.GET, headers, null, 0);
+        public int Get(string url, Dictionary<string, string> headers = null)
+        {
+            return StartRequest(url, Constants.Method.GET, headers, null, 0);
         }
 
-        public int Post(string url, byte[] requestBody, int requestBodyLength, Dictionary<string, string> headers = null) {
-            return StartRequest(url, Method.POST, headers, requestBody, requestBodyLength);
+        public int Post(string url, byte[] requestBody, int requestBodyLength, Dictionary<string, string> headers = null)
+        {
+            return StartRequest(url, Constants.Method.POST, headers, requestBody, requestBodyLength);
         }
 
         // Call this once per frame to tick the library and dispatch responses.
-        public unsafe void Update() {
-            int* toDelete = stackalloc int[responsesScratch.Length];
-            fixed (Response* pResponses = &responsesScratch[0]) {
-                while ((int count = UHR_Update(context, pResponses, responsesScratch.Length)) != 0) {
-                    for (var i = 0; i < count; ++i) {
-                        toDelete[i] = pResponses[i].requestId;
-                        try {
+        public void Update()
+        {
+            int* toDelete = stackalloc int[responsesBuffer.Length];
+            fixed (Response* pResponses = &responsesBuffer[0])
+            {
+                int count = 0;
+                while ((count = UHR_Update(context, pResponses, responsesBuffer.Length)) == responsesBuffer.Length)
+                {
+                    for (var i = 0; i < count; ++i)
+                    {
+                        toDelete[i] = pResponses[i].RequestId;
+                        try
+                        {
                             RequestComplete?.Invoke(ref pResponses[i]);
-                        } catch (Exception) {
+                        }
+                        catch (Exception)
+                        {
                             // log
                         }
                     }
-                    if (UHR_DestroyRequests(context, toDelete, count) == -1) {
+                    if (UHR_DestroyRequests(context, toDelete, count) < count)
+                    {
                         StringRef err;
-                        fixed (StringRef* pErr = &err) {
-                            UHR_GetLastError(pErr);
-                        }
-                        throw new Exception("Failed to destroy requests: " + err.ToStringAlloc());
+                        UHR_GetLastError(&err);
+                        throw new Exception("Failed to destroy one or more requests: " + err.ToStringAlloc());
                     }
                 }
             }
@@ -75,82 +89,95 @@ namespace HttpRequests
 
         private unsafe int StartRequest(
             string url,
-            Method method,
+            Constants.Method method,
             Dictionary<string, string> headers,
             byte[] requestBody,
             int requestBodyLength
-        ) {
+        )
+        {
             int headersCount = 0;
-            if (headers) {
+            if (headers != null)
+            {
                 headersCount = headers.Count;
-                if (headersCount > headersScratch.Length) {
-                    headersScratch = new Header[headersCount];
+                if (headersCount > headersBuffer.Length)
+                {
+                    headersBuffer = new Header[headersCount];
                 }
-                for (var i = 0; i < headersCount; ++i) {
-                    var pair = dictionary.ElementAt(i);
-                    headers[i] = new Header{
-                        Name = StringRef(pair.Key),
-                        Value = StringRef(pair.Value),
+                int i = 0;
+                var enumer = headers.GetEnumerator();
+                while (enumer.MoveNext())
+                {
+                    headersBuffer[i++] = new Header
+                    {
+                        Name = new StringRef(enumer.Current.Key),
+                        Value = new StringRef(enumer.Current.Value),
                     };
                 }
             }
 
-            if (requestBody) {
-                if (requestBodyLength < 0 || requestBodyLength > requestBody.Length) {
+            if (requestBody != null)
+            {
+                if (requestBodyLength < 0 || requestBodyLength > requestBody.Length)
+                {
                     throw new ArgumentException("Request body length out of range");
                 }
             }
 
-            fixed (Header* pHeaders = &headers[0]) {
-                fixed (byte* pRequestBody = (requestBody == null || requestBodyLength == 0) ? null : &requestBody[0]) {
-                    int requestId = UHR_CreateJob(
+            int rid = Constants.RequestIdInvalid;
+
+            fixed (Header* pHeaders = headersBuffer)
+            {
+                fixed (byte* pRequestBody = requestBody)
+                {
+                    rid = UHR_CreateRequest(
                         context,
-                        StringRef(url),
-                        method,
+                        new StringRef(url),
+                        (int)method,
                         pHeaders,
                         headersCount,
                         pRequestBody,
-                        pRequestBody ? requestBodyLength : 0,
-                    )
-                    if (requestId == Constants.RequestIdInvalid) {
+                        pRequestBody != null ? requestBodyLength : 0
+                    );
+                    if (rid == Constants.RequestIdInvalid)
+                    {
                         StringRef err;
-                        fixed (StringRef* pErr = &err) {
-                            UHR_GetLastError(pErr);
-                        }
+                        UHR_GetLastError(&err);
                         throw new Exception("Failed to create http request: " + err.ToStringAlloc());
                     }
                 }
             }
+
+            return rid;
         }
 
         #region NativeBindings
 
-        #if UNITY_IPHONE
+#if UNITY_IPHONE
         [DllImport ("__Internal")]
-        #else
-        [DllImport ("UnityHttpRequests")]
-        #endif
-        extern static void UHR_GetLastError(StringRef *error_out);
+#else
+        [DllImport("UnityHttpRequests")]
+#endif
+        extern static void UHR_GetLastError(StringRef* error_out);
 
-        #if UNITY_IPHONE
+#if UNITY_IPHONE
         [DllImport ("__Internal")]
-        #else
-        [DllImport ("UnityHttpRequests")]
-        #endif
+#else
+        [DllImport("UnityHttpRequests")]
+#endif
         extern static IntPtr UHR_CreateHttpContext();
 
-        #if UNITY_IPHONE
+#if UNITY_IPHONE
         [DllImport ("__Internal")]
-        #else
-        [DllImport ("UnityHttpRequests")]
-        #endif
+#else
+        [DllImport("UnityHttpRequests")]
+#endif
         extern static void UHR_DestroyHttpContext(IntPtr context);
 
-        #if UNITY_IPHONE
+#if UNITY_IPHONE
         [DllImport ("__Internal")]
-        #else
-        [DllImport ("UnityHttpRequests")]
-        #endif
+#else
+        [DllImport("UnityHttpRequests")]
+#endif
         extern static int UHR_CreateRequest(
             IntPtr context,
             StringRef url,
@@ -158,22 +185,22 @@ namespace HttpRequests
             Header* requestHeaders,
             int requestHeadersCount,
             byte* requestBody,
-            int requestBodyLength,
+            int requestBodyLength
         );
 
-        #if UNITY_IPHONE
+#if UNITY_IPHONE
         [DllImport ("__Internal")]
-        #else
-        [DllImport ("UnityHttpRequests")]
-        #endif
+#else
+        [DllImport("UnityHttpRequests")]
+#endif
         extern static int UHR_Update(IntPtr context, Response* resultsOut, int resultsOutCapacity);
-        
-        #if UNITY_IPHONE
+
+#if UNITY_IPHONE
         [DllImport ("__Internal")]
-        #else
-        [DllImport ("UnityHttpRequests")]
-        #endif
-        extern static void UHR_DestroyRequests(IntPtr context, int* requestIds, int requestIdsCount);
+#else
+        [DllImport("UnityHttpRequests")]
+#endif
+        extern static int UHR_DestroyRequests(IntPtr context, int* requestIds, int requestIdsCount);
 
         #endregion
     }

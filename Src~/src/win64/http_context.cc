@@ -1,9 +1,7 @@
 #include "http_context.h"
 #include <sstream>
-#include <Windows.h>
-#include <comutil.h>
 
-namespace http_requests {
+namespace unity_http_requests {
 
     namespace {
         const int kResolveTimeout = 5000;
@@ -75,7 +73,7 @@ namespace http_requests {
         try {
             req->Open(bmethod, burl, async);
         } catch(const _com_error& ce) {
-            *error = u"Open() failed" + ce;
+            *error = u"Open() failed: " + ce;
             return UHR_REQUEST_ID_INVALID;
         }
 
@@ -86,7 +84,7 @@ namespace http_requests {
             try {
                 req->SetRequestHeader(name, value);
             } catch(const _com_error& ce) {
-                *error = u"SetRequestHeader() failed" + ce;
+                *error = u"SetRequestHeader() failed: " + ce;
                 return UHR_REQUEST_ID_INVALID;
             }
         }
@@ -109,7 +107,7 @@ namespace http_requests {
         try {
             req->Send(body);
         } catch(const _com_error& ce) {
-            *error = u"Send() failed" + ce;
+            *error = u"Send() failed: " + ce;
             return UHR_REQUEST_ID_INVALID;
         }
 
@@ -118,8 +116,8 @@ namespace http_requests {
             next_request_id_ = 1;
 
         Request request;
-        request.rid = rid;
-        request.req = std::move(req);
+        request.rid_ = rid;
+        request.req_ = std::move(req);
         requests_.push_back(std::move(request));
 
         return rid;
@@ -133,9 +131,9 @@ namespace http_requests {
         while (iter != end(requests_) && output_cursor < responses_capacity) {
             VARIANT_BOOL ready = VARIANT_FALSE;
             try {
-                ready = iter->req->WaitForResponse(zero_timeout);
+                ready = iter->req_->WaitForResponse(zero_timeout);
             } catch(const _com_error& ce) {
-                *error = u"WaitForResponse() failed" + ce;
+                *error = u"WaitForResponse() failed: " + ce;
                 return -1;
             }
 
@@ -147,54 +145,68 @@ namespace http_requests {
 
             _bstr_t headers;
             try {
-                headers = iter->req->GetAllResponseHeaders();
+                headers = iter->req_->GetAllResponseHeaders();
             } catch(const _com_error& ce) {
-                *error = u"GetAllResponseHeaders() failed" + ce;
+                *error = u"GetAllResponseHeaders() failed: " + ce;
                 return -1;
             }
 
-            _bstr_t body;
+            _variant_t body;
             try {
-                body = iter->req->GetResponseText();
+                body = iter->req_->GetResponseBody();
             } catch(const _com_error& ce) {
-                *error = u"GetResponseText() failed" + ce;
+                *error = u"GetResponseText() failed: " + ce;
                 return -1;
             }
 
             long http_status = -1;
             try {
-                http_status = iter->req->GetStatus();
+                http_status = iter->req_->GetStatus();
             } catch(const _com_error& ce) {
-                *error = u"GetStatus() failed" + ce;
+                *error = u"GetStatus() failed: " + ce;
                 return -1;
             }
 
-            // Get a reference to the output item we want to fill out.
-            // Advance the output cursor.
-            UHR_Response& res = responses_out[output_cursor++];
-            res.request_id = iter->rid;
-            res.http_status = static_cast<int>(http_status);
-            res.response_body = iter->response_body.data();
-            res.response_body_length = static_cast<int>(iter->response_body.size());
-
-            // Parse response headers
-            res.response_headers_count = 0;
+            // Populate the response storage values
+            iter->res_.reset(new Request::ResponseStorage());
+            iter->res_->http_status_ = static_cast<int>(http_status);
+            if (body.vt == (VT_ARRAY|VT_UI1)) {
+                void *src = nullptr;    
+                auto len = body.parray[0].rgsabound[0].cElements;
+                iter->res_->body_.resize(len);
+                SafeArrayAccessData(body.parray, &src);
+                memcpy(iter->res_->body_.data(), src, len); 
+                SafeArrayUnaccessData(body.parray);
+            }
             std::basic_stringstream<char16_t> ss(BStrToChar16Ptr(headers));
             for (std::u16string line; std::getline(ss, line); ) {
                 auto colon = line.find(u':');
-                if (colon != std::u16string::npos) {
-                    // Populate the backing memory
-                    iter->response_headers.emplace_back(line.substr(0, colon), line.substr(colon + 1));
-                    auto& pair = iter->response_headers.back();
+                if (colon == std::u16string::npos)
+                    continue;
 
-                    // Get the borrowed pointers to return
-                    auto& out = res.response_headers[res.response_headers_count++];
-                    out.name = StringRefFromU16String(pair.first);
-                    out.value = StringRefFromU16String(pair.second);
+                auto value_first = line.find_first_not_of(u" \r\n", colon + 1);
+                if (value_first == std::u16string::npos) {
+                    iter->res_->headers_.emplace_back(line.substr(0, colon), std::u16string());
+                    continue;
                 }
+
+                auto value_last = line.find_last_not_of(u" \r\n");
+                iter->res_->headers_.emplace_back(
+                    line.substr(0, colon),
+                    value_last != std::u16string::npos
+                        ? line.substr(value_first, value_last + 1 - value_first)
+                        : line.substr(value_first, std::u16string::npos)
+                );
             }
 
-            // Move it to the completed list, and advance iterator
+            // Borrow pointers to the response storage, which we will return to the caller
+            UHR_Response& res = responses_out[output_cursor++];
+            res.request_id = iter->rid_;
+            res.http_status = static_cast<int>(iter->res_->http_status_);
+            res.response_body = iter->res_->body_.data();
+            res.response_body_length = static_cast<int>(iter->res_->body_.size());
+
+            // Move the request to the completed list, and advance iterator
             completed_.push_back(std::move(*iter));
             iter = requests_.erase(iter);
         }
@@ -203,37 +215,34 @@ namespace http_requests {
     }
 
     int HttpContext::DestroyRequests(UHR_RequestId* request_ids, int request_ids_count, std::u16string *error) {
+        int failures = 0;
         for (auto i = 0; i < request_ids_count; ++i) {
-            bool found = false;
-            // Check completed list first, as it's most common to delete a completed request
-            for (auto &request : completed_) {
-                if (request.rid == request_ids[i]) {
-                    std::swap(request, completed_.back());
-                    completed_.pop_back();
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (found) {
-                continue;
-            }
-
-            for (auto &request : requests_) {
-                if (request.rid == request_ids[i]) {
-                    std::swap(request, requests_.back());
-                    requests_.pop_back();
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                *error = u"A request id was not found";
-                return -1;
-            }
+            if (!DestroyRequest(request_ids[i], error))
+                failures++;
         }
-        return 0;
+        return request_ids_count - failures;
     }
 
-} // namespace http_requests
+    bool HttpContext::DestroyRequest(UHR_RequestId rid, std::u16string *error) {
+        // Check completed list first, as it's most common to delete a completed request
+        for (auto& request : completed_) {
+            if (request.rid_ == rid) {
+                std::swap(request, completed_.back());
+                completed_.pop_back();
+                return true;
+            }
+        }
+
+        for (auto& request : requests_) {
+            if (request.rid_ == rid) {
+                std::swap(request, requests_.back());
+                requests_.pop_back();
+                return true;
+            }
+        }
+        
+        *error = u"An invalid request id was provided";
+        return false;
+    }
+
+} // namespace unity_http_requests

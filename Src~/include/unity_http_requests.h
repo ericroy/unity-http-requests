@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#ifdef UHR_EXPORT
+#ifdef UHR_DLL_EXPORT
 #define UHR_API __declspec(dllexport)
 #else
 #define UHR_API __declspec(dllimport)
@@ -73,7 +73,8 @@ UHR_API int UHR_Update(UHR_HttpContext context, UHR_Response* responses_out, int
 // However, destroying the context is sufficient to also destroy all
 // the requests it manages.
 //
-// Returns: 0 on success, -1 on failure.
+// Returns: Number of requests destroyed, or -1 on complete failure.
+//   If the number returned is less than request_ids_count, then some operations failed.
 //   Use UHR_GetLastError to get the error message.
 UHR_API int UHR_DestroyRequests(UHR_HttpContext context, UHR_RequestId* request_ids, int request_ids_count);
 

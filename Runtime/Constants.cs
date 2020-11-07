@@ -1,11 +1,11 @@
 using System;
 
-namespace HttpRequests
+namespace UnityHttpRequests
 {
 
     // Values must match constants in c header
     public static class Constants {
-        public const IntPtr HttpContextInvalid = IntPtr.Zero;
+        public static readonly IntPtr HttpContextInvalid = IntPtr.Zero;
         public const int RequestIdInvalid = 0;
 
         public enum Method : int {

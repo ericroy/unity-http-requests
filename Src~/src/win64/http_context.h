@@ -5,9 +5,11 @@
 
 #include <string>
 #include <vector>
-#include "http_requests.h"
+#include <memory>
+#include <comutil.h>
+#include "unity_http_requests.h"
 
-namespace http_requests {
+namespace unity_http_requests {
     
     class HttpContext {
     public:
@@ -30,24 +32,23 @@ namespace http_requests {
 
     private:
         struct Request {
-            int rid = UHR_REQUEST_ID_INVALID;
-            IWinHttpRequestPtr req;
+            struct ResponseStorage {
+                std::vector<std::pair<std::u16string, std::u16string>> headers_;
+                std::vector<char> body_;
+                int http_status_;
+            };
 
-            // These just hold the backing memory.
-            // Pointers to this data are borrowed and returned to the
-            // caller in the UHR_Response.
-            // The UHR_Response is invalid once the request has been destroyed.
-            std::vector<std::pair<std::u16string, std::u16string>> response_headers;
-            std::vector<char> response_body;
-
-            // For the std::set, so it can sort
-            inline bool operator<(const Request& o) const { return rid < o.rid; }
+            IWinHttpRequestPtr req_;
+            std::unique_ptr<ResponseStorage> res_;
+            int rid_ = UHR_REQUEST_ID_INVALID;
         };
+
+        bool DestroyRequest(UHR_RequestId rid, std::u16string *error);
 
         std::vector<Request> requests_;
         std::vector<Request> completed_;
         int next_request_id_ = 1;
     };
 
-} // namespace http_requests
+} // namespace unity_http_requests
 

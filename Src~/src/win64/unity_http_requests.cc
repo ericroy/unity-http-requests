@@ -1,4 +1,4 @@
-#include "http_requests.h"
+#include "unity_http_requests.h"
 #include "http_context.h"
 #include <Windows.h>
 
@@ -15,12 +15,12 @@ void UHR_GetLastError(UHR_StringRef *error_out) {
 }
 
 UHR_HttpContext UHR_CreateHttpContext() {
-    auto* context = new http_requests::HttpContext();
+    auto* context = new unity_http_requests::HttpContext();
     return static_cast<UHR_HttpContext>(context);
 }
 
 void UHR_DestroyHttpContext(UHR_HttpContext handle) {
-    auto* context = static_cast<http_requests::HttpContext *>(handle);
+    auto* context = static_cast<unity_http_requests::HttpContext *>(handle);
     if (context != nullptr)
         delete context;
 }
@@ -34,7 +34,7 @@ UHR_RequestId UHR_CreateRequest(
 	const char *request_body,
 	int request_body_length
 ) {
-    auto* context = static_cast<http_requests::HttpContext *>(handle);
+    auto* context = static_cast<unity_http_requests::HttpContext *>(handle);
     if (context == nullptr) {
         g_last_error = u"Invalid HttpContext handle";
         return UHR_HTTP_CONTEXT_INVALID;
@@ -43,7 +43,7 @@ UHR_RequestId UHR_CreateRequest(
 }
 
 int UHR_Update(UHR_HttpContext handle, UHR_Response* responses_out, int responses_capacity) {
-    auto* context = static_cast<http_requests::HttpContext *>(handle);
+    auto* context = static_cast<unity_http_requests::HttpContext *>(handle);
     if (context == nullptr) {
         g_last_error = u"Invalid HttpContext handle";
         return -1;
@@ -52,7 +52,7 @@ int UHR_Update(UHR_HttpContext handle, UHR_Response* responses_out, int response
 }
 
 int UHR_DestroyRequests(UHR_HttpContext handle, UHR_RequestId* request_ids, int request_ids_count) {
-    auto* context = static_cast<http_requests::HttpContext *>(handle);
+    auto* context = static_cast<unity_http_requests::HttpContext *>(handle);
     if (context == nullptr) {
         g_last_error = u"Invalid HttpContext handle";
         return -1;

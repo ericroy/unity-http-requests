@@ -1,5 +1,6 @@
-/Runtime/bin/
-*.meta
 *.obj
-*.tlh
 *.tli
+*.tlh
+*.lib
+*.exp
+*.dll

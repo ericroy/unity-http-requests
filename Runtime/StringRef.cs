@@ -1,16 +1,16 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace HttpRequests
+namespace UnityHttpRequests
 {
 
     // Memory layout must be exactly compatible with its counterpart in the c header
-    public unsafe ref struct StringRef {
+    public unsafe struct StringRef {
         public char* Characters;
         public int Length;
 
-        StringRef(string s) {
-            fixed (char* p = &s[0]) {
+        public StringRef(string s) {
+            fixed (char* p = s) {
                 Characters = p;
             }
             Length = s.Length;
@@ -23,13 +23,12 @@ namespace HttpRequests
             for (var i = 0; i < s.Length; ++i) {
                 if (s[i] != Characters[i])
                     return false;
-                }
             }
             return true;
         }
 
         public string ToStringAlloc() {
-            Marshal.PtrToStringUni(Characters, Length);
+            return Marshal.PtrToStringUni((IntPtr)Characters, Length);
         }
     }
 
