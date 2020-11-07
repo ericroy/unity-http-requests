@@ -4,6 +4,12 @@
 extern "C" {
 #endif
 
+#ifdef UHR_EXPORT
+#define UHR_API __declspec(dllexport)
+#else
+#define UHR_API __declspec(dllimport)
+#endif
+
 #define UHR_REQUEST_ID_INVALID 0
 #define UHR_HTTP_CONTEXT_INVALID 0
 
@@ -34,21 +40,21 @@ struct UHR_Response {
 };
 
 // Gets a message describing the latest error
-void UHR_GetLastError(UHR_StringRef *error_out);
+UHR_API void UHR_GetLastError(UHR_StringRef *error_out);
 
 // Creates a context.
 // A owns all the resources, and manages the http request requests.
 // Returns:  A valid handle, or UHR_HTTP_CONTEXT_INVALID if an error occurred.
 //   Use UHR_GetLastError to get the error message.
-UHR_HttpContext UHR_CreateHttpContext();
+UHR_API UHR_HttpContext UHR_CreateHttpContext();
 
 // Frees a context, and any requests that it is managing.
-void UHR_DestroyHttpContext(UHR_HttpContext context);
+UHR_API void UHR_DestroyHttpContext(UHR_HttpContext context);
 
 // Starts a new request.
 // Returns:  The request id of the new request, or UHR_REQUEST_ID_INVALID if an error occurred.
 //   Use UHR_GetLastError to get the error message.
-UHR_RequestId UHR_CreateRequest(
+UHR_API UHR_RequestId UHR_CreateRequest(
 	UHR_HttpContext context,
 	UHR_StringRef url,
 	int method,
@@ -60,7 +66,7 @@ UHR_RequestId UHR_CreateRequest(
 
 // Returns: number of responses written to output array, or -1 in the case of an error.
 //   Use UHR_GetLastError to get the error message.
-int UHR_Update(UHR_HttpContext context, UHR_Response* responses_out, int responses_capacity);
+UHR_API int UHR_Update(UHR_HttpContext context, UHR_Response* responses_out, int responses_capacity);
 
 // Frees memory associated with the specified request ids.
 // Every request that is created must eventually be destroyed.
@@ -69,7 +75,7 @@ int UHR_Update(UHR_HttpContext context, UHR_Response* responses_out, int respons
 //
 // Returns: 0 on success, -1 on failure.
 //   Use UHR_GetLastError to get the error message.
-int UHR_DestroyRequests(UHR_HttpContext context, UHR_RequestId* request_ids, int request_ids_count);
+UHR_API int UHR_DestroyRequests(UHR_HttpContext context, UHR_RequestId* request_ids, int request_ids_count);
 
 #ifdef __cplusplus
 }
