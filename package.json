@@ -1,5 +1,5 @@
 {
-  "name": "com.example.unity-http-requests",
+  "name": "com.example.http-requests",
   "version": "1.2.3",
   "displayName": "HTTP request plugins",
   "description": "Native Unity plugins for making HTTP requests",

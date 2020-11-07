@@ -13,15 +13,24 @@ namespace HttpRequests
 
         public delegate RequestCompleteDelegate(ref Response result);
 
-        public HttpContext(int responsesCapacity = 8, int headersCapacity = 8) {
-            if (responsesCapacity < 1 || headersCapacity < 1) {
-                throw new Exception("Invalid capacity");
+        public unsafe HttpContext(int responsesCapacity = 8, int headersCapacity = 8) {
+            if (responsesCapacity < 1) {
+                throw new Exception("Responses capacity must be at least 1");
             }
             responsesScratch = new Response[responsesCapacity];
+
+            if (headersCapacity < 1) {
+                throw new Exception("Headers capacity must be at least 1");
+            }
             headersScratch = new Header[headersCapacity];
+
             context = UHR_CreateContext();
             if (context == Constants.HttpContextInvalid) {
-                throw new Exception("Failed to create http requests context");
+                StringRef err;
+                fixed (StringRef* pErr = &err) {
+                    UHR_GetLastError(pErr);
+                }
+                throw new Exception("Failed to create HttpContext: " + err.ToStringAlloc());
             }
         }
 
@@ -40,7 +49,8 @@ namespace HttpRequests
             return StartRequest(url, Method.POST, headers, requestBody, requestBodyLength);
         }
 
-        public void Update() {
+        // Call this once per frame to tick the library and dispatch responses.
+        public unsafe void Update() {
             int* toDelete = stackalloc int[responsesScratch.Length];
             fixed (Response* pResponses = &responsesScratch[0]) {
                 while ((int count = UHR_Update(context, pResponses, responsesScratch.Length)) != 0) {
@@ -52,12 +62,18 @@ namespace HttpRequests
                             // log
                         }
                     }
-                    UHR_DestroyJobs(context, toDelete, count);
+                    if (UHR_DestroyRequests(context, toDelete, count) == -1) {
+                        StringRef err;
+                        fixed (StringRef* pErr = &err) {
+                            UHR_GetLastError(pErr);
+                        }
+                        throw new Exception("Failed to destroy requests: " + err.ToStringAlloc());
+                    }
                 }
             }
         }
 
-        private int StartRequest(
+        private unsafe int StartRequest(
             string url,
             Method method,
             Dictionary<string, string> headers,
@@ -97,13 +113,24 @@ namespace HttpRequests
                         pRequestBody ? requestBodyLength : 0,
                     )
                     if (requestId == Constants.RequestIdInvalid) {
-                        throw new Exception("Failed to create http request job");
+                        StringRef err;
+                        fixed (StringRef* pErr = &err) {
+                            UHR_GetLastError(pErr);
+                        }
+                        throw new Exception("Failed to create http request: " + err.ToStringAlloc());
                     }
                 }
             }
         }
 
         #region NativeBindings
+
+        #if UNITY_IPHONE
+        [DllImport ("__Internal")]
+        #else
+        [DllImport ("UnityHttpRequests")]
+        #endif
+        extern static void UHR_GetLastError(StringRef *error_out);
 
         #if UNITY_IPHONE
         [DllImport ("__Internal")]
