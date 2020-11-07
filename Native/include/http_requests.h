@@ -15,7 +15,7 @@ typedef int UHR_RequestId;
 
 // UTF16 Strings (two-bytes per char)
 struct UHR_StringRef {
-	short *characters;
+	const short *characters;
 	int length;
 };
 
@@ -52,10 +52,10 @@ UHR_RequestId UHR_CreateRequest(
 	UHR_HttpContext context,
 	UHR_StringRef url,
 	int method,
-	UHR_Header *request_headers,
+	const UHR_Header *request_headers,
 	int request_headers_count,
 	const char *request_body,
-	int request_body_length,
+	int request_body_length
 );
 
 // Returns: number of responses written to output array, or -1 in the case of an error.
