@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 namespace UnityHttpRequests
 {
 
-    // Memory layout must be exactly compatible with its counterpart in the c header
     [StructLayout(LayoutKind.Sequential)]
     public struct Header
     {
+        // Memory layout must exactly correspond to the structs in the c header.  Do not reorder.
         public StringRef Name;
         public StringRef Value;
     }

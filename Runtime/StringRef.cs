@@ -4,18 +4,18 @@ using System.Runtime.InteropServices;
 namespace UnityHttpRequests
 {
 
-    // Memory layout must be exactly compatible with its counterpart in the c header
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct StringRef
     {
-        public char* Characters;
-        public int Length;
+        // Memory layout must exactly correspond to the structs in the c header.  Do not reorder.
+        private char* characters;
+        public int Length { get; private set; }
 
         public StringRef(string s)
         {
             fixed (char* p = s)
             {
-                Characters = p;
+                characters = p;
             }
             Length = s.Length;
         }
@@ -28,15 +28,20 @@ namespace UnityHttpRequests
             }
             for (var i = 0; i < s.Length; ++i)
             {
-                if (s[i] != Characters[i])
+                if (s[i] != characters[i])
                     return false;
             }
             return true;
         }
 
+        public override string ToString()
+        {
+            throw new NotImplementedException();
+        }
+
         public string ToStringAlloc()
         {
-            return Marshal.PtrToStringUni((IntPtr)Characters, Length);
+            return Marshal.PtrToStringUni((IntPtr)characters, Length);
         }
     }
 
