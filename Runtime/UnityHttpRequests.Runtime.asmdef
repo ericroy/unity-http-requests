@@ -1,5 +1,5 @@
 {
-    "name": "UnityHttpRequests.Runtime.asmdef",
+    "name": "UnityHttpRequests.Runtime",
     "references": [],
     "includePlatforms": [
         "Android",
@@ -14,5 +14,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": true
 }

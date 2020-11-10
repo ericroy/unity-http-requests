@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace UnityHttpRequests
@@ -28,7 +29,7 @@ namespace UnityHttpRequests
             }
             headersBuffer = new Header[headersCapacity];
 
-            context = UHR_CreateHttpContext();
+            context = UHR_CreateHTTPContext();
             if (context == Constants.HttpContextInvalid)
             {
                 StringRef err;
@@ -41,7 +42,7 @@ namespace UnityHttpRequests
         {
             if (context != IntPtr.Zero)
             {
-                UHR_DestroyHttpContext(context);
+                UHR_DestroyHTTPContext(context);
                 context = IntPtr.Zero;
             }
         }
@@ -63,37 +64,37 @@ namespace UnityHttpRequests
             fixed (Response* pResponses = &responsesBuffer[0])
             {
                 int count = 0;
-                while ((count = UHR_Update(context, pResponses, responsesBuffer.Length)) == responsesBuffer.Length)
+                do
                 {
-                    for (var i = 0; i < count; ++i)
+                    count = UHR_Update(context, pResponses, responsesBuffer.Length);
+                    if (count > 0)
                     {
-                        toDelete[i] = pResponses[i].RequestId;
-                        try
+                        for (var i = 0; i < count; ++i)
                         {
-                            RequestComplete?.Invoke(ref pResponses[i]);
+                            toDelete[i] = pResponses[i].RequestId;
+                            try
+                            {
+                                RequestComplete?.Invoke(ref pResponses[i]);
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine("Failed to handled HTTP response: ", ex.Message);
+                            }
                         }
-                        catch (Exception)
+                        if (UHR_DestroyRequests(context, toDelete, count) < 0)
                         {
-                            // log
+                            StringRef err;
+                            UHR_GetLastError(&err);
+                            throw new Exception("Failed to destroy one or more requests: " + err.ToStringAlloc());
                         }
                     }
-                    if (UHR_DestroyRequests(context, toDelete, count) < count)
-                    {
-                        StringRef err;
-                        UHR_GetLastError(&err);
-                        throw new Exception("Failed to destroy one or more requests: " + err.ToStringAlloc());
-                    }
-                }
+
+                    // Keep looping as long as there may be more
+                } while (count == responsesBuffer.Length);
             }
         }
 
-        private unsafe int StartRequest(
-            string url,
-            Constants.Method method,
-            Dictionary<string, string> headers,
-            byte[] requestBody,
-            int requestBodyLength
-        )
+        private unsafe int StartRequest(string url, Constants.Method method, Dictionary<string, string> headers, byte[] requestBody, int requestBodyLength)
         {
             int headersCount = 0;
             if (headers != null)
@@ -155,28 +156,28 @@ namespace UnityHttpRequests
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
-        [DllImport("UnityHttpRequests")]
+        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
         extern static void UHR_GetLastError(StringRef* error_out);
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
-        [DllImport("UnityHttpRequests")]
+        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static IntPtr UHR_CreateHttpContext();
+        extern static IntPtr UHR_CreateHTTPContext();
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
-        [DllImport("UnityHttpRequests")]
+        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static void UHR_DestroyHttpContext(IntPtr context);
+        extern static void UHR_DestroyHTTPContext(IntPtr context);
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
-        [DllImport("UnityHttpRequests")]
+        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
         extern static int UHR_CreateRequest(
             IntPtr context,
@@ -191,18 +192,18 @@ namespace UnityHttpRequests
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
-        [DllImport("UnityHttpRequests")]
+        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
         extern static int UHR_Update(IntPtr context, Response* resultsOut, int resultsOutCapacity);
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
-        [DllImport("UnityHttpRequests")]
+        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
         extern static int UHR_DestroyRequests(IntPtr context, int* requestIds, int requestIdsCount);
 
-        #endregion
+#endregion
     }
 
 }

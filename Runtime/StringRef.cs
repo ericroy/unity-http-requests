@@ -5,29 +5,37 @@ namespace UnityHttpRequests
 {
 
     // Memory layout must be exactly compatible with its counterpart in the c header
-    public unsafe struct StringRef {
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct StringRef
+    {
         public char* Characters;
         public int Length;
 
-        public StringRef(string s) {
-            fixed (char* p = s) {
+        public StringRef(string s)
+        {
+            fixed (char* p = s)
+            {
                 Characters = p;
             }
             Length = s.Length;
         }
 
-        public bool Equals(string s) {
-            if (s.Length != Length) {
+        public bool Equals(string s)
+        {
+            if (s.Length != Length)
+            {
                 return false;
             }
-            for (var i = 0; i < s.Length; ++i) {
+            for (var i = 0; i < s.Length; ++i)
+            {
                 if (s[i] != Characters[i])
                     return false;
             }
             return true;
         }
 
-        public string ToStringAlloc() {
+        public string ToStringAlloc()
+        {
             return Marshal.PtrToStringUni((IntPtr)Characters, Length);
         }
     }
