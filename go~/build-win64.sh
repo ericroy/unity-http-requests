@@ -4,3 +4,4 @@ pushd $here
 
 GOOS=windows GOARCH=amd64 \
     go build -ldflags="-s -w" -buildmode c-shared -o ../Assets/Plugins/Editor/UnityHttpRequests.dll ./cmd/unity_http_requests/
+rm -f ../Assets/Plugins/Editor/UnityHttpRequests.h

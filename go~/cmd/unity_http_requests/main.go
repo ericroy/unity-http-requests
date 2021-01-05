@@ -272,7 +272,7 @@ ForLoop:
 			storage := newResultStorage(body, res.resp.Header)
 			httpContext.resultStorage[res.rid] = storage
 
-			responsesOutSlice[resultCount] := C.UHR_Response{
+			responsesOutSlice[resultCount] = C.UHR_Response{
 				request_id:             C.int32_t(res.rid),
 				http_status:            httpStatus,
 				response_headers:       &storage.headerRefs[0],
