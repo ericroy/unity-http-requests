@@ -22,9 +22,9 @@
             
             UHR_Header headerRef;
             headerRef.name.length = storage.key.length;
-            headerRef.name.characters = (*uint16_t)CFStringGetCharactersPtr((__bridge CFStringRef) storage.key);
+            headerRef.name.characters = (uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.key);
             headerRef.value.length = storage.value.length;
-            headerRef.value.characters = (*uint16_t)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
+            headerRef.value.characters = (uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
             headerRefs[i++] = headerRef;
 
             [headers addObject:storage];
