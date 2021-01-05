@@ -1,9 +1,9 @@
 #import <Foundation/Foundation.h>
-#include "src/UnityHttpRequests.h"
-#import "src/Result.h"
-#import "src/ResultStorage.h"
-#import "src/HeaderStorage.h"
-#import "src/Context.h"
+#include "UnityHttpRequests.h"
+#import "Result.h"
+#import "ResultStorage.h"
+#import "HeaderStorage.h"
+#import "Context.h"
 
 #if ARC
 #error UnityHttpRequests implementation does not support ARC

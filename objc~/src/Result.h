@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#include "src/UnityHttpRequests.h"
+#include "UnityHttpRequests.h"
 
 @interface Result : NSObject
 UHR_RequestId rid;

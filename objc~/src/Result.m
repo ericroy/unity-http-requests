@@ -1,4 +1,4 @@
-#import "src/Result.h"
+#import "Result.h"
 
 @implementation Result
 - (id)initWithRid:(NSInteger)aRid response:(NSHTTPURLResponse *)aResponse data:(NSData *)aData error:(NSError *)aError {

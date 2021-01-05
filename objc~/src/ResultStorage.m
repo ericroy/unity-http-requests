@@ -1,4 +1,4 @@
-#import "src/ResultStorage.h"
+#import "ResultStorage.h"
 
 @implementation ResultStorage
 - (id)initWithResult:(Result *)result {
