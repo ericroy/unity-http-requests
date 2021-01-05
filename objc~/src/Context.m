@@ -5,34 +5,34 @@
     self = [super init];
     if (self) {
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-        self.tasks = [[NSMutableDictionary alloc] initWithCapacity:16];
-        self.session = [[NSURLSession alloc] initWithConfiguration: config
+        tasks = [[NSMutableDictionary alloc] initWithCapacity:16];
+        session = [[NSURLSession alloc] initWithConfiguration: config
                                          delegate: nil
                                          delegateQueue: [NSOperationQueue mainQueue]];
-        self.resultsLock = [[NSLock alloc] init];
-        self.results = [[NSMutableArray alloc] initWithCapacity:16];
-        self.resultStorage = [[NSMutableDictionary alloc] initWithCapacity:16];
-        self.nextRequestID = 1;
+        resultsLock = [[NSLock alloc] init];
+        results = [[NSMutableArray alloc] initWithCapacity:16];
+        resultStorage = [[NSMutableDictionary alloc] initWithCapacity:16];
+        nextRequestID = 1;
     }
     return self;
 }
 
 - (void)dealloc {
-    [self.tasks release];
-    self.tasks = nil;
+    [tasks release];
+    tasks = nil;
 
-    [self.session invalidateAndCancel];
-    [self.session release];
-    self.session = nil;
+    [session invalidateAndCancel];
+    [session release];
+    session = nil;
 
-    [self.resultsLock release];
-    self.resultsLock = nil;
+    [resultsLock release];
+    resultsLock = nil;
 
-    [self.results release];
-    self.results = nil;
+    [results release];
+    results = nil;
 
-    [self.resultStorage release];
-    self.resultStorage = nil;
+    [resultStorage release];
+    resultStorage = nil;
 
     [super dealloc];
 }
