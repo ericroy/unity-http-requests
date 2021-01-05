@@ -24,3 +24,6 @@ clang++ \
 	src/Result.m \
 	src/ResultStorage.m \
 	src/UnityHttpRequests.m
+
+# list expoted symbols:
+nm -gU $out_dir/$artifact_basename.dylib
