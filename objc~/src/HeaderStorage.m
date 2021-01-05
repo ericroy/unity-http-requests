@@ -6,17 +6,17 @@
 - (id)initWithKey:(NSString *)aKey andValue:(NSString *)aValue {
     self = [super init];
     if (self) {
-        _key = [aKey retain];
-        _value = [aValue retain];
+        key = [aKey retain];
+        value = [aValue retain];
     }
     return self;
 }
 - (void)dealloc {
-    [_key release];
-    _key = nil;
+    [key release];
+    key = nil;
     
-    [_value release];
-    _value = nil;
+    [value release];
+    value = nil;
 
     [super dealloc];
 }

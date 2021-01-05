@@ -8,11 +8,11 @@
 - (id)initWithResult:(Result *)result {
     self = [super init];
     if (self) {
-        _body = [result.data retain];
+        body = [result.data retain];
 
         NSDictionary *allHeaderFields = result.response.allHeaderFields;
-        _headers = [[NSMutableArray alloc] initWithCapacity:allHeaderFields.count];
-        _headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * allHeaderFields.count);
+        headers = [[NSMutableArray alloc] initWithCapacity:allHeaderFields.count];
+        headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * allHeaderFields.count);
 
         int i = 0;
         for(id key in allHeaderFields) {
@@ -27,21 +27,21 @@
             headerRef.value.characters = (*uint16_t)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
             headerRefs[i++] = headerRef;
 
-            [_headers addObject:storage];
+            [headers addObject:storage];
             [storage release];
         }
     }
     return self;
 }
 - (void)dealloc {
-    [_headers release];
-    _headers = nil;
+    [headers release];
+    headers = nil;
 
-    free(_headerRefs);
-    _headerRefs = nil;
+    free(headerRefs);
+    headerRefs = nil;
 
-    [_body release];
-    _body = nil;
+    [body release];
+    body = nil;
 
     [super dealloc];
 }

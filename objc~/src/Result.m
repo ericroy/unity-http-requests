@@ -9,20 +9,20 @@
 - (id)initWithRid:(NSInteger)aRid response:(NSHTTPURLResponse *)aResponse data:(NSData *)aData error:(NSError *)aError {
     self = [super init];
     if (self) {
-        _rid = aRid;
-        _data = [data retain];
-        _response = [response retain];
-        _error = [error retain];
+        rid = aRid;
+        data = [data retain];
+        response = [response retain];
+        error = [error retain];
     }
     return self;
 }
 - (void)dealloc {
-    [_data release];
-    _data = nil;
-    [_response release];
-    _response = nil;
-    [_error release];
-    _error = nil;
+    [data release];
+    data = nil;
+    [response release];
+    response = nil;
+    [error release];
+    error = nil;
     [super dealloc];
 }
 @end

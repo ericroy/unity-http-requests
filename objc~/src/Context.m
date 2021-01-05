@@ -11,7 +11,7 @@
     self = [super init];
     if (self) {
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-        _tasks = [[NSMutableDictionary alloc] initWithCapacity:16];
+        tasks = [[NSMutableDictionary alloc] initWithCapacity:16];
 
         // This is stupid.
         // NSURLSession can't be manually alloc'ed and initialized, so there's no option but to
@@ -24,35 +24,35 @@
         // - In our classes dealloc method, release it, refcount=0
         @autoreleasepool {
             // Retain explicitly.
-            _session = [[NSURLSession sessionWithConfiguration:config
+            session = [[NSURLSession sessionWithConfiguration:config
                                     delegate:nil
                                     delegateQueue:[NSOperationQueue mainQueue]] retain];
         }
 
-        _resultsLock = [[NSLock alloc] init];
-        _results = [[NSMutableArray alloc] initWithCapacity:16];
-        _resultStorage = [[NSMutableDictionary alloc] initWithCapacity:16];
-        _nextRequestID = 1;
+        resultsLock = [[NSLock alloc] init];
+        results = [[NSMutableArray alloc] initWithCapacity:16];
+        resultStorage = [[NSMutableDictionary alloc] initWithCapacity:16];
+        nextRequestID = 1;
     }
     return self;
 }
 
 - (void)dealloc {
-    [_tasks release];
-    _tasks = nil;
+    [tasks release];
+    tasks = nil;
 
-    [_session invalidateAndCancel];
-    [_session release];
-    _session = nil;
+    [session invalidateAndCancel];
+    [session release];
+    session = nil;
 
-    [_resultsLock release];
-    _resultsLock = nil;
+    [resultsLock release];
+    resultsLock = nil;
 
-    [_results release];
-    _results = nil;
+    [results release];
+    results = nil;
 
-    [_resultStorage release];
-    _resultStorage = nil;
+    [resultStorage release];
+    resultStorage = nil;
 
     [super dealloc];
 }
