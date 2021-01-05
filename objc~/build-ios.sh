@@ -15,6 +15,7 @@ clang++ \
     -miphoneos-version-min=7.0 \
     -dynamiclib \
     -o ../Assets/Plugins/iOS/$artifact_basename.dylib \
+    -framework Foundation \
     src/Context.m \
 	src/HeaderStorage.m \
 	src/Result.m \
