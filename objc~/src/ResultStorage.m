@@ -1,14 +1,15 @@
 #import "ResultStorage.h"
+#import "HeaderStorage.h"
 
 @implementation ResultStorage
 - (id)initWithResult:(Result *)result {
     self = [super init];
     if (self) {
-        body = [result.body retain];
+        body = [result.data retain];
 
         NSDictionary *allHeaderFields = result.response.allHeaderFields;
-        headers = [[NSMutableArray alloc] initWithCapacity:allHeaderFields.length];
-        headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * allHeaderFields.length);
+        headers = [[NSMutableArray alloc] initWithCapacity:allHeaderFields.count];
+        headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * allHeaderFields.count);
 
         int i = 0;
         for(id key in allHeaderFields) {
