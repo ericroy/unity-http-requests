@@ -5,6 +5,8 @@ pushd $here
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
 echo "Sysroot is: $sysroot"
 
+artifact_basename=UnityHttpRequests-ios-fat
+
 clang++ \
     -isysroot $sysroot \
     -arch arm64 \
@@ -12,7 +14,7 @@ clang++ \
     -arch armv7s \
     -miphoneos-version-min=7.0 \
     -dynamiclib \
-    -o ../Assets/iOS/UnityHttpRequests.dylib \
+    -o ../Assets/Plugins/iOS/$artifact_basename.dylib \
     src/Context.m \
 	src/HeaderStorage.m \
 	src/Result.m \
