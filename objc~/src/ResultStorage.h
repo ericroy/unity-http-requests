@@ -2,11 +2,10 @@
 #include "UnityHttpRequests.h"
 #include "Result.h"
 
-@interface ResultStorage : NSObject {
-    NSMutableArray *headers; // HeaderStorage[]
-    UHR_Header *headerRefs; // UHR_Header[]
-    NSData *body;
-}
+@interface ResultStorage : NSObject {}
+@property (readonly, retain) NSData *body;
+@property (readonly, retain) NSMutableArray *headers; // HeaderStorage[]
+@property (readonly) UHR_Header *headerRefs; // UHR_Header[]
 - (id)initWithResult:(Result *)result;
 - (void)dealloc;
 @end
