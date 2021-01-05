@@ -69,7 +69,7 @@ UHR_RequestId UHR_CreateRequest(UHR_HttpContext httpContextHandle, UHR_StringRef
                 [result release];
             }];
         [task resume];
-        [context.tasks setObject:task forKey:[NSNumber numberWithInt:rid];
+        [context.tasks setObject:task forKey:[NSNumber numberWithInt:rid]];
 
         return rid;
     } // autoreleasepool
@@ -86,7 +86,7 @@ int32_t UHR_Update(UHR_HttpContext httpContextHandle, UHR_Response* responsesOut
         int32_t resultCount = 0;
 
         [context.resultsLock lock];
-        for ; resultCount < responsesCapacity && context.results.count > 0; resultCount++ {
+        for (; resultCount < responsesCapacity && context.results.count > 0; ++resultCount) {
             Result* result = (Result* )[context.results lastObject];
             ResultStorage* storage = [[ResultStorage alloc] initWithResult:result];
             [context.results removeObjectAtIndex:context.results.count-1];
@@ -98,9 +98,9 @@ int32_t UHR_Update(UHR_HttpContext httpContextHandle, UHR_Response* responsesOut
             res.response_headers_count = storage.headers.count;
             res.response_body = (char*)[storage.body bytes];
             res.response_body_length = storage.body.length;
-            responsesOutSlice[resultCount] = res;
+            responsesOut[resultCount] = res;
 
-            NSNumber* ridKey = [NSNumber numberWithInt:storage.rid];
+            NSNumber* ridKey = [NSNumber numberWithInt:result.rid];
             [context.resultStorage setObject:storage forKey:ridKey]
             [storage release];
         }
