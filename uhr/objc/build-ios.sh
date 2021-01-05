@@ -2,7 +2,7 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here
 
-out_dir=../Assets/Plugins/iOS
+out_dir=../../Assets/Plugins/iOS
 artifact_basename=UnityHttpRequests-ios-fat
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
 
@@ -14,9 +14,11 @@ clang++ \
     -arch armv7 \
     -arch armv7s \
     -miphoneos-version-min=7.0 \
+    -fvisibility=hidden \
     -dynamiclib \
-    -o $out_dir/$artifact_basename.dylib \
+    -I../include \
     -framework Foundation \
+    -o $out_dir/$artifact_basename.dylib \
     src/Context.m \
 	src/HeaderStorage.m \
 	src/Result.m \

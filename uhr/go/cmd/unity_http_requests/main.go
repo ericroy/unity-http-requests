@@ -1,6 +1,7 @@
 package main
 
-// #include <../../include/UnityHttpRequests.h>
+// #cgo CFLAGS: -DUHR_CGO -I../../../include
+// #include <UnityHttpRequests.h>
 import "C"
 
 import (

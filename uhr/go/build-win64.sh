@@ -2,7 +2,7 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here
 
-out_dir=../Assets/Plugins/Editor
+out_dir=../../Assets/Plugins/Editor
 artifact_basename=UnityHttpRequests-windows-amd64
 
 mkdir -p $out_dir

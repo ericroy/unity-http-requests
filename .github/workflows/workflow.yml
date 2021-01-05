@@ -11,7 +11,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          ./objc~/build-ios.sh
+          ./uhr/objc/build-ios.sh
           ls -alR ./Assets
 
   build-plugin-android:
@@ -26,7 +26,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" ./go~/build-android.sh
+          NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" ./uhr/go/build-android.sh
           ls -alR ./Assets
 
   build-plugin-editor-win64:
@@ -37,5 +37,5 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          ./go~/build-win64.sh
+          ./uhr/go/build-win64.sh
           ls -alR ./Assets
