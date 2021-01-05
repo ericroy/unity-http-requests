@@ -1,33 +1,6 @@
 package main
 
-// #include <stdint.h>
-// #define UHR_REQUEST_ID_INVALID 0
-// #define UHR_HTTP_CONTEXT_INVALID 0
-//
-// #define UHR_METHOD_GET 0
-// #define UHR_METHOD_POST 1
-//
-// typedef uintptr_t UHR_HttpContext;
-// typedef int32_t UHR_RequestId;
-//
-// typedef struct {
-// 	const uint16_t *characters;
-// 	int32_t length;
-// } UHR_StringRef;
-//
-// typedef struct {
-// 	UHR_StringRef name;
-// 	UHR_StringRef value;
-// } UHR_Header;
-//
-// typedef struct {
-// 	UHR_RequestId request_id;
-// 	int32_t http_status;
-// 	UHR_Header *response_headers;
-// 	int32_t response_headers_count;
-// 	const char *response_body;
-// 	int32_t response_body_length;
-// } UHR_Response;
+// #include <../../include/UnityHttpRequests.h>
 import "C"
 
 import (
@@ -35,7 +8,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"time"
 	"unicode/utf16"
@@ -101,6 +73,36 @@ func stringRefToString(sr C.UHR_StringRef) string {
 	charactersSlice := (*[1 << 30]uint16)(unsafe.Pointer(sr.characters))[:int(sr.length)]
 	scratchString = append(scratchString[:0], charactersSlice...)
 	return string(utf16.Decode(scratchString[:sr.length]))
+}
+
+func newResultStorage(body []byte, headers http.Header) *ResultStorage {
+	storage := &ResultStorage{
+		headers:    make([]HeaderStorage, 0, len(headers)),
+		headerRefs: make([]C.UHR_Header, 0, len(headers)),
+		body:       body,
+	}
+	for k, v := range headers {
+		if len(v) > 0 {
+			// NOTE: We don't support multiple headers with the same name.
+			storage.headers = append(storage.headers, HeaderStorage{
+				key:   utf16.Encode([]rune(k)),
+				value: utf16.Encode([]rune(v[0])),
+			})
+		}
+	}
+	for _, header := range storage.headers {
+		storage.headerRefs = append(storage.headerRefs, C.UHR_Header{
+			name: C.UHR_StringRef{
+				characters: (*C.uint16_t)(unsafe.Pointer(&header.key[0])),
+				length:     C.int32_t(len(header.key)),
+			},
+			value: C.UHR_StringRef{
+				characters: (*C.uint16_t)(unsafe.Pointer(&header.value[0])),
+				length:     C.int32_t(len(header.value)),
+			},
+		})
+	}
+	return storage
 }
 
 // UHR_GetLastError gets a message describing the latest error
@@ -245,44 +247,32 @@ ForLoop:
 				continue ForLoop
 			}
 
-			httpStatus := C.int32_t(-1)
-			if res.err == nil {
-				httpStatus = C.int32_t(res.resp.StatusCode)
-			}
+			httpStatus := C.int32_t(res.resp.StatusCode)
 
-			body, err := ioutil.ReadAll(res.resp.Body)
-			if err != nil {
+			var body []byte
+			if res.err != nil {
 				httpStatus = C.int32_t(-1)
-			}
-
-			storage := &ResultStorage{
-				headers:    make([]HeaderStorage, 0, len(res.resp.Header)),
-				headerRefs: make([]C.UHR_Header, 0, len(res.resp.Header)),
-				body:       body,
-			}
-			for k, v := range res.resp.Header {
-				if len(v) > 0 {
-					// NOTE!
-					// We don't support multiple headers with the same name.
-					storage.headers = append(storage.headers, HeaderStorage{
-						key:   utf16.Encode([]rune(k)),
-						value: utf16.Encode([]rune(v[0])),
-					})
+				body = []byte(res.err.Error())
+			} else {
+				// Use the content length if it's non-negative
+				// Otherwise, start with an empty slice and let it grow.
+				var capacity = res.resp.ContentLength
+				if capacity < 0 {
+					capacity = 0
+				}
+				bodyBuffer := bytes.NewBuffer(make([]byte, 0, capacity))
+				if _, err := io.Copy(bodyBuffer, res.resp.Body); err != nil {
+					httpStatus = C.int32_t(-1)
+					body = []byte(err.Error())
+				} else {
+					body = bodyBuffer.Bytes()
 				}
 			}
-			for _, header := range storage.headers {
-				storage.headerRefs = append(storage.headerRefs, C.UHR_Header{
-					name: C.UHR_StringRef{
-						characters: (*C.uint16_t)(unsafe.Pointer(&header.key[0])),
-						length:     C.int32_t(len(header.key)),
-					},
-					value: C.UHR_StringRef{
-						characters: (*C.uint16_t)(unsafe.Pointer(&header.value[0])),
-						length:     C.int32_t(len(header.value)),
-					},
-				})
-			}
-			responseOut := C.UHR_Response{
+
+			storage := newResultStorage(body, res.resp.Header)
+			httpContext.resultStorage[res.rid] = storage
+
+			responsesOutSlice[resultCount] := C.UHR_Response{
 				request_id:             C.int32_t(res.rid),
 				http_status:            httpStatus,
 				response_headers:       &storage.headerRefs[0],
@@ -290,8 +280,6 @@ ForLoop:
 				response_body:          (*C.char)(unsafe.Pointer(&storage.body[0])),
 				response_body_length:   C.int32_t(len(storage.body)),
 			}
-			httpContext.resultStorage[res.rid] = storage
-			responsesOutSlice[resultCount] = responseOut
 		default:
 			break ForLoop
 		}
@@ -318,6 +306,7 @@ func UHR_DestroyRequests(httpContextHandle C.UHR_HttpContext, requestIDs *C.UHR_
 	for _, rid := range requestIDsSlice {
 		if cancel, ok := httpContext.cancelFuncs[int(rid)]; ok {
 			cancel()
+			delete(httpContext.cancelFuncs, int(rid))
 			delete(httpContext.resultStorage, int(rid))
 		}
 	}

@@ -4,3 +4,4 @@
 *.lib
 *.exp
 *.dll
+*.so

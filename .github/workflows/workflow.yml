@@ -1,0 +1,42 @@
+name: Build unity plugins
+on: [push]
+
+jobs:
+
+  build-plugin-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        shell: bash
+        run: |
+          ./objc~/build-ios.sh
+          ls -alR ./Assets
+
+  build-plugin-android:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21d
+      - name: Build
+        shell: bash
+        run: |
+          export NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}"
+          ./go~/build-android.sh
+          ls -alR ./Assets
+
+  build-plugin-editor-win64:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        shell: bash
+        run: |
+          ./go~/build-win64.sh
+          ls -alR ./Assets
