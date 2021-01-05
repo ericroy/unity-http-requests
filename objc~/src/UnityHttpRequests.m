@@ -101,7 +101,7 @@ int32_t UHR_Update(UHR_HttpContext httpContextHandle, UHR_Response* responsesOut
             responsesOut[resultCount] = res;
 
             NSNumber* ridKey = [NSNumber numberWithInt:result.rid];
-            [context.resultStorage setObject:storage forKey:ridKey]
+            [context.resultStorage setObject:storage forKey:ridKey];
             [storage release];
         }
         [context.resultsLock unlock];
