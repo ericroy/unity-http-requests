@@ -7,5 +7,5 @@ artifact_basename=UnityHttpRequests-windows-amd64
 
 mkdir -p $out_dir
 GOOS=windows GOARCH=amd64 \
-    go build -ldflags="-s -w" -buildmode c-shared -o $out_dir/$artifact_basename.dll ./cmd/unity_http_requests/
+    go build -ldflags="-s -w" -buildmode c-shared -o $out_dir/$artifact_basename.dll ./cmd/uhr/
 rm -f $out_dir/$artifact_basename.h
