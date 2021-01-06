@@ -274,12 +274,16 @@ ForLoop:
 			httpContext.resultStorage[res.rid] = storage
 
 			responsesOutSlice[resultCount] = C.UHR_Response{
-				request_id:             C.int32_t(res.rid),
-				http_status:            httpStatus,
-				response_headers:       &storage.headerRefs[0],
-				response_headers_count: C.int32_t(len(storage.headerRefs)),
-				response_body:          (*C.char)(unsafe.Pointer(&storage.body[0])),
-				response_body_length:   C.int32_t(len(storage.body)),
+				request_id:  C.int32_t(res.rid),
+				http_status: httpStatus,
+				headers: C.UHR_HeadersData{
+					headers: &storage.headerRefs[0],
+					count:   C.int32_t(len(storage.headerRefs)),
+				},
+				body: C.UHR_BodyData{
+					body:   (*C.char)(unsafe.Pointer(&storage.body[0])),
+					length: C.int32_t(len(storage.body)),
+				},
 			}
 		default:
 			break ForLoop

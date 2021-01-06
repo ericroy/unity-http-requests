@@ -12,7 +12,7 @@
 NSString* lastError = @"";
 
 void UHR_GetLastError(UHR_StringRef* errorOut) {
-    errorOut->characters = (uint16_t* )CFStringGetCharactersPtr((__bridge CFStringRef) lastError);
+    errorOut->characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) lastError);
 	errorOut->length = (int32_t)lastError.length;
 }
 
@@ -98,10 +98,10 @@ int32_t UHR_Update(UHR_HttpContext httpContextHandle, UHR_Response* responsesOut
             UHR_Response res;
             res.request_id = result.rid;
             res.http_status = result.response.statusCode,
-            res.response_headers = &storage.headerRefs[0];
-            res.response_headers_count = storage.headers.count;
-            res.response_body = (char*)[storage.body bytes];
-            res.response_body_length = storage.body.length;
+            res.headers.headers = &storage.headerRefs[0];
+            res.headers.count = storage.headers.count;
+            res.body.body = (char*)[storage.body bytes];
+            res.body.length = storage.body.length;
             responsesOut[resultCount] = res;
 
             NSNumber* ridKey = [NSNumber numberWithInt:result.rid];
@@ -122,7 +122,7 @@ int32_t UHR_DestroyRequests(UHR_HttpContext httpContextHandle, UHR_RequestId* re
         }
         for (int32_t i = 0; i < requestIDsCount; ++i) {
             NSNumber* ridKey = [NSNumber numberWithInt:requestIDs[i]];
-            NSURLSessionDataTask* task = [context.tasks objectForKey:ridKey];
+            NSURLSessionDataTask* task = context.tasks[ridKey];
             if (task != nil) {
                 [task cancel];
                 [context.tasks removeObjectForKey:ridKey];

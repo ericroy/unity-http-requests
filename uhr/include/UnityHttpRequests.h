@@ -66,7 +66,7 @@ typedef struct {
 } UHR_Header;
 
 typedef struct {
-    UHR_Header *headers;
+    const UHR_Header *headers;
     int32_t count;
     int32_t pad;
 } UHR_HeadersData;

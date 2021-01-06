@@ -18,7 +18,7 @@
         for(id key in allHeaderFields) {
             HeaderStorage *storage = [[HeaderStorage alloc]
                 initWithKey:(NSString *)key
-                andValue:(NSString *)[allHeaderFields objectForKey:key]];
+                andValue:(NSString *)allHeaderFields[key]];
             
             UHR_Header headerRef;
             headerRef.name.length = storage.key.length;
