@@ -21,9 +21,9 @@
                 andValue:(NSString *)allHeaderFields[key]];
             
             UHR_Header headerRef;
-            headerRef.name.length = storage.key.length;
+            headerRef.name.length = (uint32_t)storage.key.length;
             headerRef.name.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.key);
-            headerRef.value.length = storage.value.length;
+            headerRef.value.length = (uint32_t)storage.value.length;
             headerRef.value.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
             headerRefs[i++] = headerRef;
 
