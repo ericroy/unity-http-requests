@@ -10,6 +10,7 @@ namespace UnityHttpRequests
         // Memory layout must exactly correspond to the structs in the c header.  Do not reorder.
         private char* characters;
         public int Length { get; private set; }
+        private int pad;
 
         public StringRef(string s)
         {

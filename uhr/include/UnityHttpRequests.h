@@ -45,19 +45,32 @@ extern "C" {
     #endif
 #endif
 
-#define UHR_REQUEST_ID_INVALID 0
-#define UHR_HTTP_CONTEXT_INVALID 0
+#define UHR_ERR_OK 0
+#define UHR_ERR_INVALID_CONTEXT -1
+#define UHR_ERR_MISSING_REQUIRED_PARAMETER -2
+#define UHR_ERR_INVALID_HTTP_METHOD -3
+#define UHR_ERR_FAILED_TO_CREATE_REQUEST -4
+#define UHR_ERR_UNKNOWN_ERROR_CODE -5
 
 #define UHR_METHOD_GET 0
-#define UHR_METHOD_POST 1
+#define UHR_METHOD_HEAD 1
+#define UHR_METHOD_POST 2
+#define UHR_METHOD_PUT 3
+#define UHR_METHOD_PATCH 4
+#define UHR_METHOD_DELETE 5
+#define UHR_METHOD_CONNECT 6
+#define UHR_METHOD_OPTIONS 7
+#define UHR_METHOD_TRACE 8
 
+typedef int32_t UHR_Error;
+typedef int32_t UHR_Method;
 typedef uintptr_t UHR_HttpContext;
 typedef int32_t UHR_RequestId;
 
 typedef struct {
     const uint16_t *characters;
-    int32_t length;
-    int32_t pad;
+    uint32_t length;
+    uint32_t pad;
 } UHR_StringRef;
 
 typedef struct {
@@ -67,58 +80,78 @@ typedef struct {
 
 typedef struct {
     const UHR_Header *headers;
-    int32_t count;
-    int32_t pad;
+    uint32_t count;
+    uint32_t pad;
 } UHR_HeadersData;
 
 typedef struct {
     const char *body;
-    int32_t length;
-    int32_t pad;
+    uint32_t length;
+    uint32_t pad;
 } UHR_BodyData;
 
 typedef struct {
     UHR_RequestId request_id;
+    // In the case of a network error, http_status will be -1.
+    // In the case of a failure to read the response body, http_status will be -1.
+    // In the case of an HTTP error, http_status will reflect the HTTP status code.
     int32_t http_status;
     UHR_HeadersData headers;
     UHR_BodyData body;
 } UHR_Response;
 
 
-// UHR_GetLastError gets a message describing the latest error
-UHR_API void UHR_GetLastError(UHR_StringRef* errorOut);
+// UHR_ErrorToString gets a message describing the provided error
+UHR_API UHR_Error UHR_ErrorToString(
+    UHR_Error err,
+    UHR_StringRef* errorMessageOut
+);
 
 // UHR_CreateHTTPContext creates an HttpContext.
 // A owns all the resources, and manages the http request requests.
 // Returns:  A valid handle, or UHRHTTP_CONTEXT_INVALID if an error occurred.
 //   Use UHRGetLastError to get the error message.
-UHR_API UHR_HttpContext UHR_CreateHTTPContext(void);
+UHR_API UHR_Error UHR_CreateHTTPContext(
+    UHR_HttpContext* httpContextHandleOut
+);
 
 // UHR_DestroyHTTPContext frees an HttpContext, and any requests that it is managing.
-UHR_API void UHR_DestroyHTTPContext(UHR_HttpContext httpContextHandle);
+UHR_API UHR_Error UHR_DestroyHTTPContext(
+    UHR_HttpContext httpContextHandle
+);
 
 // UHR_CreateRequest starts a new request.
 // Returns:  The request id of the new request, or UHR_REQUEST_ID_INVALID if an error occurred.
 //   Use UHRGetLastError to get the error message.
-UHR_API UHR_RequestId UHR_CreateRequest(UHR_HttpContext httpContextHandle, UHR_StringRef url, int32_t method, UHR_Header* headers, int32_t headersCount, char* body, int32_t bodyLength);
+UHR_API UHR_Error UHR_CreateRequest(
+    UHR_HttpContext httpContextHandle,
+    UHR_StringRef url,
+    UHR_Method method,
+    UHR_Header* headers,
+    uint32_t headersCount,
+    char* body,
+    uint32_t bodyLength,
+    UHR_RequestId* ridOut
+);
 
 // UHR_Update polls for finished requests.
-// Returns: number of responses written to output array, or -1 in the case that the entire operation failed.
-//   Use UHRGetLastError to get the error message.
-//   Individual requests may also fail:
-//      - In the case of a network error, http_status for that response will be -1.
-//      - In the case of a failure to read the response body, http_status for that response will be -1.
-//		- In the case of an HTTP error, http_status for that response will reflect the HTTP error code.
-UHR_API int32_t UHR_Update(UHR_HttpContext httpContextHandle, UHR_Response* responsesOut, int32_t responsesCapacity);
+// responseCountOut receives the number of responses written to the output array.
+UHR_API UHR_Error UHR_Update(
+    UHR_HttpContext httpContextHandle,
+    UHR_Response* responsesOut,
+    uint32_t responsesCapacity,
+    uint32_t* responseCountOut
+);
 
 // UHR_DestroyRequests frees memory associated with the specified request ids.
 // Every request that is created must eventually be destroyed.
 // However, destroying the httpContext is sufficient to also destroy all
 // the requests it manages.
-//
-// Returns: Zero on success, or -1 on failure.
-//   Use UHRGetLastError to get the error message.
-UHR_API int32_t UHR_DestroyRequests(UHR_HttpContext httpContextHandle, UHR_RequestId* requestIDs, int32_t requestIDsCount);
+UHR_API UHR_Error UHR_DestroyRequests(
+    UHR_HttpContext httpContextHandle,
+    UHR_RequestId* requestIDs,
+    uint32_t requestIDsCount
+);
 
 #ifdef __cplusplus
 }

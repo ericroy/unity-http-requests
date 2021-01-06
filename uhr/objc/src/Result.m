@@ -6,7 +6,7 @@
 @synthesize response;
 @synthesize error;
 
-- (id)initWithRid:(NSInteger)aRid response:(NSHTTPURLResponse *)aResponse data:(NSData *)aData error:(NSError *)aError {
+- (id)initWithRid:(int32_t)aRid response:(NSHTTPURLResponse *)aResponse data:(NSData *)aData error:(NSError *)aError {
     self = [super init];
     if (self) {
         rid = aRid;
