@@ -10,24 +10,24 @@
 #endif
 
 #define kErrorStrings = @{
-	@UHR_ERR_OK:                         @"Ok",
-	@UHR_ERR_INVALID_CONTEXT:            @"The context handle was invalid",
-	@UHR_ERR_MISSING_REQUIRED_PARAMETER: @"A required function parameter was missing or null",
-	@UHR_ERR_INVALID_HTTP_METHOD:        @"Invalid HTTP method",
-	@UHR_ERR_FAILED_TO_CREATE_REQUEST:   @"Failed to create request",
-    @UHR_ERR_UNKNOWN_ERROR_CODE:         @"Unknown error code",
+	UHR_ERR_OK:                         @"Ok",
+	UHR_ERR_INVALID_CONTEXT:            @"The context handle was invalid",
+	UHR_ERR_MISSING_REQUIRED_PARAMETER: @"A required function parameter was missing or null",
+	UHR_ERR_INVALID_HTTP_METHOD:        @"Invalid HTTP method",
+	UHR_ERR_FAILED_TO_CREATE_REQUEST:   @"Failed to create request",
+    UHR_ERR_UNKNOWN_ERROR_CODE:         @"Unknown error code",
 };
 
 #define kMethodStrings = @{
-	@UHR_METHOD_GET:     @"GET",
-	@UHR_METHOD_HEAD:    @"HEAD",
-	@UHR_METHOD_POST:    @"POST",
-	@UHR_METHOD_PUT:     @"PUT",
-	@UHR_METHOD_PATCH:   @"PATCH",
-	@UHR_METHOD_DELETE:  @"DELETE",
-	@UHR_METHOD_CONNECT: @"CONNECT",
-	@UHR_METHOD_OPTIONS: @"OPTIONS",
-	@UHR_METHOD_TRACE:   @"TRACE",
+	UHR_METHOD_GET:     @"GET",
+	UHR_METHOD_HEAD:    @"HEAD",
+	UHR_METHOD_POST:    @"POST",
+	UHR_METHOD_PUT:     @"PUT",
+	UHR_METHOD_PATCH:   @"PATCH",
+	UHR_METHOD_DELETE:  @"DELETE",
+	UHR_METHOD_CONNECT: @"CONNECT",
+	UHR_METHOD_OPTIONS: @"OPTIONS",
+	UHR_METHOD_TRACE:   @"TRACE",
 };
 
 UHR_Error UHR_ErrorToString(UHR_Error err, UHR_StringRef* errorMessageOut) {
