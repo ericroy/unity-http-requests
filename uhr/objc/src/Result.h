@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#include <stdint>
+#include <stdint.h>
 #include "UnityHttpRequests.h"
 
 @interface Result : NSObject {}

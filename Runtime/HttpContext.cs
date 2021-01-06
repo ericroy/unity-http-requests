@@ -158,35 +158,36 @@ namespace UnityHttpRequests
 #else
         [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static void UHR_GetLastError(StringRef* error_out);
+        extern static Constants.Error UHR_GetLastError(Constants.Error err, StringRef* errorMessageOut);
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
         [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static IntPtr UHR_CreateHTTPContext();
+        extern static Constants.Error UHR_CreateHTTPContext(IntPtr* httpContextHandleOut);
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
         [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static void UHR_DestroyHTTPContext(IntPtr context);
+        extern static Constants.Error UHR_DestroyHTTPContext(IntPtr httpContextHandle);
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
         [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static int UHR_CreateRequest(
-            IntPtr context,
+        extern static Constants.Error UHR_CreateRequest(
+            IntPtr httpContextHandle,
             StringRef url,
-            int method,
-            Header* requestHeaders,
-            int requestHeadersCount,
-            byte* requestBody,
-            int requestBodyLength
+            Constants.Method method,
+            Header* headers,
+            uint headersCount,
+            byte* body,
+            uint bodyLength,
+            int* ridOut
         );
 
 #if UNITY_IPHONE
@@ -194,14 +195,23 @@ namespace UnityHttpRequests
 #else
         [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static int UHR_Update(IntPtr context, Response* resultsOut, int resultsOutCapacity);
+        extern static Constants.Error UHR_Update(
+            IntPtr httpContextHandle,
+            Response* responsesOut,
+            uint responsesCapacity,
+            uint* responseCountOut
+        );
 
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
         [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
 #endif
-        extern static int UHR_DestroyRequests(IntPtr context, int* requestIds, int requestIdsCount);
+        extern static Constants.Error UHR_DestroyRequests(
+            IntPtr httpContextHandle,
+            int* requestIDs,
+            uint requestIDsCount
+        );
 
 #endregion
     }
