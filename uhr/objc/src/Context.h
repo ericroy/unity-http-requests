@@ -2,11 +2,11 @@
 #include "UnityHttpRequests.h"
 
 @interface Context : NSObject {}
-@property (readonly, retain) NSMutableDictionary *tasks;
-@property (readonly, retain) NSURLSession *session;
-@property (readonly, retain) NSLock *resultsLock;
-@property (readonly, retain) NSMutableArray *results;
-@property (readonly, retain) NSMutableDictionary *resultStorage;
+@property (nonatomic, readonly, retain) NSMutableDictionary *tasks;
+@property (nonatomic, readonly, retain) NSURLSession *session;
+@property (nonatomic, readonly, retain) NSLock *resultsLock;
+@property (nonatomic, readonly, retain) NSMutableArray *results;
+@property (nonatomic, readonly, retain) NSMutableDictionary *resultStorage;
 @property UHR_RequestId nextRequestID;
 - (id)init;
 - (void)dealloc;

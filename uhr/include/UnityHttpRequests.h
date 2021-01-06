@@ -57,6 +57,7 @@ typedef int32_t UHR_RequestId;
 typedef struct {
     const uint16_t *characters;
     int32_t length;
+    int32_t pad;
 } UHR_StringRef;
 
 typedef struct {
@@ -65,12 +66,22 @@ typedef struct {
 } UHR_Header;
 
 typedef struct {
+    UHR_Header *headers;
+    int32_t count;
+    int32_t pad;
+} UHR_HeadersData;
+
+typedef struct {
+    const char *body;
+    int32_t length;
+    int32_t pad;
+} UHR_BodyData;
+
+typedef struct {
     UHR_RequestId request_id;
     int32_t http_status;
-    UHR_Header *response_headers;
-    int32_t response_headers_count;
-    const char *response_body;
-    int32_t response_body_length;
+    UHR_HeadersData headers;
+    UHR_BodyData body;
 } UHR_Response;
 
 
@@ -81,7 +92,7 @@ UHR_API void UHR_GetLastError(UHR_StringRef* errorOut);
 // A owns all the resources, and manages the http request requests.
 // Returns:  A valid handle, or UHRHTTP_CONTEXT_INVALID if an error occurred.
 //   Use UHRGetLastError to get the error message.
-UHR_API UHR_HttpContext UHR_CreateHTTPContext();
+UHR_API UHR_HttpContext UHR_CreateHTTPContext(void);
 
 // UHR_DestroyHTTPContext frees an HttpContext, and any requests that it is managing.
 UHR_API void UHR_DestroyHTTPContext(UHR_HttpContext httpContextHandle);

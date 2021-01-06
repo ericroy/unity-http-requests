@@ -2,6 +2,12 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here
 
+if [ -z "${DEBUG}" ]; then 
+    debug_level=''
+else 
+    debug_level='-g3'
+fi
+
 out_dir=../../Assets/Plugins/iOS
 artifact_basename=UnityHttpRequests-ios-fat
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
@@ -17,6 +23,7 @@ clang++ \
     -fvisibility=hidden \
     -Weverything \
     -pedantic \
+    $debug_level \
     -dynamiclib \
     -I../include \
     -framework Foundation \
