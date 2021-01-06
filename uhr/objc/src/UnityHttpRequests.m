@@ -28,13 +28,17 @@ void UHR_DestroyHTTPContext(UHR_HttpContext httpContextHandle) {
 
 UHR_RequestId UHR_CreateRequest(UHR_HttpContext httpContextHandle, UHR_StringRef url, int32_t method, UHR_Header* headers, int32_t headersCount, char* body, int32_t bodyLength) {
     @autoreleasepool {
-        __block Context* context = (Context* )httpContextHandle;
+        Context* __block context = (Context* )httpContextHandle;
         if (context == nil) {
             lastError = @"Invalid HTTPContext handle";
             return UHR_REQUEST_ID_INVALID;
         }
         
+        // Advance rid, handle wraparound
         UHR_RequestId rid = context.nextRequestID++;
+        if (context.nextRequestID <= 0) {
+            context.nextRequestID = 1;
+        }
 
         NSMutableURLRequest* request = [NSMutableURLRequest
             requestWithURL: [NSURL
@@ -55,7 +59,7 @@ UHR_RequestId UHR_CreateRequest(UHR_HttpContext httpContextHandle, UHR_StringRef
                     length:headers[i].value.length]];
         }
 
-        __block NSURLSessionDataTask* task = [context.session
+        NSURLSessionDataTask* task = [context.session
             dataTaskWithRequest:request
             completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
                 Result* result = [[Result alloc]

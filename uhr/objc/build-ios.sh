@@ -15,6 +15,8 @@ clang++ \
     -arch armv7s \
     -miphoneos-version-min=7.0 \
     -fvisibility=hidden \
+    -Weverything \
+    -pedantic \
     -dynamiclib \
     -I../include \
     -framework Foundation \
