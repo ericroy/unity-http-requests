@@ -9,7 +9,7 @@
 #error UnityHttpRequests implementation does not support ARC
 #endif
 
-#define kErrorStrings = @{
+#define kErrorStrings @{
 	UHR_ERR_OK:                         @"Ok",
 	UHR_ERR_INVALID_CONTEXT:            @"The context handle was invalid",
 	UHR_ERR_MISSING_REQUIRED_PARAMETER: @"A required function parameter was missing or null",
@@ -18,7 +18,7 @@
     UHR_ERR_UNKNOWN_ERROR_CODE:         @"Unknown error code",
 };
 
-#define kMethodStrings = @{
+#define kMethodStrings @{
 	UHR_METHOD_GET:     @"GET",
 	UHR_METHOD_HEAD:    @"HEAD",
 	UHR_METHOD_POST:    @"POST",
