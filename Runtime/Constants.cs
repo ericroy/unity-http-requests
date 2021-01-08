@@ -4,18 +4,18 @@ namespace UnityHttpRequests
 {
 
     // Values must match constants in c header
-    public enum Error : int
+    public enum Error : uint
     {
         Ok = 0,
-        InvalidContext = -1,
-        MissingRequiredParameter = -2,
-        InvalidHTTPMethod = -3,
-        FailedToCreateRequest = -4,
-        UnknownErrorCode = -5,
+        InvalidContext = 1,
+        MissingRequiredParameter = 2,
+        InvalidHTTPMethod = 3,
+        FailedToCreateRequest = 4,
+        UnknownErrorCode = 5,
     }
 
     // Values must match constants in c header
-    public enum Method : int
+    public enum Method : uint
     {
         Get = 0,
         Head = 1,

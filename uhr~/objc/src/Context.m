@@ -1,12 +1,14 @@
 #import "Context.h"
 
 @implementation Context
+
 @synthesize tasks;
 @synthesize session;
 @synthesize resultsLock;
 @synthesize results;
 @synthesize resultStorage;
 @synthesize nextRequestID;
+
 - (id)init {
     self = [super init];
     if (self) {
@@ -61,4 +63,5 @@
 
     [super dealloc];
 }
+
 @end

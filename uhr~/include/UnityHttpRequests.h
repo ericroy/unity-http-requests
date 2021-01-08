@@ -46,11 +46,11 @@ extern "C" {
 #endif
 
 #define UHR_ERR_OK 0
-#define UHR_ERR_INVALID_CONTEXT -1
-#define UHR_ERR_MISSING_REQUIRED_PARAMETER -2
-#define UHR_ERR_INVALID_HTTP_METHOD -3
-#define UHR_ERR_FAILED_TO_CREATE_REQUEST -4
-#define UHR_ERR_UNKNOWN_ERROR_CODE -5
+#define UHR_ERR_INVALID_CONTEXT 1
+#define UHR_ERR_MISSING_REQUIRED_PARAMETER 2
+#define UHR_ERR_INVALID_HTTP_METHOD 3
+#define UHR_ERR_FAILED_TO_CREATE_REQUEST 4
+#define UHR_ERR_UNKNOWN_ERROR_CODE 5
 
 #define UHR_METHOD_GET 0
 #define UHR_METHOD_HEAD 1
@@ -62,10 +62,10 @@ extern "C" {
 #define UHR_METHOD_OPTIONS 7
 #define UHR_METHOD_TRACE 8
 
-typedef int32_t UHR_Error;
-typedef int32_t UHR_Method;
+typedef uint32_t UHR_Error;
+typedef uint32_t UHR_Method;
 typedef uintptr_t UHR_HttpContext;
-typedef int32_t UHR_RequestId;
+typedef uint32_t UHR_RequestId;
 
 typedef struct {
     const uint16_t *characters;
@@ -92,10 +92,10 @@ typedef struct {
 
 typedef struct {
     UHR_RequestId request_id;
-    // In the case of a network error, http_status will be -1.
-    // In the case of a failure to read the response body, http_status will be -1.
+    // In the case of a network error, http_status will be 0.
+    // In the case of a failure to read the response body, http_status will be 0.
     // In the case of an HTTP error, http_status will reflect the HTTP status code.
-    int32_t http_status;
+    uint32_t http_status;
     UHR_HeadersData headers;
     UHR_BodyData body;
 } UHR_Response;

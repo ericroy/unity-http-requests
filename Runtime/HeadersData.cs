@@ -9,8 +9,8 @@ namespace UnityHttpRequests
     {
         // Memory layout must exactly correspond to the structs in the c header.  Do not reorder.
         private Header* headers;
-        public int Count { get; private set; }
-        private int pad;
+        public uint Count { get; private set; }
+        private uint pad;
         
         public int FindHeader(string headerName)
         {
@@ -47,11 +47,12 @@ namespace UnityHttpRequests
 
         // Tries to get a header with the specified name, and writes it to the out param if it exists.
         // Returns true if successful, false otherwise.
-        public bool TryGetHeaderAlloc(string headerName, ref string valueOut)
+        public bool TryGetHeaderAlloc(string headerName, out string valueOut)
         {
             int i = FindHeader(headerName);
             if (i == -1)
             {
+                valueOut = null;
                 return false;
             }
             valueOut = headers[i].Value.ToStringAlloc();

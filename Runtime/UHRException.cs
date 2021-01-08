@@ -1,13 +1,13 @@
 using System;
+using System.Runtime.InteropServices;
 
 namespace UnityHttpRequests
 {
 
-    public class UHRException : Exception
+    public unsafe class UHRException : Exception
     {
-        public UHRException(string prefix, Error err)
+        public UHRException(string prefix, Error err) : base(prefix + Format(err))
         {
-            base(prefix + Format(err));
         }
 
         private static string Format(Error err)

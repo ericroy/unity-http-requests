@@ -19,6 +19,7 @@ namespace UnityHttpRequests
                 characters = p;
             }
             Length = s.Length;
+            pad = 0;
         }
 
         public bool Equals(string s)

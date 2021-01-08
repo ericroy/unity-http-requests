@@ -2,15 +2,24 @@
 #import "HeaderStorage.h"
 
 @implementation ResultStorage
-@synthesize body;
+
+@synthesize rid;
+@synthesize error;
+@synthesize status;
 @synthesize headers;
 @synthesize headerRefs;
-- (id)initWithResult:(Result *)result {
+@synthesize body;
+
+
+- (id)initWithRid:(UHR_RequestId)aRid response:(NSHTTPURLResponse *)response body:(NSData *)aBody error:(NSError *)aError {
     self = [super init];
     if (self) {
-        body = [result.data retain];
+        rid = aRid;
+        error = [aError retain];
+        status = (uint32_t)response.statusCode;
+        body = [aBody retain];
 
-        NSDictionary *allHeaderFields = result.response.allHeaderFields;
+        NSDictionary *allHeaderFields = response.allHeaderFields;
         headers = [[NSMutableArray alloc] initWithCapacity:allHeaderFields.count];
         headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * allHeaderFields.count);
 
@@ -33,16 +42,21 @@
     }
     return self;
 }
+
 - (void)dealloc {
+    [error release];
+    error = nil;
+    
     [headers release];
     headers = nil;
-
-    free(headerRefs);
-    headerRefs = nil;
 
     [body release];
     body = nil;
 
+    free(headerRefs);
+    headerRefs = nil;
+
     [super dealloc];
 }
+
 @end

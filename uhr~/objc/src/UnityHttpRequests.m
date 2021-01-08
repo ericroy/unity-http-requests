@@ -13,34 +13,34 @@
 #define LITERALIZE(x) @LITERALIZE_HELPER(x)
 
 #define kErrorStrings @{
-	LITERALIZE(UHR_ERR_OK):                         @"Ok",
-	LITERALIZE(UHR_ERR_INVALID_CONTEXT):            @"The context handle was invalid",
-	LITERALIZE(UHR_ERR_MISSING_REQUIRED_PARAMETER): @"A required function parameter was missing or null",
-	LITERALIZE(UHR_ERR_INVALID_HTTP_METHOD):        @"Invalid HTTP method",
-	LITERALIZE(UHR_ERR_FAILED_TO_CREATE_REQUEST):   @"Failed to create request",
-    LITERALIZE(UHR_ERR_UNKNOWN_ERROR_CODE):         @"Unknown error code",
-};
+    /* UHR_ERR_OK */                            @"Ok",
+    /* UHR_ERR_INVALID_CONTEXT */               @"The context handle was invalid",
+    /* UHR_ERR_MISSING_REQUIRED_PARAMETER */    @"A required function parameter was missing or null",
+    /* UHR_ERR_INVALID_HTTP_METHOD */           @"Invalid HTTP method",
+    /* UHR_ERR_FAILED_TO_CREATE_REQUEST */      @"Failed to create request",
+    /* UHR_ERR_UNKNOWN_ERROR_CODE */            @"Unknown error code",
+}
 
 #define kMethodStrings @{
-	LITERALIZE(UHR_METHOD_GET):     @"GET",
-	LITERALIZE(UHR_METHOD_HEAD):    @"HEAD",
-	LITERALIZE(UHR_METHOD_POST):    @"POST",
-	LITERALIZE(UHR_METHOD_PUT):     @"PUT",
-	LITERALIZE(UHR_METHOD_PATCH):   @"PATCH",
-	LITERALIZE(UHR_METHOD_DELETE):  @"DELETE",
-	LITERALIZE(UHR_METHOD_CONNECT): @"CONNECT",
-	LITERALIZE(UHR_METHOD_OPTIONS): @"OPTIONS",
-	LITERALIZE(UHR_METHOD_TRACE):   @"TRACE",
+	/* UHR_METHOD_GET */        @"GET",
+	/* UHR_METHOD_HEAD */       @"HEAD",
+	/* UHR_METHOD_POST */       @"POST",
+    /* UHR_METHOD_PUT */        @"PUT",
+	/* UHR_METHOD_PATCH */      @"PATCH",
+	/* UHR_METHOD_DELETE */     @"DELETE",
+	/* UHR_METHOD_CONNECT */    @"CONNECT",
+	/* UHR_METHOD_OPTIONS */    @"OPTIONS",
+	/* UHR_METHOD_TRACE */      @"TRACE",
 };
 
 UHR_Error UHR_ErrorToString(UHR_Error err, UHR_StringRef* errorMessageOut) {
     if (errorMessageOut == nil) {
         return UHR_ERR_MISSING_REQUIRED_PARAMETER;
     }
-    NSString* str = kErrorStrings[err];
-    if (str == nil) {
+    if (err >= kErrorStrings.length) {
         return UHR_ERR_UNKNOWN_ERROR_CODE;
     }
+    NSString* str = kErrorStrings[err];
     errorMessageOut->characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef)str);
 	errorMessageOut->length = (uint32_t)str.length;
     return UHR_ERR_OK;
@@ -56,7 +56,7 @@ UHR_Error UHR_CreateHTTPContext(UHR_HttpContext* httpContextHandleOut) {
 }
 
 UHR_Error UHR_DestroyHTTPContext(UHR_HttpContext httpContextHandle) {
-    Context* context = (Context* )httpContextHandle;
+    Context* context = (Context*)httpContextHandle;
     if (context == nil) {
         return UHR_ERR_INVALID_CONTEXT;
     }
@@ -86,19 +86,19 @@ UHR_Error UHR_CreateRequest(UHR_HttpContext httpContextHandle,
             return UHR_ERR_MISSING_REQUIRED_PARAMETER;
         }
 
-        Context* __block context = (Context* )httpContextHandle;
+        Context* __block context = (Context*)httpContextHandle;
         if (context == nil) {
             return UHR_ERR_INVALID_CONTEXT;
         }
 
-        NSString* methodStr = kMethodStrings[method];
-        if (methodStr == nil) {
-            return UHR_ERR_INVALID_HTTP_METHOD
+        if (method >= kMethodStrings.length) {
+            return UHR_ERR_INVALID_HTTP_METHOD;
         }
+        NSString* methodStr = kMethodStrings[method];
         
         // Advance rid, handle wraparound
         UHR_RequestId rid = context.nextRequestID++;
-        if (context.nextRequestID <= 0) {
+        if (context.nextRequestID == 0) {
             context.nextRequestID = 1;
         }
 
@@ -125,11 +125,11 @@ UHR_Error UHR_CreateRequest(UHR_HttpContext httpContextHandle,
 
         NSURLSessionDataTask* task = [context.session
             dataTaskWithRequest:request
-            completionHandler:^(NSData* data, NSURLResponse* response, NSError* error) {
-                Result* result = [[Result alloc]
+            completionHandler:^(NSData* body, NSURLResponse* response, NSError* error) {
+                ResultStorage* result = [[ResultStorage alloc]
                     initWithRid:rid
                     response:(NSHTTPURLResponse* )response
-                    data:data
+                    body:body
                     error:error];
                 [context.resultsLock lock];
                 [context.results insertObject:result atIndex:0];
@@ -137,7 +137,7 @@ UHR_Error UHR_CreateRequest(UHR_HttpContext httpContextHandle,
                 [result release];
             }];
         [task resume];
-        [context.tasks setObject:task forKey:[NSNumber numberWithInt:rid]];
+        [context.tasks setObject:task forKey:[NSNumber numberWithUnsignedInt:rid]];
 
         *ridOut = rid;
         return UHR_ERR_OK;
@@ -154,7 +154,7 @@ UHR_Error UHR_Update(UHR_HttpContext httpContextHandle, UHR_Response* responsesO
             return UHR_ERR_MISSING_REQUIRED_PARAMETER;
         }
         
-        Context* context = (Context* )httpContextHandle;
+        Context* context = (Context*)httpContextHandle;
         if (context == nil) {
             return UHR_ERR_INVALID_CONTEXT;
         }
@@ -163,22 +163,20 @@ UHR_Error UHR_Update(UHR_HttpContext httpContextHandle, UHR_Response* responsesO
 
         [context.resultsLock lock];
         for (; count < responsesCapacity && context.results.count > 0; ++count) {
-            Result* result = (Result* )[context.results lastObject];
-            ResultStorage* storage = [[ResultStorage alloc] initWithResult:result];
-            [context.results removeObjectAtIndex:context.results.count-1];
+            ResultStorage* result = (ResultStorage*)[context.results lastObject];
 
             UHR_Response res;
             res.request_id = result.rid;
-            res.http_status = result.response.statusCode,
-            res.headers.headers = &storage.headerRefs[0];
-            res.headers.count = storage.headers.count;
-            res.body.body = (char*)[storage.body bytes];
-            res.body.length = storage.body.length;
+            res.http_status = result.status;
+            res.headers.headers = &result.headerRefs[0];
+            res.headers.count = result.headers.count;
+            res.body.body = (char*)[result.body bytes];
+            res.body.length = result.body.length;
             responsesOut[count] = res;
 
-            NSNumber* ridKey = [NSNumber numberWithInt:result.rid];
-            [context.resultStorage setObject:storage forKey:ridKey];
-            [storage release];
+            NSNumber* ridKey = [NSNumber numberWithUnsignedInt:result.rid];
+            [context.resultStorage setObject:result forKey:ridKey];
+            [context.results removeObjectAtIndex:context.results.count-1];
         }
         [context.resultsLock unlock];
 
@@ -193,7 +191,7 @@ UHR_Error UHR_DestroyRequests(UHR_HttpContext httpContextHandle, UHR_RequestId* 
             return UHR_ERR_MISSING_REQUIRED_PARAMETER;
         }
 
-        Context* context = (Context* )httpContextHandle;
+        Context* context = (Context*)httpContextHandle;
         if (context == nil) {
             return UHR_ERR_INVALID_CONTEXT;
         }

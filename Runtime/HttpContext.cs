@@ -6,16 +6,17 @@ using System.Runtime.InteropServices;
 namespace UnityHttpRequests
 {
 
-    public unsafe class HttpContext
+    public unsafe class HttpContext : IDisposable
     {
         public event RequestCompleteDelegate RequestComplete;
-        public delegate void RequestCompleteDelegate(ref Response result);
+        public delegate void RequestCompleteDelegate(ref Response res);
 
         private Header[] headersBuffer;
         private Response[] responsesBuffer;
         private IntPtr context = IntPtr.Zero;
+        private bool disposed = false;
 
-        public HttpContext(int responsesCapacity = 8, int headersCapacity = 8)
+        public HttpContext(int responsesCapacity = 8, int headersCapacity = 16)
         {
             if (responsesCapacity < 1)
             {
@@ -29,46 +30,38 @@ namespace UnityHttpRequests
             }
             headersBuffer = new Header[headersCapacity];
 
-            var err = UHR_CreateHTTPContext(&context);
-            if (err != Error.Ok)
+            fixed (IntPtr* pContext = &context)
             {
-                throw new UHRException("Failed to create HttpContext: ", err);
-            }
-        }
-
-        ~HttpContext()
-        {
-            if (context != IntPtr.Zero)
-            {
-                var err = UHR_DestroyHTTPContext(context);
+                var err = UHR_CreateHTTPContext(pContext);
                 if (err != Error.Ok)
                 {
-                    throw new UHRException("Failed to destroy HttpContext: ", err);
+                    throw new UHRException("Failed to create HttpContext: ", err);
                 }
-                context = IntPtr.Zero;
             }
         }
 
-        public int Get(string url, Dictionary<string, string> headers = null)
+        ~HttpContext() {}
+
+        public uint Get(string url, Dictionary<string, string> headers = null)
         {
-            return StartRequest(url, Method.GET, headers, null, 0);
+            return StartRequest(url, Method.Get, headers, null, 0);
         }
 
-        public int Post(string url, byte[] requestBody, int requestBodyLength, Dictionary<string, string> headers = null)
+        public uint Post(string url, byte[] requestBody, int requestBodyLength, Dictionary<string, string> headers = null)
         {
-            return StartRequest(url, Method.POST, headers, requestBody, requestBodyLength);
+            return StartRequest(url, Method.Post, headers, requestBody, requestBodyLength);
         }
 
         // Call this once per frame to tick the library and dispatch responses.
         public void Update()
         {
-            int* toDelete = stackalloc int[responsesBuffer.Length];
+            uint* toDelete = stackalloc uint[responsesBuffer.Length];
             fixed (Response* pResponses = &responsesBuffer[0])
             {
-                int count = 0;
+                uint count = 0;
                 do
                 {
-                    var err = UHR_Update(context, pResponses, responsesBuffer.Length, &count);
+                    var err = UHR_Update(context, pResponses, (uint)responsesBuffer.Length, &count);
                     if (err != Error.Ok)
                     {
                         throw new UHRException("Failed to update http requests: ", err);
@@ -76,7 +69,7 @@ namespace UnityHttpRequests
 
                     if (count > 0)
                     {
-                        for (var i = 0; i < count; ++i)
+                        for (uint i = 0; i < count; ++i)
                         {
                             toDelete[i] = pResponses[i].RequestId;
                             try
@@ -88,7 +81,7 @@ namespace UnityHttpRequests
                                 Debug.WriteLine("Failed to handled HTTP response: ", ex.Message);
                             }
                         }
-                        var err = UHR_DestroyRequests(context, toDelete, count);
+                        err = UHR_DestroyRequests(context, toDelete, count);
                         if (err != Error.Ok)
                         {
                             throw new UHRException("Failed to destroy http requests: ", err);
@@ -100,12 +93,47 @@ namespace UnityHttpRequests
             }
         }
 
-        private unsafe int StartRequest(string url, Method method, Dictionary<string, string> headers, byte[] requestBody, int requestBodyLength)
+        public void Dispose()
         {
-            int headersCount = 0;
+            // Dispose of unmanaged resources.
+            Dispose(true);
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Dispose all used resources.
+        /// </summary>
+        /// <param name="disposing">Indicates the source call to dispose.</param>
+        private void Dispose(bool disposing)
+        {
+            if (this.disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                if (context != IntPtr.Zero)
+                {
+                    var err = UHR_DestroyHTTPContext(context);
+                    if (err != Error.Ok)
+                    {
+                        throw new UHRException("Failed to destroy HttpContext: ", err);
+                    }
+                    context = IntPtr.Zero;
+                }
+
+                this.disposed = true;
+            }
+        }
+
+        private unsafe uint StartRequest(string url, Method method, Dictionary<string, string> headers, byte[] requestBody, int requestBodyLength)
+        {
+            uint headersCount = 0;
             if (headers != null)
             {
-                headersCount = headers.Count;
+                headersCount = (uint)headers.Count;
                 if (headersCount > headersBuffer.Length)
                 {
                     headersBuffer = new Header[headersCount];
@@ -130,7 +158,7 @@ namespace UnityHttpRequests
                 }
             }
 
-            int rid = 0;
+            uint rid = 0;
 
             fixed (Header* pHeaders = headersBuffer)
             {
@@ -139,14 +167,14 @@ namespace UnityHttpRequests
                     var err = UHR_CreateRequest(
                         context,
                         new StringRef(url),
-                        (int)method,
+                        method,
                         pHeaders,
                         headersCount,
                         pRequestBody,
-                        pRequestBody != null ? requestBodyLength : 0,
+                        pRequestBody != null ? (uint)requestBodyLength : 0,
                         &rid
                     );
-                    if (err != Errors.Ok)
+                    if (err != Error.Ok)
                     {
                         throw new UHRException("Failed to create http request: ", err);
                     }
@@ -157,6 +185,7 @@ namespace UnityHttpRequests
         }
 
         #region NativeBindings
+
 #if UNITY_IPHONE
         [DllImport ("__Internal")]
 #else
@@ -184,7 +213,7 @@ namespace UnityHttpRequests
             uint headersCount,
             byte* body,
             uint bodyLength,
-            int* ridOut
+            uint* ridOut
         );
 
 #if UNITY_IPHONE
@@ -206,7 +235,7 @@ namespace UnityHttpRequests
 #endif
         extern static Error UHR_DestroyRequests(
             IntPtr httpContextHandle,
-            int* requestIDs,
+            uint* requestIDs,
             uint requestIDsCount
         );
 
