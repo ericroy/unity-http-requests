@@ -186,25 +186,13 @@ namespace UnityHttpRequests
 
         #region NativeBindings
 
-#if UNITY_IPHONE
-        [DllImport ("__Internal")]
-#else
-        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
-#endif
+        [DllImport(NativeLibrary.Name, CallingConvention = CallingConvention.Cdecl)]
         extern static Error UHR_CreateHTTPContext(IntPtr* httpContextHandleOut);
 
-#if UNITY_IPHONE
-        [DllImport ("__Internal")]
-#else
-        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
-#endif
+        [DllImport(NativeLibrary.Name, CallingConvention = CallingConvention.Cdecl)]
         extern static Error UHR_DestroyHTTPContext(IntPtr httpContextHandle);
 
-#if UNITY_IPHONE
-        [DllImport ("__Internal")]
-#else
-        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
-#endif
+        [DllImport(NativeLibrary.Name, CallingConvention = CallingConvention.Cdecl)]
         extern static Error UHR_CreateRequest(
             IntPtr httpContextHandle,
             StringRef url,
@@ -216,11 +204,7 @@ namespace UnityHttpRequests
             uint* ridOut
         );
 
-#if UNITY_IPHONE
-        [DllImport ("__Internal")]
-#else
-        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
-#endif
+        [DllImport(NativeLibrary.Name, CallingConvention = CallingConvention.Cdecl)]
         extern static Error UHR_Update(
             IntPtr httpContextHandle,
             Response* responsesOut,
@@ -228,11 +212,7 @@ namespace UnityHttpRequests
             uint* responseCountOut
         );
 
-#if UNITY_IPHONE
-        [DllImport ("__Internal")]
-#else
-        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
-#endif
+        [DllImport(NativeLibrary.Name, CallingConvention = CallingConvention.Cdecl)]
         extern static Error UHR_DestroyRequests(
             IntPtr httpContextHandle,
             uint* requestIDs,

@@ -20,11 +20,7 @@ namespace UnityHttpRequests
             return errorMessage.ToStringAlloc();
         }
 
-    #if UNITY_IPHONE
-        [DllImport ("__Internal")]
-    #else
-        [DllImport("UnityHttpRequests", CallingConvention = CallingConvention.Cdecl)]
-    #endif
+        [DllImport(NativeLibrary.Name, CallingConvention = CallingConvention.Cdecl)]
         extern static Error UHR_ErrorToString(Error err, StringRef* errorMessageOut);
     }
 

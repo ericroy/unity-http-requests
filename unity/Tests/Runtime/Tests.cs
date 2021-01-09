@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using NUnit.Framework;
-//using UnityEngine;
-//using UnityEngine.TestTools;
 
 using UnityHttpRequests;
 
 namespace Tests
 {
+
+    [TestFixture]
     public class TestSuite
     {
         private HttpContext context;
@@ -19,7 +20,7 @@ namespace Tests
         }
 
         [TearDown]
-        public void Teardown()
+        public void TearDown()
         {
             if (context != null)
             {

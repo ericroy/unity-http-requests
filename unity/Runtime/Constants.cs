@@ -28,5 +28,14 @@ namespace UnityHttpRequests
         Trace = 8,
     }
 
+    class NativeLibrary
+    {
+        #if UNITY_IPHONE
+        public const string Name = "__Internal";
+        #else
+        public const string Name = "UnityHttpRequests";
+        #endif
+    }
+
 }
 

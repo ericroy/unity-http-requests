@@ -1,0 +1,36 @@
+FROM golang:1.15-alpine
+
+ENV NDK_VERSION="android-ndk-r21"
+ENV NDK_ROOT="/${NDK_VERSION}"
+ENV LANG="C.UTF-8"
+ENV GLIBC_VERSION "2.28-r0"
+
+# Download and install glibc
+RUN apk add --no-cache nano bash make file && \
+	wget https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -O /etc/apk/keys/sgerrand.rsa.pub && \
+	wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk -O /tmp/glibc.apk && \
+	wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk -O /tmp/glibc-bin.apk && \
+	apk add --no-cache /tmp/glibc.apk /tmp/glibc-bin.apk && \
+	rm -rf /tmp/* && \
+	rm -rf /var/cache/apk/*
+
+# Download and unzip the Android NDK
+RUN wget -O /${NDK_VERSION}.zip https://dl.google.com/android/repository/${NDK_VERSION}-linux-x86_64.zip && \
+	unzip /${NDK_VERSION}.zip && \
+	rm /${NDK_VERSION}.zip
+
+
+ENV OUT_DIR=./Assets/Plugins/Android
+ENV ARTIFACT_BASENAME=UnityHttpRequests
+ENV GOOS=linux
+ENV GOARCH=arm
+ENV GOARM=7
+ENV CC_FOR_TARGET="$NDK_ROOT/bin/arm-linux-androideabi-gcc"
+
+WORKDIR /workspace
+COPY ./uhr ./uhr
+
+CMD ls -al /workspace && \
+    mkdir -p $OUT_DIR && \
+    go build -ldflags="-s -w" -buildmode c-shared -o $OUT_DIR/$ARTIFACT_BASENAME.so ./uhr/go/cmd/uhr/ && \
+    rm -f $OUT_DIR/$ARTIFACT_BASENAME.h
