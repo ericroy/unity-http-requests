@@ -1,13 +1,10 @@
 FROM golang:1.15-windowsservercore-ltsc2016
 
-ENV OUT_DIR=./Assets/Plugins/Editor
-ENV ARTIFACT_BASENAME=UnityHttpRequests
-ENV GOOS=windows
-ENV GOARCH=amd64
-
 WORKDIR /workspace
-COPY ./uhr ./uhr
+
+ENV OUT_DIR=./unity/Assets/Plugins/Editor
 
 CMD mkdir -p $OUT_DIR \
-    && go build -ldflags="-s -w" -buildmode c-shared -o $OUT_DIR/$ARTIFACT_BASENAME.dll ./uhr/go/cmd/uhr/ \
-    && rm -f $OUT_DIR/$ARTIFACT_BASENAME.h
+    GOOS=windows GOARCH=amd64 \
+        go build -ldflags="-s -w" -buildmode c-shared -o $OUT_DIR/UnityHttpRequests-amd64.dll ./uhr/go/cmd/uhr/ && \
+    rm -f $OUT_DIR/UnityHttpRequests-amd64.h

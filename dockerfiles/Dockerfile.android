@@ -1,36 +1,39 @@
 FROM golang:1.15-alpine
 
 ENV NDK_VERSION="android-ndk-r21"
-ENV NDK_ROOT="/${NDK_VERSION}"
-ENV LANG="C.UTF-8"
-ENV GLIBC_VERSION "2.28-r0"
-
-# Download and install glibc
-RUN apk add --no-cache nano bash make file && \
-	wget https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -O /etc/apk/keys/sgerrand.rsa.pub && \
-	wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-${GLIBC_VERSION}.apk -O /tmp/glibc.apk && \
-	wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VERSION}/glibc-bin-${GLIBC_VERSION}.apk -O /tmp/glibc-bin.apk && \
-	apk add --no-cache /tmp/glibc.apk /tmp/glibc-bin.apk && \
-	rm -rf /tmp/* && \
-	rm -rf /var/cache/apk/*
-
-# Download and unzip the Android NDK
-RUN wget -O /${NDK_VERSION}.zip https://dl.google.com/android/repository/${NDK_VERSION}-linux-x86_64.zip && \
-	unzip /${NDK_VERSION}.zip && \
-	rm /${NDK_VERSION}.zip
-
-
-ENV OUT_DIR=./Assets/Plugins/Android
-ENV ARTIFACT_BASENAME=UnityHttpRequests
-ENV GOOS=linux
-ENV GOARCH=arm
-ENV GOARM=7
-ENV CC_FOR_TARGET="$NDK_ROOT/bin/arm-linux-androideabi-gcc"
+ENV GO_VERSION="go1.15.6"
 
 WORKDIR /workspace
-COPY ./uhr ./uhr
+COPY ./third_party/${NDK_VERSION}.zip .
+COPY ./third_party/${GO_VERSION}.tgz .
 
-CMD ls -al /workspace && \
-    mkdir -p $OUT_DIR && \
-    go build -ldflags="-s -w" -buildmode c-shared -o $OUT_DIR/$ARTIFACT_BASENAME.so ./uhr/go/cmd/uhr/ && \
-    rm -f $OUT_DIR/$ARTIFACT_BASENAME.h
+# Requirements:
+#  bash: Because the android toolchain has bash wrapper scripts that invoke clang
+#  libc6-compat: Because the fucking alpine shell can't find files (even though, eg, 'ls' can)
+RUN apk add bash build-base libc6-compat && \
+    rm -rf /var/cache/apk/*
+
+# Unzip Android NDK and Golang
+RUN unzip ${NDK_VERSION}.zip && \
+	rm ${NDK_VERSION}.zip && \
+	tar -xvf ${GO_VERSION}.tgz && \
+	rm ${GO_VERSION}.tgz
+
+# Build go and setup env
+RUN mkdir -p $GOPATH && \
+	cd go/src && \
+	bash all.bash
+
+# Setup the path
+ENV NDK_BIN="/workspace/$NDK_VERSION/toolchains/llvm/prebuilt/linux-x86_64/bin"
+ENV GOROOT="/workspace/go"
+ENV GOPATH="/workspace/gopath"
+ENV PATH="$PATH:$NDK_BIN:$GOROOT/bin:$GOPATH/bin"
+
+# Build our plugin
+ENV OUT_DIR=./unity/Assets/Plugins/Editor
+
+CMD mkdir -p $OUT_DIR && \
+	OUT_DIR=./unity/Assets/Plugins/Android GOOS=android GOARCH=arm GOARM=7 CGO_ENABLED=1 CC="armv7a-linux-androideabi21-clang" CXX="armv7a-linux-androideabi21-clang++" \
+		go build -ldflags="-s -w" -buildmode c-shared -o $OUT_DIR/libUnityHttpRequests-armeabi-v7a.so ./uhr/go/cmd/uhr/ && \
+	rm -f $OUT_DIR/*.h

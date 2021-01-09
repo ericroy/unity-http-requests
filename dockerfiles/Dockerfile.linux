@@ -1,16 +1,13 @@
 FROM golang:1.15-alpine
 
-ENV OUT_DIR=./Assets/Plugins/Editor
-ENV ARTIFACT_BASENAME=UnityHttpRequests
-ENV GOOS=linux
-ENV GOARCH=amd64
-
 RUN apk add build-base && \
     rm -rf /var/cache/apk/*
 
 WORKDIR /workspace
-COPY ./uhr ./uhr
+
+ENV OUT_DIR=./unity/Assets/Plugins/Editor
 
 CMD mkdir -p $OUT_DIR && \
-    go build -ldflags="-s -w" -buildmode c-shared -o $OUT_DIR/lib$ARTIFACT_BASENAME.so ./uhr/go/cmd/uhr/ && \
-    rm -f $OUT_DIR/lib$ARTIFACT_BASENAME.h
+    GOOS=linux GOARCH=amd64 \
+        go build -ldflags="-s -w" -buildmode c-shared -o $OUT_DIR/libUnityHttpRequests-amd64.so ./uhr/go/cmd/uhr/ && \
+    rm -f $OUT_DIR/libUnityHttpRequests-amd64.h
