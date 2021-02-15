@@ -12,6 +12,7 @@ namespace UnityHttpRequests
         InvalidHTTPMethod = 3,
         FailedToCreateRequest = 4,
         UnknownErrorCode = 5,
+        FailedToCreateContext = 6,
     }
 
     // Values must match constants in c header
