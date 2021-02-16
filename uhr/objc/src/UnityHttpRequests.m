@@ -19,6 +19,8 @@
     /* UHR_ERR_INVALID_HTTP_METHOD */           @"Invalid HTTP method",
     /* UHR_ERR_FAILED_TO_CREATE_REQUEST */      @"Failed to create request",
     /* UHR_ERR_UNKNOWN_ERROR_CODE */            @"Unknown error code",
+    /* UHR_ERR_FAILED_TO_CREATE_CONTEXT */      @"Failed to create context",
+    /* UHR_ERR_STRING_DECODING_ERROR */         @"Failed to decode utf16",
 }
 
 #define kMethodStrings @{

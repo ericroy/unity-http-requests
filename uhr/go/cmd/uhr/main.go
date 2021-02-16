@@ -21,6 +21,8 @@ var errorStrings = map[C.UHR_Error][]uint16{
 	C.UHR_ERR_INVALID_HTTP_METHOD:        utf16.Encode([]rune("Invalid HTTP method")),
 	C.UHR_ERR_FAILED_TO_CREATE_REQUEST:   utf16.Encode([]rune("Failed to create request")),
 	C.UHR_ERR_UNKNOWN_ERROR_CODE:         utf16.Encode([]rune("Unknown error code")),
+	C.UHR_ERR_FAILED_TO_CREATE_CONTEXT:   utf16.Encode([]rune("Failed to create context")),
+	C.UHR_ERR_STRING_DECODING_ERROR:      utf16.Encode([]rune("Failed to decode utf16")),
 }
 
 var methodStrings = map[C.UHR_Method]string{
