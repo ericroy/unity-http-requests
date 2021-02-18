@@ -26,6 +26,7 @@ clang++ \
     $debug_level \
     -dynamiclib \
     -I./uhr/include \
+    -I./uhr/objc/src \
     -framework Foundation \
     -o .build/$artifact \
     ./uhr/objc/src/*.m
