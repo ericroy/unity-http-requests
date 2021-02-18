@@ -48,6 +48,7 @@ namespace uhr {
 		if (next_request_id_ == 0)
 			next_request_id_ = 1;
 
+
 		std::unique_ptr<Request> req(new Request(rid, easy));
 		if (curl_easy_setopt(easy, CURLOPT_PRIVATE, req.get()) != CURLE_OK)
 			return nullptr;
@@ -81,6 +82,7 @@ namespace uhr {
 			return false;
 
 		requests_[req->rid()] = move(req);
+		return true;
 	}
 
 	bool Context::Update() {

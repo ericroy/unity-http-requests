@@ -138,7 +138,7 @@ UHR_API UHR_Error UHR_CreateRequest(
 	auto rid = req->rid();
 	if (!context->StartRequest(move(req)))
 		return UHR_ERR_FAILED_TO_CREATE_REQUEST;
-
+	
 	*rid_out = rid;
 	return UHR_ERR_OK;
 }

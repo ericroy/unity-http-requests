@@ -115,23 +115,30 @@ namespace uhr {
 		if (self->cancelled_)
 			return 0;
 
-		std::string all(ptr, size * nitems);
+		const auto len = size * nitems;
+
+		// Advance index i until it reaches the colon (or the end)
+		auto i = 0u;
+		while (i < size && ptr[i] != ':') ++i;
+
+		// Range [0, i) holds the header name
+		auto name = ToUTF16(ptr, ptr + i);
+
+		// Advance i past the colon, but only if not at the end
+		if (i < len) ++i;
+
+		// Advance i past any whitespace.
+		// It will land on the first character of the header value (or the end)
+		while (i < size && isspace(ptr[i])) ++i;
 		
-		std::size_t name_start = 0;
-		std::size_t name_end = all.find_first_of(':');
-		if (name_end == std::string::npos)
-			name_end = all.size();
+		// Starting at i, advance j to find the newline character (or the end)
+		auto j = i;
+		while (j < size && ptr[j] != '\n') ++j;
 
-		std::size_t value_start = name_end;
-		value_start = all.find_first_not_of(" \t\n\v\f\r", name_end + 1);
-		std::size_t value_end = all.find_first_of("\n", value_start);
-		if (value_end == std::string::npos)
-			value_end = all.size();
+		// Range [i, j) holds the value
+		auto value = ToUTF16(ptr + i, ptr + j);
 
-		self->response_headers_.emplace_back(
-			ToUTF16(all.substr(name_start, name_end - name_start)),
-			ToUTF16(all.substr(value_start, value_end - value_start))
-		);
+		self->response_headers_.emplace_back(std::move(name), std::move(value));
 		auto &header = self->response_headers_.back();
 
 		UHR_Header header_ref = {};
@@ -141,7 +148,7 @@ namespace uhr {
 		header_ref.value.length = static_cast<uint32_t>(header.second.length());
 		self->response_headers_storage_.push_back(header_ref);
 
-		return all.size();
+		return len;
 	}
 
 	// static
