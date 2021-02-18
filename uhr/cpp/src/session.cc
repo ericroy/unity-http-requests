@@ -99,7 +99,7 @@ namespace uhr {
 		return std::unique_ptr<Session>(new Session(multi, std::move(certs)));
 	}
 
-	Session::Session(CURLM *multi, CACerts &&certs) : multi_(multi), certs_(certs) {
+	Session::Session(CURLM *multi, CACerts &&certs) : multi_(multi), certs_(std::forward<decltype(certs)>(certs)) {
 	}
 
 	std::unique_ptr<Request> Session::GetNextCompleted() {

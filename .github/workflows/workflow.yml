@@ -40,7 +40,6 @@ jobs:
       - uses: actions/checkout@v2
       # Use VS developer command prompt so nmake is available
       - uses: ilammy/msvc-dev-cmd@v1
-      - shell: bash
-        run: |
-          bash scripts/build-win64.sh
-          ls -alR .prefix
+      - run: |
+          .\scripts\build-win64.ps1
+          Get-ChildItem -Path .prefix -Recurse -Directory

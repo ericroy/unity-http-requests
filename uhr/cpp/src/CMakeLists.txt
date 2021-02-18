@@ -3,7 +3,7 @@ add_subdirectory(deps EXCLUDE_FROM_ALL)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
-add_executable(uhr
+add_library(uhr SHARED
     ca_certs.cc ca_certs.h
     session.cc session.h
     init.cc init.h
@@ -15,6 +15,7 @@ add_executable(uhr
 )
 target_include_directories(uhr PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../include)
 target_link_libraries(uhr clue libcurl)
+target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
 if(WIN32)
     target_compile_definitions(uhr PRIVATE -DNOMINMAX)
 endif()
