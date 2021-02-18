@@ -16,28 +16,36 @@
     if (self) {
         rid = aRid;
         error = [aError retain];
-        status = (uint32_t)response.statusCode;
         body = [aBody retain];
+        
+        if (response == nil) {
+            // Inidcating a network error
+            status = 0;
+            headers = [[NSMutableArray alloc] initWithCapacity:0];
+            headerRefs = nil;
+        } else {
+            status = (uint32_t)response.statusCode;
 
-        NSDictionary *allHeaderFields = response.allHeaderFields;
-        headers = [[NSMutableArray alloc] initWithCapacity:allHeaderFields.count];
-        headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * allHeaderFields.count);
+            NSDictionary *responseHeaders = response.allHeaderFields;
+            headers = [[NSMutableArray alloc] initWithCapacity:responseHeaders.count];
+            headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * responseHeaders.count);
 
-        int i = 0;
-        for(id key in allHeaderFields) {
-            HeaderStorage *storage = [[HeaderStorage alloc]
-                initWithKey:(NSString *)key
-                andValue:(NSString *)allHeaderFields[key]];
-            
-            UHR_Header headerRef;
-            headerRef.name.length = (uint32_t)storage.key.length;
-            headerRef.name.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.key);
-            headerRef.value.length = (uint32_t)storage.value.length;
-            headerRef.value.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
-            headerRefs[i++] = headerRef;
+            int i = 0;
+            for(id key in responseHeaders) {
+                HeaderStorage *storage = [[HeaderStorage alloc]
+                    initWithKey:(NSString *)key
+                    andValue:(NSString *)responseHeaders[key]];
+                
+                UHR_Header headerRef;
+                headerRef.name.length = (uint32_t)storage.key.length;
+                headerRef.name.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.key);
+                headerRef.value.length = (uint32_t)storage.value.length;
+                headerRef.value.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
+                headerRefs[i++] = headerRef;
 
-            [headers addObject:storage];
-            [storage release];
+                [headers addObject:storage];
+                [storage release];
+            }
         }
     }
     return self;
@@ -53,8 +61,10 @@
     [body release];
     body = nil;
 
-    free(headerRefs);
-    headerRefs = nil;
+    if (headerRefs != nil) {
+        free(headerRefs);
+        headerRefs = nil;
+    }
 
     [super dealloc];
 }

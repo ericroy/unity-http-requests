@@ -1,4 +1,5 @@
 #include "request.h"
+#include <clue.hpp>
 #include <cstring>
 #include <sstream>
 #include "util.h"
@@ -6,51 +7,60 @@
 namespace uhr {
 
 	Request::~Request() {
-		Close();
+		Cleanup();
 	}
 
-	void Request::Close() {
+	Request::Request(UHR_RequestId rid, CURL *easy) : rid_(rid), easy_(easy) {}
+
+	bool Request::Attach(CURLM *multi) {
+		auto res = curl_multi_add_handle(multi, easy_);
+		if (res != CURLM_OK) {
+			LOG_CRITICAL("Failed to attach Easy handle to Multi handle: " << curl_multi_strerror(res));
+			return false;
+		}
+		return true;
+	}
+
+	void Request::Detach(CURLM *multi) {
+		auto res = curl_multi_remove_handle(multi, easy_);
+		if (res != CURLM_OK)
+			LOG_CRITICAL("Failed to detach Easy handle from Multi handle: " << curl_multi_strerror(res));
+	}
+
+	void Request::OnComplete() {
+		completed_ = true;
+
+		// Get the status code
+		long status = 0;
+		http_status_ = 0;
+		auto res = curl_easy_getinfo(easy_, CURLINFO_RESPONSE_CODE, &status);
+		if (res == CURLE_OK) {
+			http_status_ = static_cast<uint32_t>(status);
+		} else {
+			LOG_CRITICAL("Failed to get http status from curl: " << curl_easy_strerror(res));
+		}
+	}
+
+	void Request::Cleanup() {
 		if (easy_ != nullptr) {
 			curl_easy_cleanup(easy_);
 			easy_ = nullptr;
 		}
+
 		if (request_headers_list_ != nullptr) {
 			curl_slist_free_all(request_headers_list_);
 			request_headers_list_ = nullptr;
 		}
+
+		// Minimize memory footprint by clearing some of the request-related data.
+		// Keep the response-related data around though.
+		method_.clear();
+		url_.clear();
+		request_headers_.clear();
+		request_body_.clear();
 	}
 
-	bool Request::SetMethod(const std::string &method) {
-		method_ = method;
-		return curl_easy_setopt(easy_, CURLOPT_CUSTOMREQUEST, method_.c_str()) == CURLE_OK;
-	}
-
-	bool Request::SetUrl(const std::string &url) {
-		url_ = url;
-		return curl_easy_setopt(easy_, CURLOPT_URL, url_.c_str()) == CURLE_OK;
-	}
-
-	bool Request::SetBody(const char *body, size_t body_length) {
-		request_body_.reserve(body_length);
-		request_body_.assign(body, body + body_length);
-		if (curl_easy_setopt(easy_, CURLOPT_UPLOAD, 1L) != CURLE_OK)
-			return false;
-		if (curl_easy_setopt(easy_, CURLOPT_READFUNCTION, Request::ReadCallback) != CURLE_OK)
-			return false;
-		if (curl_easy_setopt(easy_, CURLOPT_READDATA, this) != CURLE_OK)
-			return false;
-		if (curl_easy_setopt(easy_, CURLOPT_INFILESIZE_LARGE, static_cast<curl_off_t>(request_body_.size())) != CURLE_OK)
-			return false;
-		return true;
-	}
-
-	bool Request::AddHeader(const std::string &name, const std::string &value) {
-		std::stringstream ss;
-		ss << name << ": " << value;
-		request_headers_.push_back(ss.str());
-	}
-
-	void Request::GetResponse(UHR_Response *response_out) {
+	UHR_Response Request::GetResponse() {
 		UHR_HeadersData hd = {};
 		hd.headers = response_headers_storage_.data();
 		hd.count = static_cast<uint32_t>(response_headers_storage_.size());
@@ -59,45 +69,13 @@ namespace uhr {
 		bd.body = response_body_.data();
 		bd.length = static_cast<uint32_t>(response_body_.size());
 
-		response_out->request_id = rid_;
-		response_out->http_status = static_cast<uint32_t>(http_status_);
-		response_out->headers = hd;
-		response_out->body = bd;
-	}
+		UHR_Response response;
+		response.request_id = rid_;
+		response.http_status = static_cast<uint32_t>(http_status_);
+		response.headers = hd;
+		response.body = bd;
 
-	Request::Request(UHR_RequestId rid, CURL *easy) : rid_(rid), easy_(easy) {}
-
-	bool Request::Prepare() {
-		for (const auto &header : request_headers_)
-			request_headers_list_ = curl_slist_append(request_headers_list_, header.c_str());
-		if (curl_easy_setopt(easy_, CURLOPT_HTTPHEADER, request_headers_list_) != CURLE_OK)
-			return false;
-		return true;
-	}
-
-	void Request::Cancel() {
-		cancelled_ = true;
-	}
-
-	void Request::Complete() {
-		completed_ = true;
-
-		// Get the status code
-		long status = 0;
-		http_status_ = 0;
-		if (curl_easy_getinfo(easy_, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK)
-			http_status_ = static_cast<uint32_t>(status);
-		
-		// Release some memory associated with the request, since it's not needed anymore
-		// This curl list holds pointers to our headers, so free it first
-		if (request_headers_list_ != nullptr) {
-			curl_slist_free_all(request_headers_list_);
-			request_headers_list_ = nullptr;
-		}
-		method_.clear();
-		url_.clear();
-		request_headers_.clear();
-		request_body_.clear();
+		return response;
 	}
 
 	// static

@@ -1,6 +1,6 @@
-#import "Context.h"
+#import "Session.h"
 
-@implementation Context
+@implementation Session
 
 @synthesize tasks;
 @synthesize session;
@@ -43,7 +43,7 @@
     // Apple docs:
     // "Once invalidated, references to the delegate and callback objects are broken. After invalidation, session objects cannot be reused."
     // So it sounds like the completionHandler blocks for in-flight tasks will not be called after this,
-    // which is a good thing because they're borrowing pointers to this Context instance.
+    // which is a good thing because they're borrowing pointers to this Session instance.
     [session invalidateAndCancel];
 
     [tasks release];

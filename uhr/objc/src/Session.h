@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #include "UnityHttpRequests.h"
 
-@interface Context : NSObject {}
+@interface Session : NSObject {}
 @property (nonatomic, readonly, retain) NSMutableDictionary *tasks;
 @property (nonatomic, readonly, retain) NSURLSession *session;
 @property (nonatomic, readonly, retain) NSLock *resultsLock;

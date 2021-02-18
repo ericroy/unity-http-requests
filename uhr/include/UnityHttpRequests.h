@@ -46,14 +46,13 @@ extern "C" {
 #endif
 
 #define UHR_ERR_OK 0
-#define UHR_ERR_INVALID_CONTEXT 1
+#define UHR_ERR_INVALID_SESSION 1
 #define UHR_ERR_MISSING_REQUIRED_PARAMETER 2
 #define UHR_ERR_INVALID_HTTP_METHOD 3
 #define UHR_ERR_FAILED_TO_CREATE_REQUEST 4
 #define UHR_ERR_UNKNOWN_ERROR_CODE 5
-#define UHR_ERR_FAILED_TO_CREATE_CONTEXT 6
-#define UHR_ERR_FAILED_TO_DESTROY_CONTEXT 7
-#define UHR_ERR_FAILED_TO_UPDATE_CONTEXT 8
+#define UHR_ERR_FAILED_TO_CREATE_SESSION 6
+#define UHR_ERR_FAILED_TO_UPDATE_SESSION 7
 
 #define UHR_METHOD_GET 0
 #define UHR_METHOD_HEAD 1
@@ -67,8 +66,9 @@ extern "C" {
 
 typedef uint32_t UHR_Error;
 typedef uint32_t UHR_Method;
-typedef uintptr_t UHR_HttpContext;
+typedef uintptr_t UHR_HttpSession;
 typedef uint32_t UHR_RequestId;
+typedef void (*UHR_LoggingCallback)(const char *str, uint32_t strLen, void *userData);
 
 typedef struct {
     const uint16_t *characters;
@@ -103,6 +103,14 @@ typedef struct {
     UHR_BodyData body;
 } UHR_Response;
 
+// UHR_ErrorToString sets a callback that will be invoked
+// for each line of logging produced by the library.  The provided
+// userdata pointer will be passed through to the callback.
+// Provide callback=null if you want to deregister your callback.
+UHR_API void UHR_SetLoggingCallback(
+    UHR_LoggingCallback callback,
+    void* userData
+);
 
 // UHR_ErrorToString gets a message describing the provided error
 UHR_API UHR_Error UHR_ErrorToString(
@@ -110,24 +118,24 @@ UHR_API UHR_Error UHR_ErrorToString(
     UHR_StringRef* errorMessageOut
 );
 
-// UHR_CreateHTTPContext creates an HttpContext.
+// UHR_CreateHTTPSession creates an HttpSession.
 // A owns all the resources, and manages the http request requests.
-// Returns:  A valid handle, or UHRHTTP_CONTEXT_INVALID if an error occurred.
+// Returns:  A valid handle, or UHRHTTP_SESSION_INVALID if an error occurred.
 //   Use UHRGetLastError to get the error message.
-UHR_API UHR_Error UHR_CreateHTTPContext(
-    UHR_HttpContext* httpContextHandleOut
+UHR_API UHR_Error UHR_CreateHTTPSession(
+    UHR_HttpSession* httpSessionHandleOut
 );
 
-// UHR_DestroyHTTPContext frees an HttpContext, and any requests that it is managing.
-UHR_API UHR_Error UHR_DestroyHTTPContext(
-    UHR_HttpContext httpContextHandle
+// UHR_DestroyHTTPSession frees an HttpSession, and any requests that it is managing.
+UHR_API UHR_Error UHR_DestroyHTTPSession(
+    UHR_HttpSession httpSessionHandle
 );
 
 // UHR_CreateRequest starts a new request.
 // Returns:  The request id of the new request, or UHR_REQUEST_ID_INVALID if an error occurred.
 //   Use UHRGetLastError to get the error message.
 UHR_API UHR_Error UHR_CreateRequest(
-    UHR_HttpContext httpContextHandle,
+    UHR_HttpSession httpSessionHandle,
     UHR_StringRef url,
     UHR_Method method,
     UHR_Header* headers,
@@ -140,7 +148,7 @@ UHR_API UHR_Error UHR_CreateRequest(
 // UHR_Update polls for finished requests.
 // responseCountOut receives the number of responses written to the output array.
 UHR_API UHR_Error UHR_Update(
-    UHR_HttpContext httpContextHandle,
+    UHR_HttpSession httpSessionHandle,
     UHR_Response* responsesOut,
     uint32_t responsesCapacity,
     uint32_t* responseCountOut
@@ -148,10 +156,10 @@ UHR_API UHR_Error UHR_Update(
 
 // UHR_DestroyRequests frees memory associated with the specified request ids.
 // Every request that is created must eventually be destroyed.
-// However, destroying the httpContext is sufficient to also destroy all
+// However, destroying the httpSession is sufficient to also destroy all
 // the requests it manages.
 UHR_API UHR_Error UHR_DestroyRequests(
-    UHR_HttpContext httpContextHandle,
+    UHR_HttpSession httpSessionHandle,
     UHR_RequestId* requestIDs,
     uint32_t requestIDsCount
 );

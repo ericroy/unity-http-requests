@@ -7,12 +7,13 @@ namespace UnityHttpRequests
     public enum Error : uint
     {
         Ok = 0,
-        InvalidContext = 1,
+        InvalidSession = 1,
         MissingRequiredParameter = 2,
         InvalidHTTPMethod = 3,
         FailedToCreateRequest = 4,
         UnknownErrorCode = 5,
-        FailedToCreateContext = 6,
+        FailedToCreateSession = 6,
+        FailedToUpdateSession = 7,
     }
 
     // Values must match constants in c header

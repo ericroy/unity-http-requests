@@ -11,20 +11,20 @@ namespace Tests
     [TestFixture]
     public class TestSuite
     {
-        private HttpContext context;
+        private HttpSession session;
 
         [SetUp]
         public void Setup()
         {
-            context = new HttpContext();
+            session = new HttpSession();
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (context != null)
+            if (session != null)
             {
-                context.Dispose();
+                session.Dispose();
             }
         }
 
@@ -34,10 +34,10 @@ namespace Tests
             var headers = new Dictionary<string, string>();
             headers["User-Agent"] = "FooAgent";
             headers["Accept"] = "application/json";
-            var rid = context.Get("https://hookb.in/NOV6KErB8KCWZZpRgE7K", headers);
+            var rid = session.Get("https://hookb.in/NOV6KErB8KCWZZpRgE7K", headers);
 
             bool done = false;
-            context.RequestComplete += (ref Response res) =>
+            session.RequestComplete += (ref Response res) =>
             {
                 Assert.AreEqual(rid, res.RequestId, "Request id mismatch");
                 Assert.AreEqual(200, res.HttpStatus);
@@ -65,7 +65,7 @@ namespace Tests
 
             for (var i = 0; !done && i < 50; ++i)
             {
-                context.Update();
+                session.Update();
                 Thread.Sleep(100);
             }
 

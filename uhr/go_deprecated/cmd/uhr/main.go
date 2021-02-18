@@ -16,14 +16,13 @@ import (
 
 var errorStrings = map[C.UHR_Error][]uint16{
 	C.UHR_ERR_OK:                         utf16.Encode([]rune("Ok")),
-	C.UHR_ERR_INVALID_CONTEXT:            utf16.Encode([]rune("The context handle was invalid")),
+	C.UHR_ERR_INVALID_SESSION:            utf16.Encode([]rune("The session handle was invalid")),
 	C.UHR_ERR_MISSING_REQUIRED_PARAMETER: utf16.Encode([]rune("A required function parameter was missing or null")),
 	C.UHR_ERR_INVALID_HTTP_METHOD:        utf16.Encode([]rune("Invalid HTTP method")),
 	C.UHR_ERR_FAILED_TO_CREATE_REQUEST:   utf16.Encode([]rune("Failed to create request")),
 	C.UHR_ERR_UNKNOWN_ERROR_CODE:         utf16.Encode([]rune("Unknown error code")),
-	C.UHR_ERR_FAILED_TO_CREATE_CONTEXT:   utf16.Encode([]rune("Failed to create context")),
-	C.UHR_ERR_FAILED_TO_DESTROY_CONTEXT:  utf16.Encode([]rune("Failed to destroy context")),
-	C.UHR_ERR_FAILED_TO_UPDATE_CONTEXT:   utf16.Encode([]rune("Failed to update context")),
+	C.UHR_ERR_FAILED_TO_CREATE_SESSION:   utf16.Encode([]rune("Failed to create session")),
+	C.UHR_ERR_FAILED_TO_UPDATE_SESSION:   utf16.Encode([]rune("Failed to update session")),
 }
 
 var methodStrings = map[C.UHR_Method]string{
@@ -38,9 +37,9 @@ var methodStrings = map[C.UHR_Method]string{
 	C.UHR_METHOD_TRACE:   "TRACE",
 }
 
-// This holds a reference to the HTTPContext structures which have been
+// This holds a reference to the HTTPSession structures which have been
 // returned to C-land as a pointer.  It keeps them from being collected prematurely.
-var httpContexts = make(map[C.UHR_HttpContext]*HTTPContext, 4)
+var httpSessions = make(map[C.UHR_HttpSession]*HTTPSession, 4)
 
 var scratchString = make([]uint16, 0, 128)
 
@@ -63,10 +62,10 @@ type ResultStorage struct {
 	body       []byte
 }
 
-// HTTPContext manages a set of requests and responses.
-type HTTPContext struct {
+// HTTPSession manages a set of requests and responses.
+type HTTPSession struct {
 	client        *http.Client
-	cancelFuncs   map[RequestID]context.CancelFunc // Keyed by request id
+	cancelFuncs   map[RequestID]session.CancelFunc // Keyed by request id
 	resultStorage map[RequestID]*ResultStorage     // Keyed by request id
 	results       chan *ResultStorage
 	nextRequestID RequestID
@@ -143,12 +142,12 @@ func UHR_ErrorToString(err C.UHR_Error, errorMessageOut *C.UHR_StringRef) C.UHR_
 	return C.UHR_ERR_OK
 }
 
-//export UHR_CreateHTTPContext
-func UHR_CreateHTTPContext(httpContextOut *C.UHR_HttpContext) C.UHR_Error {
-	if httpContextOut == nil {
+//export UHR_CreateHTTPSession
+func UHR_CreateHTTPSession(httpSessionOut *C.UHR_HttpSession) C.UHR_Error {
+	if httpSessionOut == nil {
 		return C.UHR_ERR_MISSING_REQUIRED_PARAMETER
 	}
-	httpContext := &HTTPContext{
+	httpSession := &HTTPSession{
 		client: &http.Client{
 			Transport: &http.Transport{
 				MaxIdleConns:       10,
@@ -156,35 +155,35 @@ func UHR_CreateHTTPContext(httpContextOut *C.UHR_HttpContext) C.UHR_Error {
 				DisableCompression: true,
 			},
 		},
-		cancelFuncs:   make(map[RequestID]context.CancelFunc, 16),
+		cancelFuncs:   make(map[RequestID]session.CancelFunc, 16),
 		resultStorage: make(map[RequestID]*ResultStorage, 16),
 		results:       make(chan *ResultStorage, 16),
 		nextRequestID: 1,
 	}
-	opaqueHandle := (C.UHR_HttpContext)(uintptr(unsafe.Pointer(httpContext)))
-	httpContexts[opaqueHandle] = httpContext
-	*httpContextOut = opaqueHandle
+	opaqueHandle := (C.UHR_HttpSession)(uintptr(unsafe.Pointer(httpSession)))
+	httpSessions[opaqueHandle] = httpSession
+	*httpSessionOut = opaqueHandle
 	return C.UHR_ERR_OK
 }
 
-//export UHR_DestroyHTTPContext
-func UHR_DestroyHTTPContext(httpContextHandle C.UHR_HttpContext) C.UHR_Error {
-	httpContext, ok := httpContexts[httpContextHandle]
+//export UHR_DestroyHTTPSession
+func UHR_DestroyHTTPSession(httpSessionHandle C.UHR_HttpSession) C.UHR_Error {
+	httpSession, ok := httpSessions[httpSessionHandle]
 	if !ok {
-		return C.UHR_ERR_INVALID_CONTEXT
+		return C.UHR_ERR_INVALID_SESSION
 	}
-	close(httpContext.results)
-	for _, cancel := range httpContext.cancelFuncs {
+	close(httpSession.results)
+	for _, cancel := range httpSession.cancelFuncs {
 		cancel()
 	}
-	httpContext.client.CloseIdleConnections()
-	delete(httpContexts, httpContextHandle)
+	httpSession.client.CloseIdleConnections()
+	delete(httpSessions, httpSessionHandle)
 	return C.UHR_ERR_OK
 }
 
 //export UHR_CreateRequest
 func UHR_CreateRequest(
-	httpContextHandle C.UHR_HttpContext,
+	httpSessionHandle C.UHR_HttpSession,
 	url C.UHR_StringRef,
 	method C.UHR_Method,
 	headers *C.UHR_Header,
@@ -205,9 +204,9 @@ func UHR_CreateRequest(
 		return C.UHR_ERR_MISSING_REQUIRED_PARAMETER
 	}
 
-	httpContext, ok := httpContexts[httpContextHandle]
+	httpSession, ok := httpSessions[httpSessionHandle]
 	if !ok {
-		return C.UHR_ERR_INVALID_CONTEXT
+		return C.UHR_ERR_INVALID_SESSION
 	}
 
 	methodStr, ok := methodStrings[method]
@@ -223,7 +222,7 @@ func UHR_CreateRequest(
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	req, err := http.NewRequestWithContext(ctx, methodStr, stringRefToString(url), bodyReader)
+	req, err := http.NewRequestWithSession(ctx, methodStr, stringRefToString(url), bodyReader)
 	if err != nil {
 		cancel()
 		return C.UHR_ERR_FAILED_TO_CREATE_REQUEST
@@ -235,29 +234,29 @@ func UHR_CreateRequest(
 	}
 
 	// Advance rid, handle wraparound
-	rid := httpContext.nextRequestID
-	httpContext.nextRequestID++
-	if httpContext.nextRequestID == 0 {
-		httpContext.nextRequestID = 1
+	rid := httpSession.nextRequestID
+	httpSession.nextRequestID++
+	if httpSession.nextRequestID == 0 {
+		httpSession.nextRequestID = 1
 	}
 
-	httpContext.cancelFuncs[rid] = cancel
+	httpSession.cancelFuncs[rid] = cancel
 
-	go doRequest(httpContext.client, rid, req, httpContext.results)
+	go doRequest(httpSession.client, rid, req, httpSession.results)
 
 	*ridOut = C.UHR_RequestId(rid)
 	return C.UHR_ERR_OK
 }
 
 //export UHR_Update
-func UHR_Update(httpContextHandle C.UHR_HttpContext, responsesOut *C.UHR_Response, responsesCapacity C.uint32_t, responseCountOut *C.uint32_t) C.UHR_Error {
+func UHR_Update(httpSessionHandle C.UHR_HttpSession, responsesOut *C.UHR_Response, responsesCapacity C.uint32_t, responseCountOut *C.uint32_t) C.UHR_Error {
 	if responseCountOut == nil {
 		return C.UHR_ERR_MISSING_REQUIRED_PARAMETER
 	}
 
-	httpContext, ok := httpContexts[httpContextHandle]
+	httpSession, ok := httpSessions[httpSessionHandle]
 	if !ok {
-		return C.UHR_ERR_INVALID_CONTEXT
+		return C.UHR_ERR_INVALID_SESSION
 	}
 
 	count := uint(0)
@@ -266,12 +265,12 @@ func UHR_Update(httpContextHandle C.UHR_HttpContext, responsesOut *C.UHR_Respons
 ForLoop:
 	for ; count < uint(responsesCapacity); count++ {
 		select {
-		case res := <-httpContext.results:
-			if _, ok := httpContext.cancelFuncs[res.rid]; !ok {
+		case res := <-httpSession.results:
+			if _, ok := httpSession.cancelFuncs[res.rid]; !ok {
 				// Already cancelled
 				continue ForLoop
 			}
-			httpContext.resultStorage[res.rid] = res
+			httpSession.resultStorage[res.rid] = res
 			responsesOutSlice[count] = C.UHR_Response{
 				request_id:  C.uint32_t(res.rid),
 				http_status: C.uint32_t(res.status),
@@ -294,20 +293,20 @@ ForLoop:
 }
 
 //export UHR_DestroyRequests
-func UHR_DestroyRequests(httpContextHandle C.UHR_HttpContext, requestIDs *C.UHR_RequestId, requestIDsCount C.uint32_t) C.UHR_Error {
+func UHR_DestroyRequests(httpSessionHandle C.UHR_HttpSession, requestIDs *C.UHR_RequestId, requestIDsCount C.uint32_t) C.UHR_Error {
 	if requestIDsCount > 0 && requestIDs == nil {
 		return C.UHR_ERR_MISSING_REQUIRED_PARAMETER
 	}
-	httpContext, ok := httpContexts[httpContextHandle]
+	httpSession, ok := httpSessions[httpSessionHandle]
 	if !ok {
-		return C.UHR_ERR_INVALID_CONTEXT
+		return C.UHR_ERR_INVALID_SESSION
 	}
 	requestIDsSlice := (*[1 << 30]C.int32_t)(unsafe.Pointer(requestIDs))[:uint(requestIDsCount)]
 	for _, rid := range requestIDsSlice {
-		if cancel, ok := httpContext.cancelFuncs[RequestID(rid)]; ok {
+		if cancel, ok := httpSession.cancelFuncs[RequestID(rid)]; ok {
 			cancel()
-			delete(httpContext.cancelFuncs, RequestID(rid))
-			delete(httpContext.resultStorage, RequestID(rid))
+			delete(httpSession.cancelFuncs, RequestID(rid))
+			delete(httpSession.resultStorage, RequestID(rid))
 		}
 	}
 	return C.UHR_ERR_OK

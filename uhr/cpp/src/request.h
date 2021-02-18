@@ -7,29 +7,30 @@
 
 namespace uhr {
 
-	class Context;
-
 	class Request {
-		friend class Context;
+		friend class RequestBuilder;
 	public:
 		~Request();
-		void Close();
-		bool SetMethod(const std::string &method);
-		bool SetUrl(const std::string &url);
-		bool SetBody(const char *body, size_t body_length);
-		bool AddHeader(const std::string &name, const std::string &value);
-		void GetResponse(UHR_Response *response_out);
-
+		
 		inline UHR_RequestId rid() const { return rid_; }
 		inline std::uint32_t http_status() const { return http_status_; }
 		inline bool completed() const { return completed_; }
 		inline bool cancelled() const { return cancelled_; }
+		
+		inline void set_cancelled() { cancelled_ = true; }
+		
+		bool Attach(CURLM *multi);
+		void Detach(CURLM *multi);
+		void OnComplete();
+		void Cleanup();
+		UHR_Response GetResponse();
 
 	private:
 		Request(UHR_RequestId rid, CURL *easy);
-		bool Prepare();
-		void Cancel();
-		void Complete();
+
+		// Copy not allowed
+        Request(const Request &) = delete;
+        Request &operator=(const Request &) = delete;
 
 		static std::size_t ReadCallback(char *ptr, std::size_t size, std::size_t nmemb, void *user_data);
 		static std::size_t WriteCallback(char *ptr, std::size_t size, std::size_t nmemb, void *user_data);

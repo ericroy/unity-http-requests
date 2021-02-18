@@ -11,8 +11,8 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          bash ./uhr/objc/build-ios.sh
-          ls -alR ./Assets
+          bash ./scripts/build-ios.sh
+          ls -alR ./.prefix
 
   build-plugin-android:
     runs-on: macos-latest
@@ -26,16 +26,27 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" bash ./uhr/go/build-android.sh
-          ls -alR ./Assets
+          NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" bash ./scripts/build-android.sh
+          ls -alR ./.prefix
+
+  build-plugin-editor-linux64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        shell: bash
+        run: |
+          bash ./scripts/build-linux64.sh
+          ls -alR ./.prefix
 
   build-plugin-editor-win64:
     runs-on: windows-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      # Use VS developer command prompt so nmake is available
+      - uses: ilammy/msvc-dev-cmd@v1
       - name: Build
         shell: bash
         run: |
-          bash ./uhr/go/build-win64.sh
-          ls -alR ./Assets
+          bash ./scripts/build-win64.sh
+          ls -alR ./.prefix

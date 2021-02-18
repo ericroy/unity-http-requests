@@ -52,7 +52,7 @@ namespace uhr {
     #endif
     }
 
-    bool CACerts::Apply(CURL *easy) {
+    bool CACerts::Apply(CURL *easy) const {
     #if !defined(_WIN32) && !defined(WIN32)
         if (cert_bundle_)
             return curl_easy_setopt(easy, CURLOPT_CAINFO, cert_bundle_.value().c_str()) == CURLE_OK;

@@ -86,3 +86,8 @@ add_subdirectory(${curl_basename})
 if(NOT WIN32)
 	add_dependencies(libcurl mbedtls mbedx509 mbedcrypto)
 endif()
+
+
+# Clue logging lib
+add_library(clue INTERFACE)
+target_include_directories(clue INTERFACE ./clue)
