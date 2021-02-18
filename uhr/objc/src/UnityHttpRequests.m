@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
 #include "UnityHttpRequests.h"
-#import "Result.h"
 #import "ResultStorage.h"
 #import "HeaderStorage.h"
 #import "Session.h"
