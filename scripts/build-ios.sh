@@ -28,11 +28,7 @@ clang++ \
     -I./uhr/include \
     -framework Foundation \
     -o .build/$artifact \
-    ./uhr/objc/src/Context.m \
-	./uhr/objc/src/HeaderStorage.m \
-	./uhr/objc/src/Result.m \
-	./uhr/objc/src/ResultStorage.m \
-	./uhr/objc/src/UnityHttpRequests.m
+    ./uhr/objc/src/*.m
 
 # list expoted symbols:
 nm -gU .build/$artifact

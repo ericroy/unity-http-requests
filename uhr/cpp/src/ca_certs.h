@@ -9,7 +9,7 @@ namespace uhr {
     class CACerts {
     public:
         CACerts() = default;
-        CACerts(CACerts &) = default;
+        CACerts(CACerts &&) = default;
         bool Find();
         bool Apply(CURL *easy) const;
 

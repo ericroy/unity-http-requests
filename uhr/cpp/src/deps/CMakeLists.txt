@@ -75,7 +75,7 @@ if(NOT WIN32)
 	set(CMAKE_USE_SCHANNEL false CACHE BOOL "" FORCE)
 
 	# This allows curl's find_package() call to locate mbedtls
-	set(CMAKE_PREFIX_PATH 
+	set(CMAKE_PREFIX_PATH
 		${CMAKE_CURRENT_BINARY_DIR}/${mbedtls_basename}/include
 		${CMAKE_CURRENT_BINARY_DIR}/${mbedtls_basename}/library
 	)

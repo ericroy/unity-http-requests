@@ -6,38 +6,33 @@ jobs:
   build-plugin-ios:
     runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Build
-        shell: bash
+      - uses: actions/checkout@v2
+      - shell: bash
         run: |
-          bash ./scripts/build-ios.sh
-          ls -alR ./.prefix
+          bash scripts/build-ios.sh
+          ls -alR .prefix
 
   build-plugin-android:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r21d
-      - name: Build
-        shell: bash
+      - shell: bash
         run: |
-          NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" bash ./scripts/build-android.sh
-          ls -alR ./.prefix
+          NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" bash scripts/build-android.sh
+          ls -alR .prefix
 
   build-plugin-editor-linux64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Build
-        shell: bash
+      - shell: bash
         run: |
-          bash ./scripts/build-linux64.sh
-          ls -alR ./.prefix
+          bash scripts/build-linux64.sh
+          ls -alR .prefix
 
   build-plugin-editor-win64:
     runs-on: windows-latest
@@ -45,8 +40,7 @@ jobs:
       - uses: actions/checkout@v2
       # Use VS developer command prompt so nmake is available
       - uses: ilammy/msvc-dev-cmd@v1
-      - name: Build
-        shell: bash
+      - shell: bash
         run: |
-          bash ./scripts/build-win64.sh
-          ls -alR ./.prefix
+          bash scripts/build-win64.sh
+          ls -alR .prefix
