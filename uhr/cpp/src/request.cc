@@ -82,10 +82,22 @@ namespace uhr {
 	void Request::Complete() {
 		completed_ = true;
 
+		// Get the status code
 		long status = 0;
 		http_status_ = 0;
 		if (curl_easy_getinfo(easy_, CURLINFO_RESPONSE_CODE, &status) == CURLE_OK)
 			http_status_ = static_cast<uint32_t>(status);
+		
+		// Release some memory associated with the request, since it's not needed anymore
+		// This curl list holds pointers to our headers, so free it first
+		if (request_headers_list_ != nullptr) {
+			curl_slist_free_all(request_headers_list_);
+			request_headers_list_ = nullptr;
+		}
+		method_.clear();
+		url_.clear();
+		request_headers_.clear();
+		request_body_.clear();
 	}
 
 	// static
