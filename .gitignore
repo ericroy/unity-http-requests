@@ -11,3 +11,5 @@ obj/
 *.so
 *.meta
 target/
+.build/
+.prefix/

@@ -1,4 +1,5 @@
 use std::ptr;
+use std::slice;
 use std::collections::HashMap;
 use reqwest::Method;
 use error_chain::error_chain;
@@ -47,8 +48,13 @@ lazy_static! {
 }
 
 unsafe fn string_ref_to_string(sr: UHR_StringRef) -> Result<String> {
-    let slice = std::slice::from_raw_parts(sr.characters, sr.length as usize);
+    let slice = slice::from_raw_parts(sr.characters, sr.length as usize);
     Ok(String::from_utf16(slice)?)
+}
+unsafe fn to_bytes(sr: UHR_StringRef) -> Result<Vec<u8>> {
+    let slice = slice::from_raw_parts(sr.characters, sr.length as usize);
+    let ret : Result<Vec<char>> = std::char::decode_utf16(slice.to_owned()).collect();
+
 }
 
 #[no_mangle]
@@ -68,42 +74,38 @@ pub extern "C" fn UHR_ErrorToString(err: UHR_Error, error_message_out: *mut UHR_
 }
 
 #[no_mangle]
-pub extern "C" fn UHR_CreateHTTPContext(http_context_handle_out: *mut UHR_HttpContext) -> UHR_Error {
-    unsafe {
-        if http_context_handle_out == ptr::null_mut() {
-            return UHR_ERR_MISSING_REQUIRED_PARAMETER
-        }
-        let context = match Context::new() {
-            Ok(c) => Box::new(c),
-            _ => return UHR_ERR_FAILED_TO_CREATE_CONTEXT
-        };        
-        let out = http_context_handle_out as *mut *mut Context;
-        *out = Box::into_raw(context);
-        UHR_ERR_OK
+pub unsafe extern "C" fn UHR_CreateHTTPContext(http_context_handle_out: *mut UHR_HttpContext) -> UHR_Error {
+    if http_context_handle_out == ptr::null_mut() {
+        return UHR_ERR_MISSING_REQUIRED_PARAMETER
     }
+    let context = match Context::new() {
+        Ok(c) => Box::new(c),
+        _ => return UHR_ERR_FAILED_TO_CREATE_CONTEXT
+    };        
+    let out = http_context_handle_out as *mut *mut Context;
+    *out = Box::into_raw(context);
+    UHR_ERR_OK
 }
 
 #[no_mangle]
-pub extern "C" fn UHR_DestroyHTTPContext(http_context_handle: UHR_HttpContext) -> UHR_Error {
-    unsafe {
-        let context = http_context_handle as *mut Context;
-        if context.is_null() {
-            return UHR_ERR_INVALID_CONTEXT
-        }
-        let context = Box::from_raw(context);
-
-        UHR_ERR_OK
+pub unsafe extern "C" fn UHR_DestroyHTTPContext(http_context_handle: UHR_HttpContext) -> UHR_Error {
+    let context = http_context_handle as *mut Context;
+    if context.is_null() {
+        return UHR_ERR_INVALID_CONTEXT
     }
+    let context = Box::from_raw(context);
+
+    UHR_ERR_OK
 }
 
 #[no_mangle]
-pub extern "C" fn UHR_CreateRequest(
+pub unsafe extern "C" fn UHR_CreateRequest(
     http_context_handle: UHR_HttpContext,
     url: UHR_StringRef,
     method: UHR_Method,
     headers: *mut UHR_Header,
     headers_count: u32,
-    body: *mut ::std::os::raw::c_char,
+    body: *mut ::std::os::raw::c_uchar,
     body_length: u32,
     rid_out: *mut UHR_RequestId,
 ) -> UHR_Error {
@@ -123,24 +125,47 @@ pub extern "C" fn UHR_CreateRequest(
     if context.is_null() {
         return UHR_ERR_INVALID_CONTEXT
     }
-    let context = unsafe { &mut *context };
+    let context = &mut *context;
 
     let method = match METHODS.get(&method) {
         Some(m) => m.clone(),
         None => return UHR_ERR_INVALID_HTTP_METHOD
     };
 
-    let url = match unsafe { string_ref_to_string(url) } {
+    let url = match string_ref_to_string(url) {
         Ok(s) => s,
         _ => return UHR_ERR_STRING_DECODING_ERROR
     };
 
-    context.runtime.enter();
-    let builder = context.client.request(method, &url);
-    let response = builder.send();
+    let mut builder = context.client.request(method, &url);
+    if body != ptr::null_mut() {
+        builder = builder.body(std::slice::from_raw_parts(body, body_length as usize));
+    }
 
-
+    for header in std::slice::from_raw_parts(headers, headers_count as usize) {
+        let name = match string_ref_to_string(header.name) {
+            Ok(s) => s,
+            _ => return UHR_ERR_STRING_DECODING_ERROR
+        };
+        let value = match string_ref_to_string(header.value) {
+            Ok(s) => s,
+            _ => return UHR_ERR_STRING_DECODING_ERROR
+        };
+        builder = builder.header(name, value);
+    }
     
+    // Advance rid, handle wraparound
+    let rid = context.next_request_id;
+    context.next_request_id += 1;
+    if context.next_request_id == 0 {
+        context.next_request_id = 1;
+    }
+    
+    context.runtime.enter();
+    context.results.insert(rid, Box::new(builder.send()));
+    
+    *rid_out = rid;
+
     UHR_ERR_OK
 }
 

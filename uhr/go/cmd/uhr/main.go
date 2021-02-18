@@ -22,7 +22,8 @@ var errorStrings = map[C.UHR_Error][]uint16{
 	C.UHR_ERR_FAILED_TO_CREATE_REQUEST:   utf16.Encode([]rune("Failed to create request")),
 	C.UHR_ERR_UNKNOWN_ERROR_CODE:         utf16.Encode([]rune("Unknown error code")),
 	C.UHR_ERR_FAILED_TO_CREATE_CONTEXT:   utf16.Encode([]rune("Failed to create context")),
-	C.UHR_ERR_STRING_DECODING_ERROR:      utf16.Encode([]rune("Failed to decode utf16")),
+	C.UHR_ERR_FAILED_TO_DESTROY_CONTEXT:  utf16.Encode([]rune("Failed to destroy context")),
+	C.UHR_ERR_FAILED_TO_UPDATE_CONTEXT:   utf16.Encode([]rune("Failed to update context")),
 }
 
 var methodStrings = map[C.UHR_Method]string{
@@ -294,6 +295,9 @@ ForLoop:
 
 //export UHR_DestroyRequests
 func UHR_DestroyRequests(httpContextHandle C.UHR_HttpContext, requestIDs *C.UHR_RequestId, requestIDsCount C.uint32_t) C.UHR_Error {
+	if requestIDsCount > 0 && requestIDs == nil {
+		return C.UHR_ERR_MISSING_REQUIRED_PARAMETER
+	}
 	httpContext, ok := httpContexts[httpContextHandle]
 	if !ok {
 		return C.UHR_ERR_INVALID_CONTEXT
