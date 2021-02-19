@@ -34,19 +34,19 @@ namespace UnityHttpRequests
     {
     #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
         #if UNITY_64
-        public const string Name = "UnityHttpRequests-amd64";
+        public const string Name = "uhr-windows.x86_64";
         #else
         #error "Windows 32 bit not supported"
         #endif
     #elif (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
         #if UNITY_64
-        public const string Name = "UnityHttpRequests-amd64";
+        public const string Name = "uhr-mac.x86_64";
         #else
         #error "OSX 32 bit not supported"
         #endif
     #elif (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
         #if UNITY_64
-        public const string Name = "UnityHttpRequests-amd64";
+        public const string Name = "uhr-linux.x86_64";
         #else
         #error "Linux 32 bit not supported"
         #endif
@@ -56,8 +56,10 @@ namespace UnityHttpRequests
         #if UNITY_64
         #error "Android arm 64 bit not yet supported..."
         #else
-        public const string Name = "UnityHttpRequests-armeabi-v7a";
+        public const string Name = "uhr-android.armeabi-v7a";
         #endif
+    #else
+        #error "No UHR plugin for this platform"
     #endif
     }
 
