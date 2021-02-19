@@ -6,21 +6,22 @@ on:
 
 jobs:
 
-  build-plugin-ios:
-    runs-on: macos-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-      - uses: actions/checkout@v2
+  # build-plugin-ios:
+  #   runs-on: macos-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   steps:
+  #     - uses: actions/checkout@v2
       
-      - name: Build iOS fat
-        run: scripts/build_ios.sh
+  #     - name: Build iOS fat
+  #       run: scripts/build_ios.sh
       
-      - uses: actions/upload-artifact@v2
-        with:
-          name: artifact-ios
-          path: unity/Assets
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         name: artifact-ios
+  #         path: unity/Assets
+  #         retention-days: 1
 
   build-plugin-linux-android:
     runs-on: ubuntu-latest
@@ -38,24 +39,25 @@ jobs:
         with:
           ndk-version: r21d
       
-      - name: Build android armeabi-v7a
-        env:
-          UHR_TARGET_PLATFORM: android
-          UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
-          UHR_TARGET_ARCH: armeabi-v7a
-        run: scripts/build.sh
+      # - name: Build android armeabi-v7a
+      #   env:
+      #     UHR_TARGET_PLATFORM: android
+      #     UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+      #     UHR_TARGET_ARCH: armeabi-v7a
+      #   run: scripts/build.sh
       
-      - name: Build android arm64-v8a
-        env:
-          UHR_TARGET_PLATFORM: android
-          UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
-          UHR_TARGET_ARCH: arm64-v8a
-        run: scripts/build.sh
+      # - name: Build android arm64-v8a
+      #   env:
+      #     UHR_TARGET_PLATFORM: android
+      #     UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+      #     UHR_TARGET_ARCH: arm64-v8a
+      #   run: scripts/build.sh
       
       - uses: actions/upload-artifact@v2
         with:
           name: artifact-linux-android
           path: unity/Assets
+          retention-days: 1
 
   build-plugin-windows:
     runs-on: windows-latest
@@ -75,3 +77,31 @@ jobs:
         with:
           name: artifact-windows
           path: unity/Assets
+          retention-days: 1
+
+  package-plugin:
+    runs-on: ubuntu-latest
+    needs: [build-plugin-linux-android, build-plugin-windows]
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact-linux-android
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: artifact-windows
+      
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      

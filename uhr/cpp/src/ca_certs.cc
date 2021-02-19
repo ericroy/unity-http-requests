@@ -58,6 +58,7 @@ namespace uhr {
             return curl_easy_setopt(easy, CURLOPT_CAINFO, cert_bundle_.value().c_str()) == CURLE_OK;
         if (cert_directory_)
             return curl_easy_setopt(easy, CURLOPT_CAPATH, cert_directory_.value().c_str()) == CURLE_OK;
+        return false;
     #else
         return true;
     #endif

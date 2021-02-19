@@ -3,5 +3,10 @@
   "version": "1.2.3",
   "displayName": "UnityHttpRequests",
   "description": "Native Unity plugin for making HTTP requests",
-  "unity": "2019.1"
+  "unity": "2019.1",
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ericroy/unity-http-requests.git"
+  }
 }
