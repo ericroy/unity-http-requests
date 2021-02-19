@@ -1,6 +1,4 @@
 Assets/
-third_party/
-!third_party/fetch.sh
 obj/
 *.obj
 *.tli
