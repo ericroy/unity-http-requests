@@ -11,6 +11,8 @@ jobs:
   #   defaults:
   #     run:
   #       shell: bash
+  #   env:
+  #     UHR_BUILD_TYPE: Release
   #   steps:
   #     - uses: actions/checkout@v2
       
@@ -28,16 +30,18 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      UHR_BUILD_TYPE: Release
     steps:
       - uses: actions/checkout@v2
 
       - name: Build linux x86_64
         run: scripts/build.sh
       
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21d
+      # - uses: nttld/setup-ndk@v1
+      #   id: setup-ndk
+      #   with:
+      #     ndk-version: r21d
       
       # - name: Build android armeabi-v7a
       #   env:
@@ -64,6 +68,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    env:
+      UHR_BUILD_TYPE: Release
     steps:
       - uses: actions/checkout@v2
       
@@ -91,10 +97,12 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: artifact-linux-android
+          path: unity/Assets
 
       - uses: actions/download-artifact@v2
         with:
           name: artifact-windows
+          path: unity/Assets
       
       - uses: actions/setup-node@v2
         with:
@@ -102,6 +110,8 @@ jobs:
           registry-url: 'https://npm.pkg.github.com'
 
       - run: npm publish
+        working-directory: unity
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
       

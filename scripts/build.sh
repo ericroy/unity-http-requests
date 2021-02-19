@@ -13,6 +13,9 @@ else
 	exit 1
 fi
 
+# one of: Debug, Release
+build_type="${UHR_BUILD_TYPE:-Debug}"
+
 # one of: linux, windows, mac, ios, android
 target_platform="${UHR_TARGET_PLATFORM:-$platform}"
 
@@ -23,8 +26,9 @@ android_ndk_root="${UHR_ANDROID_NDK_ROOT:-}"
 
 echo "Host   : platform=$platform, arch=$arch"
 echo "Target : platform=$target_platform, arch=$target_arch"
+echo "Config : build_type=$build_type"
 
-cmake_extra=""
+cmake_extra="-DCMAKE_BUILD_TYPE=$build_type"
 generator="Unix Makefiles"
 make_cmd="make -j$(nproc)"
 use_mbedtls="true"

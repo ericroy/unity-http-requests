@@ -2,12 +2,17 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here/..
 
+# one of: Debug, Release
+build_type="${UHR_BUILD_TYPE:-Debug}"
+
 mkdir -p .build/uhr
 
-if [ -z "${DEBUG}" ]; then 
-    debug_level=''
-else 
-    debug_level='-g3'
+if [[ "$build_type" = "Release" ]]; then 
+    # Optimize
+    build_type='-O2'
+else
+    # Include debug info
+    build_type='-g3'
 fi
 
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
@@ -22,7 +27,7 @@ clang++ \
     -fvisibility=hidden \
     -Weverything \
     -pedantic \
-    $debug_level \
+    $build_type \
     -dynamiclib \
     -I./uhr/include \
     -I./uhr/objc/src \
