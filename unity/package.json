@@ -1,12 +1,7 @@
 {
-  "name": "com.example.unityhttprequests",
-  "version": "1.2.3",
+  "name": "@ericroy/unity-http-requests",
+  "version": "0.1.0",
   "displayName": "UnityHttpRequests",
   "description": "Native Unity plugin for making HTTP requests",
-  "unity": "2019.1",
-
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ericroy/unity-http-requests.git"
-  }
+  "unity": "2019.1"
 }
