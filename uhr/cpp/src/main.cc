@@ -191,13 +191,6 @@ UHR_API UHR_Error UHR_DestroyRequests(
 	return UHR_ERR_OK;
 }
 
-UHR_StringRef to_ref(const std::u16string &s) {
-	UHR_StringRef sr = {};
-	sr.characters = reinterpret_cast<const uint16_t *>(s.c_str());
-	sr.length = s.size();
-	return sr;
-}
-
 int main(void) {
 	UHR_HttpSession session = 0;
 	UHR_RequestId rid = 0;
@@ -206,8 +199,8 @@ int main(void) {
 	UHR_Response responses[8] = {};
 	std::uint32_t responses_ready = 0;
 	UHR_RequestId request_ids[8] = {};
-	auto log_callback = [](const char *str, std::uint32_t str_len, void *user_data) {
-		std::cout << std::string(str, str_len) << std::endl;
+	auto log_callback = [](UHR_StringRef msg, void *user_data) {
+		std::cout << uhr::ToUTF8(msg) << std::endl;
 	};
 
 	UHR_SetLoggingCallback(log_callback, nullptr);
@@ -222,7 +215,7 @@ int main(void) {
 
 	LOG_INFO("Created session");
 
-	err = UHR_CreateRequest(session, to_ref(url), UHR_METHOD_GET,
+	err = UHR_CreateRequest(session, uhr::ToStringRef(url), UHR_METHOD_GET,
 		nullptr,	// headers
 		0,			// headers_count
 		nullptr,	// body

@@ -21,5 +21,12 @@ namespace uhr {
 			reinterpret_cast<const char16_t *>(sr.characters) + sr.length
 		);
 	}
-		
+
+	UHR_StringRef ToStringRef(const std::u16string &s) {
+		UHR_StringRef sr = {};
+		sr.characters = reinterpret_cast<const uint16_t *>(s.c_str());
+		sr.length = s.size();
+		return sr;
+	}
+
 } // namespace uhr

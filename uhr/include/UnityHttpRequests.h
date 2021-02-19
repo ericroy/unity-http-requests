@@ -68,7 +68,6 @@ typedef uint32_t UHR_Error;
 typedef uint32_t UHR_Method;
 typedef uintptr_t UHR_HttpSession;
 typedef uint32_t UHR_RequestId;
-typedef void (*UHR_LoggingCallback)(const char *str, uint32_t strLen, void *userData);
 
 typedef struct {
     const uint16_t *characters;
@@ -102,6 +101,8 @@ typedef struct {
     UHR_HeadersData headers;
     UHR_BodyData body;
 } UHR_Response;
+
+typedef void (*UHR_LoggingCallback)(UHR_StringRef msg, void *userData);
 
 // UHR_ErrorToString sets a callback that will be invoked
 // for each line of logging produced by the library.  The provided

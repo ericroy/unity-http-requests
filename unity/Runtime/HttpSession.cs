@@ -16,7 +16,7 @@ namespace UnityHttpRequests
 		private IntPtr session = IntPtr.Zero;
 		private bool disposed = false;
 		
-		private delegate void LoggingCallback(byte *str, uint strLen, IntPtr userData);
+		private delegate void LoggingCallback(StringRef msg, IntPtr userData);
 		private static readonly LoggingCallback logMessageDelegate = LogMessage;
 		private static HttpSession()
 		{
@@ -193,8 +193,9 @@ namespace UnityHttpRequests
 			return rid;
 		}
 
-		private unsafe static void LogMessage(byte *str, uint strLen, IntPtr userData) {
-
+		private unsafe static void LogMessage(StringRef msg, IntPtr userData)
+		{
+			Debug.Log(msg.ToStringAlloc());
 		}
 
 		#region NativeBindings

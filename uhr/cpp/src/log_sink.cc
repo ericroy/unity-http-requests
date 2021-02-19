@@ -1,11 +1,13 @@
 #include "log_sink.h"
+#include "util.h"
 
 namespace uhr {
 
 	LogSink::Acquired::~Acquired() {
 		if (sink_->callback_ != nullptr) {
-			auto s = oss_.str();
-			sink_->callback_(s.c_str(), static_cast<std::uint32_t>(s.size()), sink_->user_data_);
+			auto s = ToUTF16(oss_.str());
+			auto ref = ToStringRef(s);
+			sink_->callback_(ref, sink_->user_data_);
 		}
 	}
 
