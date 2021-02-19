@@ -36,7 +36,7 @@ namespace UnityHttpRequests
         #if UNITY_64
         public const string Name = "UnityHttpRequests-amd64";
         #else
-        #error "Windowns 32 bit not supported"
+        #error "Windows 32 bit not supported"
         #endif
     #elif (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
         #if UNITY_64

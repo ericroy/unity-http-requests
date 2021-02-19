@@ -2,7 +2,7 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here/..
 
-mkdir -p .build .prefix
+mkdir -p .build/uhr
 
 if [ -z "${DEBUG}" ]; then 
     debug_level=''
@@ -10,7 +10,6 @@ else
     debug_level='-g3'
 fi
 
-artifact=UnityHttpRequests-ios-fat.dylib
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
 
 echo "Sysroot is: $sysroot"
@@ -28,10 +27,11 @@ clang++ \
     -I./uhr/include \
     -I./uhr/objc/src \
     -framework Foundation \
-    -o .build/$artifact \
+    -o .build/uhr/uhr.dylib \
     ./uhr/objc/src/*.m
 
 # list expoted symbols:
-nm -gU .build/$artifact
+nm -gU .build/uhr/uhr.dylib
 
-cp .build/$artifact .prefix/
+mkdir -p unity/Assets/Plugins/iOS
+cp .build/uhr/uhr.dylib unity/Assets/Plugins/iOS/uhr-ios.fat.dylib

@@ -8,42 +8,70 @@ jobs:
 
   build-plugin-ios:
     runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v2
-      - shell: bash
-        run: |
-          bash scripts/build_ios.sh
-          ls -alR .prefix
+      
+      - name: Build iOS fat
+        run: scripts/build_ios.sh
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact-ios
+          path: unity/Assets
 
-  build-plugin-android:
+  build-plugin-linux-android:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v2
+
+      - name: Build linux x86_64
+        run: scripts/build.sh
+      
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
           ndk-version: r21d
-      - shell: bash
-        run: |
-          UHR_NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" bash scripts/build.sh
-          ls -alR .prefix
+      
+      - name: Build android armeabi-v7a
+        env:
+          UHR_TARGET_PLATFORM: android
+          UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+          UHR_TARGET_ARCH: armeabi-v7a
+        run: scripts/build.sh
+      
+      - name: Build android arm64-v8a
+        env:
+          UHR_TARGET_PLATFORM: android
+          UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+          UHR_TARGET_ARCH: arm64-v8a
+        run: scripts/build.sh
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact-linux-android
+          path: unity/Assets
 
-  build-plugin-editor-linux64:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - shell: bash
-        run: |
-          bash scripts/build.sh
-          ls -alR .prefix
-
-  build-plugin-editor-win64:
+  build-plugin-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v2
+      
       # Use VS developer command prompt so nmake is available
       - uses: ilammy/msvc-dev-cmd@v1
-      - shell: bash
-        run: |
-          bash scripts/build.sh
-          ls -alR .prefix
+      
+      - name: Build windows x86_64
+        run: scripts/build.sh
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact-windows
+          path: unity/Assets
