@@ -34,7 +34,7 @@ if [ -f $curl_file ]; then
 	verify $curl_file $curl_hash $actual_hash 
 else
 	echo "Downloading $curl_url"
-	actual_hash=`wget -q -O - $curl_url | tee $curl_file | sha1sum`
+	actual_hash=`curl -fsSL $curl_url | tee $curl_file | sha1sum`
 	verify $curl_file $curl_hash $actual_hash
 fi
 
@@ -51,7 +51,7 @@ if [ -f $mbedtls_file ]; then
 	verify $mbedtls_file $mbedtls_hash $actual_hash 
 else
 	echo "Downloading $mbedtls_url"
-	actual_hash=`wget -q -O - $mbedtls_url | tee $mbedtls_file | sha1sum`
+	actual_hash=`curl -fsSL $mbedtls_url | tee $mbedtls_file | sha1sum`
 	verify $mbedtls_file $mbedtls_hash $actual_hash
 fi
 
