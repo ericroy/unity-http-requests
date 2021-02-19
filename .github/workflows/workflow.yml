@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - shell: bash
         run: |
-          bash scripts/build-ios.sh
+          bash scripts/build_ios.sh
           ls -alR .prefix
 
   build-plugin-android:
@@ -25,7 +25,7 @@ jobs:
           ndk-version: r21d
       - shell: bash
         run: |
-          NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" bash scripts/build-android.sh
+          UHR_NDK_ROOT="${{ steps.setup-ndk.outputs.ndk-path }}" bash scripts/build.sh
           ls -alR .prefix
 
   build-plugin-editor-linux64:
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v2
       - shell: bash
         run: |
-          bash scripts/build-linux64.sh
+          bash scripts/build.sh
           ls -alR .prefix
 
   build-plugin-editor-win64:
@@ -44,5 +44,5 @@ jobs:
       # Use VS developer command prompt so nmake is available
       - uses: ilammy/msvc-dev-cmd@v1
       - run: |
-          .\scripts\build-win64.ps1
-          Get-ChildItem -Path .prefix -Recurse -Directory
+          bash scripts/build.sh
+          ls -alR .prefix

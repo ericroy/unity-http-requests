@@ -11,7 +11,7 @@
 
 #define clue_LOG_EXPRESSION( severity, expr ) \
 	g_log_sink.Acquire() << "UHR[" << clue::to_severity_text(severity) << "]: " << expr
-#include <clue.hpp>
+#include "clue/clue.hpp"
 #include <curl/curl.h>
 
 #include "UnityHttpRequests.h"
