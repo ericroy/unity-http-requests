@@ -5,14 +5,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Download curl ca bundle (configure-time)
-set(ca_bundle_url https://curl.se/ca/cacert.pem)
-set(ca_bundle_hash 82fc9ac5a1fd4f55fa3d34d8da6b430d3ab1e7fc)
-if(NOT EXISTS cacert.pem)
-	file(DOWNLOAD ${ca_bundle_url} ${CMAKE_INSTALL_PREFIX}/bin/cacert.pem
-		TIMEOUT 60
-		EXPECTED_HASH SHA1=${ca_bundle_hash}
-		TLS_VERIFY ON)
-endif()
+# set(ca_bundle_url https://curl.se/ca/cacert.pem)
+# set(ca_bundle_hash 82fc9ac5a1fd4f55fa3d34d8da6b430d3ab1e7fc)
+# if(NOT EXISTS cacert.pem)
+# 	file(DOWNLOAD ${ca_bundle_url} ${CMAKE_INSTALL_PREFIX}/bin/cacert.pem
+# 		TIMEOUT 60
+# 		EXPECTED_HASH SHA1=${ca_bundle_hash}
+# 		TLS_VERIFY ON)
+# endif()
 
 find_package(CURL REQUIRED CONFIG)
 
@@ -40,4 +40,3 @@ if(WIN32)
 endif()
 
 install(TARGETS uhr RUNTIME)
-install(FILES ${CA_BUNDLE_FILE} TYPE BIN)
