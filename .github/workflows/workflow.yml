@@ -76,6 +76,9 @@ jobs:
       # Use VS developer command prompt so nmake is available
       - uses: ilammy/msvc-dev-cmd@v1
       
+      # Jom is nmake-compatible and parallelizes the build
+      - run: choco install jom
+
       - name: Build windows x86_64
         run: scripts/build.sh
 
