@@ -10,7 +10,7 @@ if %errorlevel% NEQ 0 (
 	exit /b %errorlevel%
 )
 
-"C:\Program Files\Git\bin\bash.exe" --login -i scripts/build.sh
+"C:\Program Files\Git\bin\bash.exe" -e scripts/build.sh
 if %errorlevel% NEQ 0 (
    exit /b %errorlevel%
 )

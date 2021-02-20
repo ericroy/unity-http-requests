@@ -57,7 +57,7 @@ fi
 mkdir -p .build .prefix
 
 # Pull down third party dependencies (curl, mbedtls, etc)
-source scripts/fetch_deps.sh
+./scripts/util/fetch_deps.sh
 
 # mbedtls
 mkdir -p .build/mbedtls
