@@ -1,5 +1,5 @@
 {
-  "name": "com.ericroy.unity-http-requests",
+  "name": "unity-http-requests",
   "version": "0.1.0",
   "displayName": "UnityHttpRequests",
   "description": "Native Unity plugin for making HTTP requests",
