@@ -1,7 +1,12 @@
 {
-  "name": "@ericroy/unity-http-requests",
+  "name": "com.ericroy.unity-http-requests",
   "version": "0.1.0",
   "displayName": "UnityHttpRequests",
   "description": "Native Unity plugin for making HTTP requests",
-  "unity": "2019.1"
+  "unity": "2019.1",
+
+  "//": "Unity doesn't support @ in the package name, so we have to do it this way",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@ericroy"
+  }
 }
