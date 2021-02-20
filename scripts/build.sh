@@ -60,17 +60,19 @@ mkdir -p .build .prefix
 ./scripts/util/fetch_deps.sh
 
 # mbedtls
-mkdir -p .build/mbedtls
-pushd .build/mbedtls
-cmake -G "$generator" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-	-DENABLE_TESTING:BOOL=false \
-	-DENABLE_PROGRAMS:BOOL=false \
-	$cmake_extra \
-	../../uhr/cpp/deps/mbedtls
-$make_cmd && $make_cmd install
-popd
+if [[ "$target_platform" != "windows" ]]; then
+	mkdir -p .build/mbedtls
+	pushd .build/mbedtls
+	cmake -G "$generator" \
+		-DCMAKE_INSTALL_PREFIX=../../.prefix \
+		-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+		-DENABLE_TESTING:BOOL=false \
+		-DENABLE_PROGRAMS:BOOL=false \
+		$cmake_extra \
+		../../uhr/cpp/deps/mbedtls
+	$make_cmd && $make_cmd install
+	popd
+fi
 
 # curl
 mkdir -p .build/curl
