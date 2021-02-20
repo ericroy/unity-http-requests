@@ -35,8 +35,13 @@ use_mbedtls="true"
 use_schannel="false"
 
 if [[ "$platform" = "windows" ]]; then
-	generator="NMake Makefiles"
-	make_cmd="nmake"
+	if jom -version ; then
+		generator="NMake Makefiles JOM"
+		make_cmd="jom"
+	else
+		generator="NMake Makefiles"
+		make_cmd="nmake"
+	fi
 fi
 
 if [[ "$target_platform" = "windows" ]]; then
