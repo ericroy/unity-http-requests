@@ -75,9 +75,13 @@ jobs:
       
       # Use VS developer command prompt so nmake is available
       - uses: ilammy/msvc-dev-cmd@v1
-      
-      # Jom is nmake-compatible and parallelizes the build
-      - run: choco install jom
+
+      # Download the jom build tool and add .jom/ to the PATH
+      # so that subsequent steps will find jom.exe
+      - name: Install jom
+        run: |
+          bash scripts/util/fetch_jom.sh
+          echo "$PWD/.jom" >> $GITHUB_PATH
 
       - name: Build windows x86_64
         run: scripts/build.sh
