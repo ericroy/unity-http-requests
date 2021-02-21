@@ -16,5 +16,5 @@ target/
 
 # meson
 build/
-subprojects/
-!subprojects/*.wrap
+**/subprojects/*
+!**/subprojects/*.wrap
