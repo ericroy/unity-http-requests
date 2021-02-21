@@ -60,6 +60,7 @@ namespace uhr {
             return curl_easy_setopt(easy, CURLOPT_CAPATH, cert_directory_.value().c_str()) == CURLE_OK;
         return false;
     #else
+        (void)easy;
         return true;
     #endif
     }

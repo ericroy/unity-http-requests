@@ -24,8 +24,8 @@ namespace uhr {
 
 	UHR_StringRef ToStringRef(const std::u16string &s) {
 		UHR_StringRef sr = {};
-		sr.characters = reinterpret_cast<const uint16_t *>(s.c_str());
-		sr.length = s.size();
+		sr.characters = reinterpret_cast<const std::uint16_t *>(s.c_str());
+		sr.length = static_cast<std::uint32_t>(s.size());
 		return sr;
 	}
 

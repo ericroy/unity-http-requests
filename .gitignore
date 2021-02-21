@@ -12,3 +12,9 @@ target/
 .build/
 .prefix/
 .jom/
+
+
+# meson
+build/
+subprojects/
+!subprojects/*.wrap

@@ -9,15 +9,12 @@
 #include <thread>
 #include <chrono>
 
-#define clue_LOG_EXPRESSION( severity, expr ) \
-	g_log_sink.Acquire() << "UHR[" << clue::to_severity_text(severity) << "]: " << expr
-#include "clue/clue.hpp"
 #include <curl/curl.h>
 
 #include "UnityHttpRequests.h"
+#include "logging.h"
 #include "init.h"
 #include "util.h"
-#include "log_sink.h"
 #include "request.h"
 #include "request_builder.h"
 #include "session.h"
@@ -49,12 +46,8 @@ const std::unordered_map<UHR_Method, const std::string> g_method_strings = {
 
 } // namespace
 
-// Not inside anonymous namespace, so it can be accessed by the clue
-// logging macros in other code units.
-uhr::LogSink g_log_sink;
-
 UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback callback, void* user_data) {
-	g_log_sink.Set(callback, user_data);
+	uhr::g_log_sink.Set(callback, user_data);
 }
 
 UHR_API UHR_Error UHR_ErrorToString(UHR_Error err, UHR_StringRef* error_message_out) {
@@ -199,7 +192,7 @@ int main(void) {
 	UHR_Response responses[8] = {};
 	std::uint32_t responses_ready = 0;
 	UHR_RequestId request_ids[8] = {};
-	auto log_callback = [](UHR_StringRef msg, void *user_data) {
+	auto log_callback = [](UHR_StringRef msg, void *) {
 		std::cout << uhr::ToUTF8(msg) << std::endl;
 	};
 
@@ -209,11 +202,11 @@ int main(void) {
 	if (err != UHR_ERR_OK) {
 		UHR_StringRef sr = {};
 		UHR_ErrorToString(err, &sr);
-		LOG_ERROR("UHR_CreateHTTPSession: " << uhr::ToUTF8(sr));
+		UHR_LOG_ERROR("UHR_CreateHTTPSession: " << uhr::ToUTF8(sr));
 		goto done;
 	}
 
-	LOG_INFO("Created session");
+	UHR_LOG_INFO("Created session");
 
 	err = UHR_CreateRequest(session, uhr::ToStringRef(url), UHR_METHOD_GET,
 		nullptr,	// headers
@@ -225,31 +218,31 @@ int main(void) {
 	if (err != UHR_ERR_OK) {
 		UHR_StringRef sr = {};
 		UHR_ErrorToString(err, &sr);
-		LOG_ERROR("UHR_CreateRequest: " << uhr::ToUTF8(sr));
+		UHR_LOG_ERROR("UHR_CreateRequest: " << uhr::ToUTF8(sr));
 		goto done;
 	}
 
-	LOG_INFO("Request created");
+	UHR_LOG_INFO("Request created");
 
 	while (true) {
 		err = UHR_Update(session, responses, sizeof(responses) / sizeof(responses[0]), &responses_ready);
 		if (err != UHR_ERR_OK) {
 			UHR_StringRef sr = {};
 			UHR_ErrorToString(err, &sr);
-			LOG_ERROR("UHR_Update: " << uhr::ToUTF8(sr));
+			UHR_LOG_ERROR("UHR_Update: " << uhr::ToUTF8(sr));
 			goto done;
 		}
 
 		if (responses_ready > 0) {
 			auto &response = responses[0];
-			LOG_DEBUG(std::string(response.body.body, response.body.length));
+			UHR_LOG_DEBUG(std::string(response.body.body, response.body.length));
 
 			request_ids[0] = rid;
 			err = UHR_DestroyRequests(session, request_ids, 1);
 			if (err != UHR_ERR_OK) {
 				UHR_StringRef sr = {};
 				UHR_ErrorToString(err, &sr);
-				LOG_ERROR("UHR_DestroyRequests: " << uhr::ToUTF8(sr));
+				UHR_LOG_ERROR("UHR_DestroyRequests: " << uhr::ToUTF8(sr));
 				goto done;
 			}
 			break;
@@ -261,6 +254,6 @@ int main(void) {
 
 done:
 	UHR_DestroyHTTPSession(session);
-	LOG_INFO("Destroyed session");
+	UHR_LOG_INFO("Destroyed session");
 	return 0;
 }
