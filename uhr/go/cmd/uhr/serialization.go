@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"unicode/utf16"
+	"unicode/utf8"
 	"unsafe"
 )
 
@@ -44,8 +45,8 @@ func writeUInt32(b []byte, offset uint, u uint32) (uint, error) {
 // https://stackoverflow.com/a/23329386
 // Returns the number of bytes in the UTF8 encoding of the provided
 // UCS2 string, without actually doing the transcoding.
-func measureUCS2StringAsUTF8(sr C.UHR_StringRef) uint32 {
-	var encodedLen uint32 = sr.length
+func measureUCS2StringAsUTF8(sr C.UHR_StringRef) uint {
+	var encodedLen uint = sr.length
 	for i := sr.length - 1; i >= 0; i-- {
 		code := sr.characters[i]
 		if code > 0x7f && code <= 0x7ff {
@@ -72,7 +73,7 @@ func decodeUCS2CodePoint(r uint16) (rune, error) {
 // https://golang.org/src/strings/builder.go#L45
 // Returns string, new offset, error
 func stringFromBytesNoCopy(b []byte, offset uint, length uint) (string, uint, error) {
-	if len(b) < offset+length {
+	if uint(len(b)) < offset+length {
 		return "", offset, errors.New("Cannot reference bytes as string, out of range")
 	}
 	return *(*string)(unsafe.Pointer(&b[offset : offset+length])), offset + length, nil
@@ -81,14 +82,14 @@ func stringFromBytesNoCopy(b []byte, offset uint, length uint) (string, uint, er
 // Buffer must be large enough to accept all bytes of the utf8 encoding.  Measure first!
 // Returns new offset, error
 func encodeUCS2StringAsUTF8(b []byte, offset uint, sr C.UHR_StringRef) (uint, error) {
-	i := 0
+	var i uint
 	slice := (*[1 << 30]uint16)(unsafe.Pointer(sr.characters))[:uint(sr.length)]
 	for _, codePoint := range slice {
 		r, err := decodeUCS2CodePoint(codePoint)
 		if err != nil {
 			return offset + i, err
 		}
-		i += utf8.EncodeRune(buffer[offset+i:], r)
+		i += utf8.EncodeRune(b[offset+i:], r)
 	}
 	return offset + i, nil
 }
@@ -113,7 +114,7 @@ func serializeRequest(
 
 	// method, url len, url bytes
 	urlLen := measureUCS2StringAsUTF8(url)
-	var size uint = 4 + 4 + urlLen
+	var size uint = 4 + 4 + uint(urlLen)
 	size = align4(size)
 
 	size += 4 // headers count
