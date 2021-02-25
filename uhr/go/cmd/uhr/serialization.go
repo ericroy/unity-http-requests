@@ -135,7 +135,7 @@ func serializeRequest(
 	if cap(recycledBuffer) < size {
 		buffer = make([]byte, 0, size)
 	} else {
-		buffer = recycledBuffer[:0]
+		buffer = recycledBuffer[:size]
 	}
 
 	// Write method
