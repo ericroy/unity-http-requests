@@ -30,7 +30,7 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
     -DENABLE_PROGRAMS:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=$target_arch \
-    -DCMAKE_ANDROID_NDK=${android_ndk_root} \
+    -DCMAKE_ANDROID_NDK=$android_ndk_root \
     ../../uhr/cpp/deps/mbedtls
 make -j$(nproc) && make install
 popd
@@ -51,7 +51,7 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_USE_SCHANNEL:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=$target_arch \
-    -DCMAKE_ANDROID_NDK=${android_ndk_root} \
+    -DCMAKE_ANDROID_NDK=$android_ndk_root \
 	../../uhr/cpp/deps/curl
 make -j$(nproc) && make install
 popd
@@ -63,7 +63,7 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=$target_arch \
-    -DCMAKE_ANDROID_NDK=${android_ndk_root} \
+    -DCMAKE_ANDROID_NDK=$android_ndk_root \
 	../../uhr/cpp
 make -j$(nproc) && make install
 popd
