@@ -1,5 +1,5 @@
 #include "session.h"
-#include "clue/clue.hpp"
+#include "logging.h"
 #include "request.h"
 
 namespace uhr {
@@ -19,7 +19,7 @@ namespace uhr {
 
 		auto res = curl_multi_cleanup(multi_);
 		if (res != CURLM_OK) {
-			LOG_CRITICAL("curl_multi_cleanup failed: " << curl_multi_strerror(res));
+			UHR_LOG_CRITICAL("curl_multi_cleanup failed: " << curl_multi_strerror(res));
 		}
 	}
 
@@ -111,14 +111,14 @@ namespace uhr {
 			// All easy handles must have a Request userdata.
 			void *user_data;
 			if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &user_data) != CURLE_OK) {
-				LOG_CRITICAL("Easy handle had no Request userdata");
+				UHR_LOG_CRITICAL("Easy handle had no Request userdata");
 				continue;
 			}
 			
 			auto rid = reinterpret_cast<Request *>(user_data)->rid();
 			auto iter = requests_.find(rid);
 			if (iter == std::end(requests_)) {
-				LOG_CRITICAL("Request not found in in-flight requests list");
+				UHR_LOG_CRITICAL("Request not found in in-flight requests list");
 				continue;
 			}
 			

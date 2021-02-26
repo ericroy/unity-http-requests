@@ -5,9 +5,11 @@
 SET here=%~dp0
 pushd %here%..
 
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
-if %errorlevel% NEQ 0 (
-	exit /b %errorlevel%
+if "%VCToolsVersion%"== "" (
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+    if %errorlevel% NEQ 0 (
+        exit /b %errorlevel%
+    )
 )
 
 "C:\Program Files\Git\bin\bash.exe" -e scripts/build_windows.sh

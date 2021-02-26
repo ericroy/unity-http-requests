@@ -1,5 +1,5 @@
 #include "request.h"
-#include "clue/clue.hpp"
+#include "logging.h"
 #include <cstring>
 #include <sstream>
 #include "util.h"
@@ -15,7 +15,7 @@ namespace uhr {
 	bool Request::Attach(CURLM *multi) {
 		auto res = curl_multi_add_handle(multi, easy_);
 		if (res != CURLM_OK) {
-			LOG_CRITICAL("Failed to attach Easy handle to Multi handle: " << curl_multi_strerror(res));
+			UHR_LOG_CRITICAL("Failed to attach Easy handle to Multi handle: " << curl_multi_strerror(res));
 			return false;
 		}
 		return true;
@@ -24,7 +24,7 @@ namespace uhr {
 	void Request::Detach(CURLM *multi) {
 		auto res = curl_multi_remove_handle(multi, easy_);
 		if (res != CURLM_OK)
-			LOG_CRITICAL("Failed to detach Easy handle from Multi handle: " << curl_multi_strerror(res));
+			UHR_LOG_CRITICAL("Failed to detach Easy handle from Multi handle: " << curl_multi_strerror(res));
 	}
 
 	void Request::OnComplete() {
@@ -37,7 +37,7 @@ namespace uhr {
 		if (res == CURLE_OK) {
 			http_status_ = static_cast<uint32_t>(status);
 		} else {
-			LOG_CRITICAL("Failed to get http status from curl: " << curl_easy_strerror(res));
+			UHR_LOG_CRITICAL("Failed to get http status from curl: " << curl_easy_strerror(res));
 		}
 	}
 

@@ -20,14 +20,11 @@ add_library(uhr SHARED
 	src/ca_certs.cc src/ca_certs.h
 	src/session.cc src/session.h
 	src/init.cc src/init.h
-	src/log_sink.cc src/log_sink.h
+	src/logging.cc src/logging.h
 	src/main.cc
 	src/request.cc src/request.h
 	src/request_builder.cc src/request_builder.h
 	src/util.cc src/util.h
-
-	# Third party:
-	src/clue/clue.hpp
 )
 target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include

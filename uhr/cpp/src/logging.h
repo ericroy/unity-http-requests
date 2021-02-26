@@ -19,7 +19,7 @@ namespace uhr {
 		public:
 			Acquired(Acquired &&) = default;
 			~Acquired();
-			template<typename T> Acquired& operator<<(T val) { oss_ << val; return *this; }
+			template<typename T> Acquired& operator<<(const T &val) { oss_ << val; return *this; }
 		private:
 			Acquired(LogSink *sink);
 			Acquired(const Acquired &) = delete;
