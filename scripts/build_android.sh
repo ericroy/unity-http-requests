@@ -49,6 +49,8 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK=$android_ndk_root \
+    -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
+    -DHAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT="" \
 	../../uhr/cpp/deps/curl
 make -j$(nproc) && make install
 popd
