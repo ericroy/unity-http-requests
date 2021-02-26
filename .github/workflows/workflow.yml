@@ -1,8 +1,9 @@
 name: Build unity plugins
+
 on:
   push:
-    branches:
-      - release
+    paths:
+      - 'unity/package.json'
 
 jobs:
 
