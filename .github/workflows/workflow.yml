@@ -44,15 +44,8 @@ jobs:
       - name: Build android armeabi-v7a
         env:
           UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
-          UHR_TARGET_ARCH: armeabi-v7a
         run: scripts/build_android.sh
-      
-      - name: Build android arm64-v8a
-        env:
-          UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
-          UHR_TARGET_ARCH: arm64-v8a
-        run: scripts/build_android.sh
-      
+
       - uses: actions/upload-artifact@v2
         with:
           name: artifact-android

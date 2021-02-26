@@ -10,9 +10,6 @@ fi
 # one of: Debug, Release
 build_type="${UHR_BUILD_TYPE:-Debug}"
 
-# one of: x86_64, armeabi-v7a, arm64-v8a
-target_arch="${UHR_TARGET_ARCH:-$arch}"
-
 android_ndk_root="${UHR_ANDROID_NDK_ROOT:-}"
 
 mkdir -p .build .prefix
@@ -29,7 +26,7 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
     -DENABLE_TESTING:BOOL=false \
     -DENABLE_PROGRAMS:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_ARCH_ABI=$target_arch \
+    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK=$android_ndk_root \
     ../../uhr/cpp/deps/mbedtls
 make -j$(nproc) && make install
@@ -50,7 +47,7 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_USE_MBEDTLS:BOOL=true \
 	-DCMAKE_USE_SCHANNEL:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_ARCH_ABI=$target_arch \
+    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK=$android_ndk_root \
 	../../uhr/cpp/deps/curl
 make -j$(nproc) && make install
@@ -62,11 +59,11 @@ pushd .build/uhr
 cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_ARCH_ABI=$target_arch \
+    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK=$android_ndk_root \
 	../../uhr/cpp
 make -j$(nproc) && make install
 popd
 
 mkdir -p unity/Assets/Plugins/Android
-cp .prefix/lib/libuhr.so unity/Assets/Plugins/Android/uhr-android.$target_arch.so
+cp .prefix/lib/libuhr.so unity/Assets/Plugins/Android/uhr-android.armeabi-v7a.so
