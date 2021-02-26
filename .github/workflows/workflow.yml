@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build linux x86_64
-        run: scripts/build.sh
+        run: scripts/build_linux.sh
       
       # - uses: nttld/setup-ndk@v1
       #   id: setup-ndk
@@ -84,7 +84,7 @@ jobs:
           echo "$PWD/.jom" >> $GITHUB_PATH
 
       - name: Build windows x86_64
-        run: scripts/build.sh
+        run: scripts/build_windows.sh
 
       - uses: actions/upload-artifact@v2
         with:
