@@ -41,4 +41,5 @@ dotnet build unity/uhr_tests.csproj \
     "-p:Constants=$constants"
 dotnet test unity/uhr_tests.csproj \
     --configuration $config \
-    --no-build
+    --no-build \
+    --verbosity normal
