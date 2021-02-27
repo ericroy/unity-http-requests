@@ -106,27 +106,34 @@ namespace uhr {
 			return 0;
 
 		const auto len = size * nitems;
-
+		
 		// Advance index i until it reaches the colon (or the end)
 		auto i = 0u;
-		while (i < size && ptr[i] != ':') ++i;
+		while (i < len && ptr[i] != ':') ++i;
+
+		// First header line is delivered to this callback, which is, eg:  HTTP/1.1 200 OK
+		// It's not really a key/value pair, so skip it if we didn't find a colon.
+		if (i == len)
+			return len;
 
 		// Range [0, i) holds the header name
 		auto name = ToUTF16(ptr, ptr + i);
+		//UHR_LOG_INFO("Header name: '" << std::string(ptr, ptr + i) << "'");
 
 		// Advance i past the colon, but only if not at the end
 		if (i < len) ++i;
 
 		// Advance i past any whitespace.
 		// It will land on the first character of the header value (or the end)
-		while (i < size && isspace(ptr[i])) ++i;
+		while (i < len && isspace(ptr[i])) ++i;
 		
 		// Starting at i, advance j to find the newline character (or the end)
 		auto j = i;
-		while (j < size && ptr[j] != '\n') ++j;
+		while (j < len && ptr[j] != 0 && ptr[j] != '\r' && ptr[j] != '\n') ++j;
 
 		// Range [i, j) holds the value
 		auto value = ToUTF16(ptr + i, ptr + j);
+		//UHR_LOG_INFO("Header value: '" << std::string(ptr + i, ptr + j) << "'");
 
 		self->response_headers_.emplace_back(std::move(name), std::move(value));
 		auto &header = self->response_headers_.back();

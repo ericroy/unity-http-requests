@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+#if UHR_TESTS
+using NUnit.Framework;
+#endif
 
 namespace UnityHttpRequests
 {
@@ -18,10 +21,11 @@ namespace UnityHttpRequests
 		
 		private delegate void LoggingCallback(StringRef msg, IntPtr userData);
 		private static readonly LoggingCallback logMessageDelegate = LogMessage;
-		private static HttpSession()
+		
+		static HttpSession()
 		{
 			#if DEBUG
-			UHR_SetLoggingCallback(logMessageDelegate, null);
+			UHR_SetLoggingCallback(logMessageDelegate, IntPtr.Zero);
 			#endif
 		}
 
@@ -195,7 +199,11 @@ namespace UnityHttpRequests
 
 		private unsafe static void LogMessage(StringRef msg, IntPtr userData)
 		{
-			Debug.Log(msg.ToStringAlloc());
+			#if UHR_TESTS
+			TestContext.Out.WriteLine(msg.ToStringAlloc());
+			#else
+			Debug.WriteLine(msg.ToStringAlloc());
+			#endif
 		}
 
 		#region NativeBindings

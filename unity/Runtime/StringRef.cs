@@ -22,16 +22,27 @@ namespace UnityHttpRequests
             pad = 0;
         }
 
-        public bool Equals(string s)
+        public bool Equals(string s, bool caseSensitive = true)
         {
             if (s.Length != Length)
             {
                 return false;
             }
-            for (var i = 0; i < s.Length; ++i)
+            if (caseSensitive)
             {
-                if (s[i] != characters[i])
-                    return false;
+                for (var i = 0; i < s.Length; ++i)
+                {
+                    if (s[i] != characters[i])
+                        return false;
+                }
+            }
+            else
+            {
+                for (var i = 0; i < s.Length; ++i)
+                {
+                    if (char.ToLowerInvariant(s[i]) != char.ToLowerInvariant(characters[i]))
+                        return false;
+                }
             }
             return true;
         }

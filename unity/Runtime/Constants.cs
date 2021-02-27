@@ -32,34 +32,56 @@ namespace UnityHttpRequests
 
     class NativeLibrary
     {
-    #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
-        #if UNITY_64
-        public const string Name = "uhr-windows.x86_64";
+        private const string NameWin64 = "uhr-windows.x86_64";
+        private const string NameLinux64 = "uhr-linux.x86_64";
+        private const string NameMac64 = "uhr-mac.x86_64";
+        private const string NameIOS = "__Internal";
+        private const string NameAndroid = "uhr-android.armeabi-v7a";
+
+    #if UHR_TESTS
+        #if UHR_TESTS_WINDOWS
+            public const string Name = "../../../Assets/Plugins/x86_64/" + NameWin64;
+        #elif UHR_TESTS_LINUX
+            public const string Name = "../../../Assets/Plugins/x86_64/" + NameLinux64;
+        #elif UHR_TESTS_MAC
+            public const string Name = "../../../Assets/Plugins/iOS/" + NameMac64;
+        #elif UHR_TESTS_ANDROID
+            public const string Name = "../../../Assets/Plugins/Android/" + NameAndroid;
+        #elif UHR_TESTS_IOS
+            public const string Name = NameIOS;
         #else
-        #error "Windows 32 bit not supported"
-        #endif
-    #elif (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
-        #if UNITY_64
-        public const string Name = "uhr-mac.x86_64";
-        #else
-        #error "OSX 32 bit not supported"
-        #endif
-    #elif (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
-        #if UNITY_64
-        public const string Name = "uhr-linux.x86_64";
-        #else
-        #error "Linux 32 bit not supported"
-        #endif
-    #elif UNITY_IPHONE
-        public const string Name = "__Internal";
-    #elif UNITY_ANDROID
-        #if UNITY_64
-        #error "Android arm 64 bit not yet supported..."
-        #else
-        public const string Name = "uhr-android.armeabi-v7a";
+            #error "Unsupported test platform"
         #endif
     #else
-        #error "No UHR plugin for this platform"
+        #if (UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN)
+            #if UNITY_64
+            public const string Name = NameWin64;
+            #else
+            #error "Windows 32 bit not supported"
+            #endif
+        #elif (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
+            #if UNITY_64
+            public const string Name = NameMac64;
+            #else
+            #error "OSX 32 bit not supported"
+            #endif
+        #elif (UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX)
+            #if UNITY_64
+            public const string Name = NameLinux64;
+            #else
+            #error "Linux 32 bit not supported"
+            #endif
+        #elif UNITY_IPHONE
+            public const string Name = NameIOS;
+        #elif UNITY_ANDROID
+            #if UNITY_64
+            #error "Android arm 64 bit not yet supported..."
+            #else
+            public const string Name = NameAndroid;
+            #endif
+        #else
+            #error "No UHR plugin for this platform"
+        #endif
     #endif
     }
 

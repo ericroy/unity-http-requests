@@ -8,15 +8,9 @@ obj/
 *.dll
 *.so
 *.meta
-target/
+
 .build/
 .prefix/
 .jom/
-
-
-# meson
-.build/
-.prefix/
-**/subprojects/*
-!**/subprojects/*.wrap
-!**/subprojects/packagefiles/
+bin/
+obj/

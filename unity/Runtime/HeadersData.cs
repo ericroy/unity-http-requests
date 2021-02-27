@@ -12,11 +12,12 @@ namespace UnityHttpRequests
         public uint Count { get; private set; }
         private uint pad;
         
+        // Header names are case insensitive.
         public int FindHeader(string headerName)
         {
             for (var i = 0; i < Count; ++i)
             {
-                if (headers[i].Name.Equals(headerName))
+                if (headers[i].Name.Equals(headerName, false))
                 {
                     return i;
                 }
@@ -59,23 +60,23 @@ namespace UnityHttpRequests
             return true;
         }
 
-        public bool HeaderEquals(int headerIndex, string expectedValue)
+        public bool HeaderEquals(int headerIndex, string expectedValue, bool valueCaseSensitive = true)
         {
             if (headerIndex < 0 || headerIndex >= Count)
             {
                 throw new IndexOutOfRangeException();
             }
-            return headers[headerIndex].Value.Equals(expectedValue);
+            return headers[headerIndex].Value.Equals(expectedValue, valueCaseSensitive);
         }
 
-        public bool HeaderEquals(string headerName, string expectedValue)
+        public bool HeaderEquals(string headerName, string expectedValue, bool valueCaseSensitive = true)
         {
             int i = FindHeader(headerName);
             if (i == -1)
             {
                 return false;                
             }
-            return headers[i].Value.Equals(expectedValue);
+            return headers[i].Value.Equals(expectedValue, valueCaseSensitive);
         }
     }
 

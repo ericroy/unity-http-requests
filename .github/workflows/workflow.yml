@@ -7,51 +7,6 @@ on:
 
 jobs:
 
-  # build-plugin-ios:
-  #   runs-on: macos-latest
-  #   defaults:
-  #     run:
-  #       shell: bash
-  #   env:
-  #     UHR_BUILD_TYPE: Release
-  #   steps:
-  #     - uses: actions/checkout@v2
-      
-  #     - name: Build iOS fat
-  #       run: scripts/build_ios.sh
-      
-  #     - uses: actions/upload-artifact@v2
-  #       with:
-  #         name: artifact-ios
-  #         path: unity/Assets
-  #         retention-days: 1
-
-  build-plugin-android:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    env:
-      UHR_BUILD_TYPE: Release
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: nttld/setup-ndk@v1
-        id: setup-ndk
-        with:
-          ndk-version: r21d
-      
-      - name: Build android armeabi-v7a
-        env:
-          UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
-        run: scripts/build_android.sh
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: artifact-android
-          path: unity/Assets
-          retention-days: 1
-
   build-plugin-linux:
     runs-on: ubuntu-latest
     defaults:
@@ -64,6 +19,9 @@ jobs:
 
       - name: Build linux x86_64
         run: scripts/build_linux.sh
+
+      - name: Test linux x86_64
+        run: scripts/test.sh
 
       - uses: actions/upload-artifact@v2
         with:
@@ -94,11 +52,59 @@ jobs:
       - name: Build windows x86_64
         run: scripts/build_windows.sh
 
+      - name: Test windows x86_64
+        run: scripts/test.sh
+
       - uses: actions/upload-artifact@v2
         with:
           name: artifact-windows
           path: unity/Assets
           retention-days: 1
+
+  build-plugin-android:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      UHR_BUILD_TYPE: Release
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21d
+      
+      - name: Build android armeabi-v7a
+        env:
+          UHR_ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: scripts/build_android.sh
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact-android
+          path: unity/Assets
+          retention-days: 1
+
+  # build-plugin-ios:
+  #   runs-on: macos-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #   env:
+  #     UHR_BUILD_TYPE: Release
+  #   steps:
+  #     - uses: actions/checkout@v2
+      
+  #     - name: Build iOS fat
+  #       run: scripts/build_ios.sh
+      
+  #     - uses: actions/upload-artifact@v2
+  #       with:
+  #         name: artifact-ios
+  #         path: unity/Assets
+  #         retention-days: 1
 
   package-plugin:
     runs-on: ubuntu-latest

@@ -20,6 +20,7 @@ sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
 echo "Sysroot is: $sysroot"
 clang++ \
     -isysroot $sysroot \
+    -arch i386 \
     -arch arm64 \
     -arch armv7 \
     -arch armv7s \
