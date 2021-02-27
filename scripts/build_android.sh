@@ -69,3 +69,4 @@ popd
 
 mkdir -p unity/Assets/Plugins/Android
 cp .prefix/lib/libuhr.so unity/Assets/Plugins/Android/uhr-android.armeabi-v7a.so
+ls -alR unity/Assets/Plugins

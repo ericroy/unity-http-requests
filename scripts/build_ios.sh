@@ -41,3 +41,4 @@ nm -gU .build/uhr/uhr.dylib
 
 mkdir -p unity/Assets/Plugins/iOS
 cp .build/uhr/uhr.dylib unity/Assets/Plugins/iOS/uhr-ios.fat.dylib
+ls -alR unity/Assets/Plugins

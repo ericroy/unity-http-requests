@@ -56,3 +56,4 @@ popd
 
 mkdir -p unity/Assets/Plugins/x86_64
 cp .prefix/lib/libuhr.so unity/Assets/Plugins/x86_64/uhr-linux.x86_64.so
+ls -alR unity/Assets/Plugins

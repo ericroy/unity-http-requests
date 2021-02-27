@@ -29,6 +29,7 @@ pushd .build/curl
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DCURL_STATIC_CRT:BOOL=true \
 	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
 	-DBUILD_SHARED_LIBS:BOOL=false \
 	-DBUILD_CURL_EXE:BOOL=false \
@@ -54,3 +55,4 @@ popd
 
 mkdir -p unity/Assets/Plugins/x86_64
 cp .prefix/bin/uhr.dll unity/Assets/Plugins/x86_64/uhr-windows.x86_64.dll
+ls -alR unity/Assets/Plugins
