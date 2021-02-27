@@ -109,7 +109,7 @@ namespace Tests
                 Assert.IsTrue(res.Headers.TryGetHeaderAlloc("Content-Type", out headerValue2));
                 Assert.AreEqual("application/json", headerValue2);
 
-                Assert.IsTrue(res.Body.ToStringAlloc().Contains("origin"));
+                Assert.IsTrue(res.Body.ToStringAlloc().Contains("\"baz\""));
             };
 
             for (var i = 0; !done && i < 50; ++i)
