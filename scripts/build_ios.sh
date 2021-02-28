@@ -39,6 +39,14 @@ clang++ \
 # list expoted symbols:
 nm -gU .build/uhr/uhr.dylib
 
-mkdir -p unity/Assets/Plugins/iOS
-cp .build/uhr/uhr.dylib unity/Assets/Plugins/iOS/uhr-ios.fat.dylib
-ls -alR unity/Assets/Plugins
+artifact=unity/Assets/Plugins/iOS/uhr-ios.fat.dylib
+mkdir -p `dirname $artifact`
+cp .build/uhr/uhr.dylib $artifact
+
+# For the benefit of the ci job log:
+echo "Artifact:"
+ls -alR $artifact
+echo "Depends on:"
+otool -L $artifact
+echo "Exports:"
+nm -gU $artifact

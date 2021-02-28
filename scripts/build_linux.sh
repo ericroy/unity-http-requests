@@ -33,6 +33,7 @@ pushd .build/curl
 cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
 	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DCURL_HIDDEN_SYMBOLS:BOOL=true \
 	-DBUILD_SHARED_LIBS:BOOL=false \
 	-DBUILD_CURL_EXE:BOOL=false \
 	-DBUILD_TESTING:BOOL=false \
@@ -54,6 +55,14 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
 make -j$(nproc) && make install
 popd
 
-mkdir -p unity/Assets/Plugins/x86_64
-cp .prefix/lib/libuhr.so unity/Assets/Plugins/x86_64/uhr-linux.x86_64.so
-ls -alR unity/Assets/Plugins
+artifact=unity/Assets/Plugins/x86_64/uhr-linux.x86_64.so
+mkdir -p `dirname $artifact`
+cp .prefix/lib/libuhr.so $artifact
+
+# For the benefit of the ci job log:
+echo "Artifact:"
+ls -alR $artifact
+echo "Depends on:"
+readelf -d $artifact | grep NEEDED
+echo "Exports:"
+nm -D --defined-only $artifact

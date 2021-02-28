@@ -53,6 +53,12 @@ cmake -G "$generator" \
 $make_cmd && $make_cmd install
 popd
 
-mkdir -p unity/Assets/Plugins/x86_64
-cp .prefix/bin/uhr.dll unity/Assets/Plugins/x86_64/uhr-windows.x86_64.dll
-ls -alR unity/Assets/Plugins
+
+artifact=unity/Assets/Plugins/x86_64/uhr-windows.x86_64.dll
+mkdir -p `dirname $artifact`
+cp .prefix/bin/uhr.dll $artifact
+
+# For the benefit of the ci job log:
+ls -alR $artifact
+dumpbin -NOLOGO -DEPENDENTS $artifact
+dumpbin -NOLOGO -EXPORTS $artifact
