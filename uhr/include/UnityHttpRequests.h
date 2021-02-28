@@ -31,18 +31,14 @@ extern "C" {
 #endif
 
 // UHR_API define
-#if defined(UHR_CGO)
-    #define UHR_API extern
-#else
-    #ifdef UHR_PLATFORM_WIN
-        #ifdef UHR_BUILDING_SHARED
-            #define UHR_API __declspec(dllexport)
-        #else
-            #define UHR_API __declspec(dllimport)
-        #endif
+#ifdef UHR_PLATFORM_WIN
+    #ifdef UHR_BUILDING_SHARED
+        #define UHR_API __declspec(dllexport)
     #else
-        #define UHR_API __attribute__((visibility("default")))
+        #define UHR_API __declspec(dllimport)
     #endif
+#else
+    #define UHR_API __attribute__((visibility("default")))
 #endif
 
 #define UHR_ERR_OK 0

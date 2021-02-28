@@ -79,4 +79,10 @@ ls -alR $artifact
 echo "Depends on:"
 readelf -d $artifact | grep NEEDED
 echo "Exports:"
-nm -D --defined-only $artifact
+readelf -s "$artifact" | while read num value size type bind viz index name dummy ; do
+	[ "$type" = "FUNC" ] || continue
+	[ "$bind" = "GLOBAL" ] || continue
+	[ "${num::-1}" = "$[${num::-1}]" ] || continue
+	[ "$index" = "$[$index]" ] || continue
+	printf '\t%s\n' "$name"
+done

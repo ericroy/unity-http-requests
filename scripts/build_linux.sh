@@ -33,7 +33,6 @@ pushd .build/curl
 cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
 	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DCURL_HIDDEN_SYMBOLS:BOOL=true \
 	-DBUILD_SHARED_LIBS:BOOL=false \
 	-DBUILD_CURL_EXE:BOOL=false \
 	-DBUILD_TESTING:BOOL=false \
@@ -65,4 +64,10 @@ ls -alR $artifact
 echo "Depends on:"
 readelf -d $artifact | grep NEEDED
 echo "Exports:"
-nm -D --defined-only $artifact
+readelf -s "$artifact" | while read num value size type bind viz index name dummy ; do
+	[ "$type" = "FUNC" ] || continue
+	[ "$bind" = "GLOBAL" ] || continue
+	[ "${num::-1}" = "$[${num::-1}]" ] || continue
+	[ "$index" = "$[$index]" ] || continue
+	printf '\t%s\n' "$name"
+done

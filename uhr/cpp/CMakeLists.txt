@@ -3,6 +3,10 @@ project(uhr)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED true)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN true)
+list(APPEND CMAKE_SHARED_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 find_package(CURL REQUIRED CONFIG)
@@ -21,7 +25,7 @@ target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(uhr CURL::libcurl)
+target_link_libraries(uhr PRIVATE CURL::libcurl)
 target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)
