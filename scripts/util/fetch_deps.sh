@@ -2,10 +2,10 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here/../..
 
-curl_version=7.75.0
-curl_url=https://curl.se/download/curl-${curl_version}.tar.gz
-curl_hash=fbd1e354a5e4e9a4ac07db3d1222d19f84a5e751
-curl_file=uhr/cpp/deps/curl-${curl_version}.tar.gz
+lws_version=4.1.6
+lws_url=https://github.com/warmcat/libwebsockets/archive/v${lws_version}.tar.gz
+lws_hash=c1388f2411ce2e7c57243f8ac1cc52240145ee91
+lws_file=uhr/cpp/deps/lws-${lws_version}.tar.gz
 
 mbedtls_version=2.25.0
 mbedtls_url=https://github.com/ARMmbed/mbedtls/archive/v${mbedtls_version}.tar.gz
@@ -27,12 +27,12 @@ function get () {
 	fi
 }
 
-get $curl_url $curl_file $curl_hash
+get $lws_url $lws_file $lws_hash
 get $mbedtls_url $mbedtls_file $mbedtls_hash
 
-echo "Extracting $curl_file"
-mkdir -p uhr/cpp/deps/curl
-tar -xf $curl_file --strip-components=1 -C uhr/cpp/deps/curl
+echo "Extracting $lws_file"
+mkdir -p uhr/cpp/deps/lws
+tar -xf $lws_file --strip-components=1 -C uhr/cpp/deps/lws
 
 echo "Extracting $mbedtls_file"
 mkdir -p uhr/cpp/deps/mbedtls

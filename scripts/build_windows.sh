@@ -23,23 +23,33 @@ else
     make_cmd="nmake"
 fi
 
-# curl
-mkdir -p .build/curl
-pushd .build/curl
+# mbedtls
+mkdir -p .build/mbedtls
+pushd .build/mbedtls
+cmake -G "$generator" \
+	-DCMAKE_BUILD_TYPE=$build_type \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DENABLE_TESTING:BOOL=false \
+    -DENABLE_PROGRAMS:BOOL=false \
+    ../../uhr/cpp/deps/mbedtls
+$make_cmd && $make_cmd install
+popd
+
+# lws
+mkdir -p .build/lws
+pushd .build/lws
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCURL_STATIC_CRT:BOOL=true \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-	-DBUILD_SHARED_LIBS:BOOL=false \
-	-DBUILD_CURL_EXE:BOOL=false \
-	-DBUILD_TESTING:BOOL=false \
-	-DHTTP_ONLY:BOOL=true \
-	-DCMAKE_USE_LIBSSH2:BOOL=false \
-	-DCMAKE_USE_OPENSSL:BOOL=false \
-	-DCMAKE_USE_MBEDTLS:BOOL=false \
-	-DCMAKE_USE_SCHANNEL:BOOL=true \
-	../../uhr/cpp/deps/curl
+	-DLWS_WITH_BUNDLED_ZLIB_DEFAULT:BOOL=true \
+	-DLWS_ROLE_WS:BOOL=false \
+	-DLWS_WITH_MBEDTLS:BOOL=true \
+	-DLWS_WITH_SHARED:BOOL=false \
+	-DLWS_WITH_BUNDLED_ZLIB_DEFAULT:BOOL=true \
+	-DLWS_WITHOUT_SERVER:BOOL=true \
+	-DLWS_WITHOUT_TESTAPPS:BOOL=true \
+	-DDISABLE_WERROR:BOOL=true \
+    ../../uhr/cpp/deps/lws
 $make_cmd && $make_cmd install
 popd
 

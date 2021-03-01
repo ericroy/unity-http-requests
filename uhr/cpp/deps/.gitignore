@@ -4,3 +4,4 @@
 *.checksum
 curl/
 mbedtls/
+lws/

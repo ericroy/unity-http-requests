@@ -9,7 +9,7 @@ set(CMAKE_VISIBILITY_INLINES_HIDDEN true)
 list(APPEND CMAKE_SHARED_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-find_package(CURL REQUIRED CONFIG)
+find_package(libwebsockets REQUIRED CONFIG)
 
 add_library(uhr SHARED
 	src/ca_certs.cc src/ca_certs.h
@@ -25,7 +25,7 @@ target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(uhr PRIVATE CURL::libcurl)
+target_link_libraries(uhr PRIVATE libwebsockets::lws)
 target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)
