@@ -25,7 +25,7 @@ target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(uhr PRIVATE libwebsockets::lws)
+target_link_libraries(uhr PRIVATE websockets)
 target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)
