@@ -2,9 +2,9 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here/../..
 
-lws_version=4.1.6
-lws_url=https://github.com/warmcat/libwebsockets/archive/v${lws_version}.tar.gz
-lws_hash=c1388f2411ce2e7c57243f8ac1cc52240145ee91
+lws_version=4.1
+lws_url=https://github.com/warmcat/libwebsockets/archive/v${lws_version}-stable.tar.gz
+lws_hash=fa5bfd763ed2aaa5ad97c696c966d636a1937c89
 lws_file=uhr/cpp/deps/lws-${lws_version}.tar.gz
 
 mbedtls_version=2.25.0
