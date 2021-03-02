@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -euo pipefail
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here/..
 
@@ -32,7 +33,8 @@ cmake -G "$generator" \
     -DENABLE_TESTING:BOOL=false \
     -DENABLE_PROGRAMS:BOOL=false \
     ../../uhr/cpp/deps/mbedtls
-$make_cmd && $make_cmd install
+$make_cmd
+$make_cmd install
 popd
 
 # lws
@@ -50,7 +52,8 @@ cmake -G "$generator" \
 	-DLWS_WITHOUT_TESTAPPS:BOOL=true \
 	-DDISABLE_WERROR:BOOL=true \
     ../../uhr/cpp/deps/lws
-$make_cmd && $make_cmd install
+$make_cmd
+$make_cmd install
 popd
 
 # uhr
@@ -60,7 +63,8 @@ cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
 	../../uhr/cpp
-$make_cmd && $make_cmd install
+$make_cmd
+$make_cmd install
 popd
 
 

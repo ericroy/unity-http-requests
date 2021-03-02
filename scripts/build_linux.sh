@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -euo pipefail
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here/..
 
@@ -24,7 +25,8 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
     -DENABLE_TESTING:BOOL=false \
     -DENABLE_PROGRAMS:BOOL=false \
     ../../uhr/cpp/deps/mbedtls
-make -j$(nproc) && make install
+make -j$(nproc)
+make install
 popd
 
 # lws
@@ -42,7 +44,8 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DLWS_WITHOUT_TESTAPPS:BOOL=true \
 	-DDISABLE_WERROR:BOOL=true \
     ../../uhr/cpp/deps/lws
-make -j$(nproc) && make install
+make -j$(nproc)
+make install
 popd
 
 # uhr
@@ -51,7 +54,8 @@ pushd .build/uhr
 cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
 	../../uhr/cpp
-make -j$(nproc) && make install
+make -j$(nproc)
+make install
 popd
 
 artifact=unity/Assets/Plugins/x86_64/uhr-linux.x86_64.so

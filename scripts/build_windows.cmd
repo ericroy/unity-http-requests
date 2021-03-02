@@ -12,7 +12,7 @@ if "%VCToolsVersion%"== "" (
     )
 )
 
-call "C:\Program Files\Git\bin\bash.exe" -e scripts/build_windows.sh
+"C:\Program Files\Git\bin\bash.exe" scripts/build_windows.sh
 if %errorlevel% NEQ 0 (
    exit /b %errorlevel%
 )

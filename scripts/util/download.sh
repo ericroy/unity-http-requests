@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -euo pipefail
 url=$1
 dest_file=$2
 echo "Downloading $url => $dest_file"

@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -euo pipefail
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 pushd $here/..
 
@@ -29,7 +30,8 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK=$android_ndk_root \
     ../../uhr/cpp/deps/mbedtls
-make -j$(nproc) && make install
+make -j$(nproc)
+make install
 popd
 
 # curl
@@ -53,7 +55,8 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
     -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
     -DHAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT="" \
 	../../uhr/cpp/deps/curl
-make -j$(nproc) && make install
+make -j$(nproc)
+make install
 popd
 
 # uhr
@@ -65,7 +68,8 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK=$android_ndk_root \
 	../../uhr/cpp
-make -j$(nproc) && make install
+make -j$(nproc)
+make install
 popd
 
 

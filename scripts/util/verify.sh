@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/bin/bash
+set -euo pipefail
 file=$1
 expected=$2
 actual=(`sha1sum $file`)
