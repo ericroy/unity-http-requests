@@ -149,7 +149,7 @@ namespace uhr {
 	}
 
 	// static
-	int Request::ProgressCallback(void *user_data, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow) {
+	int Request::ProgressCallback(void *user_data, curl_off_t /* dltotal */, curl_off_t /* dlnow */, curl_off_t /* ultotal */, curl_off_t /* ulnow */) {
 		Request *self = reinterpret_cast<Request*>(user_data);
 		if (self->cancelled_)
 			return -1;

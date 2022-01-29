@@ -6,9 +6,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN true)
-list(APPEND CMAKE_SHARED_LINKER_FLAGS "-Wl,--exclude-libs,ALL")
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+if(MSVC)
+	set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	string(APPEND CMAKE_CXX_FLAGS " /Zc:__cplusplus")
+else()
+	string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,ALL")
+endif()
 
+find_package(utf8cpp REQUIRED CONFIG)
 find_package(CURL REQUIRED CONFIG)
 
 add_library(uhr SHARED
@@ -25,10 +30,15 @@ target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(uhr PRIVATE CURL::libcurl)
+target_link_libraries(uhr PRIVATE utf8cpp CURL::libcurl)
 target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)
+endif()
+if(MSVC)
+  target_compile_options(uhr PRIVATE /W4 /WX)
+else()
+  target_compile_options(uhr PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 
 install(TARGETS uhr RUNTIME)

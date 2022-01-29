@@ -15,6 +15,30 @@ mkdir -p .build .prefix
 # Pull down third party dependencies (curl, mbedtls, etc)
 ./scripts/util/fetch_deps.sh
 
+# utfcpp
+mkdir -p .build/utfcpp
+pushd .build/utfcpp
+cmake -DCMAKE_BUILD_TYPE="$build_type" \
+	-DCMAKE_INSTALL_PREFIX=../../.prefix \
+	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DUTF8_TESTS=false \
+    -DUTF8_SAMPLES=false \
+    -DUTF8_INSTALL=true \
+	../../uhr/cpp/deps/utfcpp
+make "-j$(nproc)" && make install
+popd
+
+# zlib
+mkdir -p .build/zlib
+pushd .build/zlib
+cmake -DCMAKE_BUILD_TYPE="$build_type" \
+	-DCMAKE_INSTALL_PREFIX=../../.prefix \
+	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DSKIP_INSTALL_FILES=true \
+	../../uhr/cpp/deps/zlib
+make "-j$(nproc)" && make install
+popd
+
 # mbedtls
 mkdir -p .build/mbedtls
 pushd .build/mbedtls

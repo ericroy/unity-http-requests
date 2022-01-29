@@ -23,14 +23,42 @@ else
     make_cmd="nmake"
 fi
 
+# utfcpp
+mkdir -p .build/utfcpp
+pushd .build/utfcpp
+cmake -G "$generator" \
+    -DCMAKE_BUILD_TYPE="$build_type" \
+	-DCMAKE_INSTALL_PREFIX=../../.prefix \
+	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DUTF8_TESTS=false \
+    -DUTF8_SAMPLES=false \
+    -DUTF8_INSTALL=true \
+	../../uhr/cpp/deps/utfcpp
+$make_cmd && $make_cmd install
+popd
+
+# zlib
+mkdir -p .build/zlib
+pushd .build/zlib
+cmake -G "$generator" \
+    -DCMAKE_BUILD_TYPE="$build_type" \
+	-DCMAKE_INSTALL_PREFIX=../../.prefix \
+	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DSKIP_INSTALL_FILES=true \
+	../../uhr/cpp/deps/zlib
+$make_cmd && $make_cmd install
+popd
+
 # curl
 mkdir -p .build/curl
 pushd .build/curl
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE="$build_type" \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCURL_STATIC_CRT:BOOL=true \
 	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DZLIB_INCLUDE_DIR="../../.prefix/include" \
+    -DZLIB_LIBRARY="../../.prefix/lib/zlibstatic$( [[ "$build_type" == "Debug" ]] && echo "d" ).lib" \
+    -DCURL_STATIC_CRT:BOOL=true \
 	-DBUILD_SHARED_LIBS:BOOL=false \
 	-DBUILD_CURL_EXE:BOOL=false \
 	-DBUILD_TESTING:BOOL=false \

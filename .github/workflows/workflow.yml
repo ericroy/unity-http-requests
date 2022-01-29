@@ -46,7 +46,7 @@ jobs:
       # so that subsequent steps will find jom.exe
       - name: Install jom
         run: |
-          bash scripts/util/fetch_jom.sh
+          ./scripts/util/fetch_jom.sh
           echo "$PWD/.jom" >> $GITHUB_PATH
 
       - name: Build windows x86_64

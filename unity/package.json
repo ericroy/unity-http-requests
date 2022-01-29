@@ -1,6 +1,6 @@
 {
   "name": "@ericroy/unity-http-requests",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "displayName": "UnityHttpRequests",
   "description": "Native Unity plugin for making HTTP requests",
   "unity": "2019.1"

@@ -1,25 +1,24 @@
 #include "util.h"
 #include <locale>
 #include <codecvt>
+#include "utf8cpp/utf8.h"
 
 namespace uhr {
 
 	std::u16string ToUTF16(const std::string& s) {
-		std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-		return convert.from_bytes(s);
+		return utf8::utf8to16(s);
+	}
+
+	std::u16string ToUTF16(const char* s) {
+		return utf8::utf8to16(std::string_view(s));
 	}
 
 	std::u16string ToUTF16(const char *begin_iter, const char *end_iter) {
-		std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-		return convert.from_bytes(begin_iter, end_iter);
+		return utf8::utf8to16(std::string_view(begin_iter, end_iter - begin_iter));
 	}
 
 	std::string ToUTF8(UHR_StringRef sr) {
-		std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert; 
-		return convert.to_bytes(
-			reinterpret_cast<const char16_t *>(sr.characters),
-			reinterpret_cast<const char16_t *>(sr.characters) + sr.length
-		);
+		return utf8::utf16to8(std::u16string_view(reinterpret_cast<const char16_t *>(sr.characters), sr.length));
 	}
 
 	UHR_StringRef ToStringRef(const std::u16string &s) {

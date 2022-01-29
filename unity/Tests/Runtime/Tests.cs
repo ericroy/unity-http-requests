@@ -35,6 +35,7 @@ namespace Tests
             var headers = new Dictionary<string, string>();
             headers["User-Agent"] = "FooAgent";
             headers["Accept"] = "application/json";
+            headers["Accept-Encoding"] = "gzip";
             var rid = session.Get("https://httpbin.org/get", headers);
 
             bool done = false;
@@ -79,6 +80,7 @@ namespace Tests
         {
             var headers = new Dictionary<string, string>();
             headers["User-Agent"] = "FooAgent";
+            headers["Accept-Encoding"] = "gzip";
             headers["Accept"] = "application/json";
             headers["Content-Type"] = "application/json";
             var postBody = Encoding.UTF8.GetBytes("{\"foo\": \"bar\", \"baz\": 33}");
