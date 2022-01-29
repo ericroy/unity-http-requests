@@ -1,6 +1,6 @@
 #!/bin/bash -e
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-pushd $here/..
+pushd "$here/.."
 
 if [[ "$(arch)" != "x86_64" ]]; then
     echo "Expected host to be x86_64, but it was $(arch)"
@@ -20,22 +20,22 @@ mkdir -p .build .prefix
 # mbedtls
 mkdir -p .build/mbedtls
 pushd .build/mbedtls
-cmake -DCMAKE_BUILD_TYPE=$build_type \
+cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DENABLE_TESTING:BOOL=false \
     -DENABLE_PROGRAMS:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK=$android_ndk_root \
+    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     ../../uhr/cpp/deps/mbedtls
-make -j$(nproc) && make install
+make "-j$(nproc)" && make install
 popd
 
 # curl
 mkdir -p .build/curl
 pushd .build/curl
-cmake -DCMAKE_BUILD_TYPE=$build_type \
+cmake -DCMAKE_BUILD_TYPE="$build_type" \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
 	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DCURL_HIDDEN_SYMBOLS:BOOL=true \
@@ -49,28 +49,28 @@ cmake -DCMAKE_BUILD_TYPE=$build_type \
 	-DCMAKE_USE_SCHANNEL:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK=$android_ndk_root \
+    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
     -DHAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT="" \
 	../../uhr/cpp/deps/curl
-make -j$(nproc) && make install
+make "-j$(nproc)" && make install
 popd
 
 # uhr
 mkdir -p .build/uhr
 pushd .build/uhr
-cmake -DCMAKE_BUILD_TYPE=$build_type \
+cmake -DCMAKE_BUILD_TYPE="$build_type" \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK=$android_ndk_root \
+    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
 	../../uhr/cpp
-make -j$(nproc) && make install
+make "-j$(nproc)" && make install
 popd
 
 
 artifact=unity/Assets/Plugins/Android/uhr-android.armeabi-v7a.so
-mkdir -p `dirname $artifact`
+mkdir -p "$(dirname "$artifact")"
 cp .prefix/lib/libuhr.so $artifact
 
 # For the benefit of the ci job log:
@@ -79,10 +79,10 @@ ls -alR $artifact
 echo "Depends on:"
 readelf -d $artifact | grep NEEDED
 echo "Exports:"
-readelf -s "$artifact" | while read num value size type bind viz index name dummy ; do
+readelf -s "$artifact" | while read -r num _ _ type bind _ index name _ ; do
 	[ "$type" = "FUNC" ] || continue
 	[ "$bind" = "GLOBAL" ] || continue
-	[ "${num::-1}" = "$[${num::-1}]" ] || continue
-	[ "$index" = "$[$index]" ] || continue
+	[ "${num::-1}" = "$((${num::-1}))" ] || continue
+	[ "$index" = "$((index))" ] || continue
 	printf '\t%s\n' "$name"
 done

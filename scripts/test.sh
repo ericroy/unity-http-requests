@@ -1,6 +1,6 @@
 #!/bin/bash -e
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-pushd $here/..
+pushd "$here/.."
 
 # UHR_TESTS_OS:  One of windows, mac, linux, ios, android
 
@@ -35,11 +35,11 @@ config=Debug
 
 dotnet restore unity/uhr_tests.csproj
 dotnet build unity/uhr_tests.csproj \
-    --configuration $config \
+    --configuration "$config" \
     --no-incremental \
     --no-restore \
     "-p:Constants=$constants"
 dotnet test unity/uhr_tests.csproj \
-    --configuration $config \
+    --configuration "$config" \
     --no-build \
     --verbosity normal

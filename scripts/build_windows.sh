@@ -1,6 +1,6 @@
 #!/bin/bash -e
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-pushd $here/..
+pushd "$here/.."
 
 if [[ "$(arch)" != "x86_64" ]]; then
     echo "Expected host to be x86_64, but it was $(arch)"
@@ -27,7 +27,7 @@ fi
 mkdir -p .build/curl
 pushd .build/curl
 cmake -G "$generator" \
-    -DCMAKE_BUILD_TYPE=$build_type \
+    -DCMAKE_BUILD_TYPE="$build_type" \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DCURL_STATIC_CRT:BOOL=true \
 	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
@@ -47,15 +47,14 @@ popd
 mkdir -p .build/uhr
 pushd .build/uhr
 cmake -G "$generator" \
-    -DCMAKE_BUILD_TYPE=$build_type \
+    -DCMAKE_BUILD_TYPE="$build_type" \
 	-DCMAKE_INSTALL_PREFIX=../../.prefix \
 	../../uhr/cpp
 $make_cmd && $make_cmd install
 popd
 
-
 artifact=unity/Assets/Plugins/x86_64/uhr-windows.x86_64.dll
-mkdir -p `dirname $artifact`
+mkdir -p "$(dirname "$artifact")"
 cp .prefix/bin/uhr.dll $artifact
 
 # For the benefit of the ci job log:

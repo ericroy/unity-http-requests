@@ -1,6 +1,6 @@
 #!/bin/bash -e
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-pushd $here/../..
+pushd "$here/../.."
 
 curl_version=7.75.0
 curl_url=https://curl.se/download/curl-${curl_version}.tar.gz
@@ -16,14 +16,14 @@ function get () {
 	local url=$1
 	local file=$2
 	local hash=$3
-	if [ -f $file ]; then
-		./scripts/util/verify.sh $file $hash || (
-			./scripts/util/download.sh $url $file
-			./scripts/util/verify.sh $file $hash
+	if [ -f "$file" ]; then
+		./scripts/util/verify.sh "$file" "$hash" || (
+			./scripts/util/download.sh "$url" "$file"
+			./scripts/util/verify.sh "$file" "$hash"
 		)
 	else
-		./scripts/util/download.sh $url $file
-		./scripts/util/verify.sh $file $hash
+		./scripts/util/download.sh "$url" "$file"
+		./scripts/util/verify.sh "$file" "$hash"
 	fi
 }
 

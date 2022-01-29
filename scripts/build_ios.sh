@@ -1,6 +1,6 @@
 #!/bin/bash -e
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-pushd $here/..
+pushd "$here/.."
 
 # one of: Debug, Release
 build_type="${UHR_BUILD_TYPE:-Debug}"
@@ -19,7 +19,7 @@ sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
 
 echo "Sysroot is: $sysroot"
 clang++ \
-    -isysroot $sysroot \
+    -isysroot "$sysroot" \
     -arch i386 \
     -arch arm64 \
     -arch armv7 \
@@ -28,7 +28,7 @@ clang++ \
     -fvisibility=hidden \
     -Weverything \
     -pedantic \
-    $build_type \
+    "$build_type" \
     -dynamiclib \
     -I./uhr/include \
     -I./uhr/objc/src \
@@ -40,13 +40,13 @@ clang++ \
 nm -gU .build/uhr/uhr.dylib
 
 artifact=unity/Assets/Plugins/iOS/uhr-ios.fat.dylib
-mkdir -p `dirname $artifact`
-cp .build/uhr/uhr.dylib $artifact
+mkdir -p "$(dirname "$artifact")"
+cp .build/uhr/uhr.dylib "$artifact"
 
 # For the benefit of the ci job log:
 echo "Artifact:"
-ls -alR $artifact
+ls -alR "$artifact"
 echo "Depends on:"
-otool -L $artifact
+otool -L "$artifact"
 echo "Exports:"
-nm -gU $artifact
+nm -gU "$artifact"
