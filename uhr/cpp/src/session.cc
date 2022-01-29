@@ -135,8 +135,8 @@ namespace uhr {
 			// Keep response-related data though.
 			req->Cleanup();
 
-			// Transfer ownership of Request to caller
-			return std::move(req);
+			// Transfer ownership of Request to caller, move semantics are used.
+			return req;
 		}
 
 		return nullptr;
