@@ -10,6 +10,9 @@ fi
 # one of: Debug, Release
 build_type="${UHR_BUILD_TYPE:-Debug}"
 
+# Android api version to target, 24 == Android7.0
+target_api_version="${UHR_ANDROID_TARGET_API:-24}"
+
 android_ndk_root="${UHR_ANDROID_NDK_ROOT:-}"
 
 mkdir -p .build .prefix
@@ -26,6 +29,10 @@ cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DUTF8_TESTS=false \
     -DUTF8_SAMPLES=false \
     -DUTF8_INSTALL=true \
+    -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_ANDROID_API="$target_api_version" \
+    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
+    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     ../../uhr/cpp/deps/utfcpp
 make "-j$(nproc)" && make install
 popd
@@ -36,6 +43,10 @@ pushd .build/zlib
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DBUILD_SHARED_LIBS:BOOL=false \
+    -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_ANDROID_API="$target_api_version" \
+    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
+    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     ../../uhr/cpp/deps/zlib
 make "-j$(nproc)" && make install
 popd
@@ -49,6 +60,7 @@ cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DENABLE_TESTING:BOOL=false \
     -DENABLE_PROGRAMS:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_ANDROID_API="$target_api_version" \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     ../../uhr/cpp/deps/mbedtls
@@ -71,6 +83,7 @@ cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_USE_MBEDTLS:BOOL=true \
     -DCMAKE_USE_SCHANNEL:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_ANDROID_API="$target_api_version" \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
@@ -85,6 +98,7 @@ pushd .build/uhr
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_ANDROID_API="$target_api_version" \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     ../../uhr/cpp
