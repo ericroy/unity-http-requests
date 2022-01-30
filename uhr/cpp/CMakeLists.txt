@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.20)
 project(uhr)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -14,9 +14,8 @@ else()
 endif()
 
 # All of these packages should be found in our install prefix.
-find_package(ZLIB REQUIRED)
-find_package(utf8cpp REQUIRED CONFIG)
-find_package(CURL REQUIRED CONFIG)
+find_package(UTF8CPP REQUIRED)
+find_package(CURL REQUIRED)
 
 add_library(uhr SHARED
 	src/ca_certs.cc src/ca_certs.h
@@ -31,8 +30,10 @@ add_library(uhr SHARED
 target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${UTF8CPP_INCLUDE_DIRS}
+	${CURL_INCLUDE_DIRS}
 )
-target_link_libraries(uhr PRIVATE utf8cpp CURL::libcurl ZLIB::ZLIB)
+target_link_libraries(uhr PRIVATE ${CURL_LIBRARY})
 target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)

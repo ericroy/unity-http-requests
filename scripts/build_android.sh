@@ -7,61 +7,61 @@ if [[ "$(arch)" != "x86_64" ]]; then
     exit 1
 fi
 
+: "${UHR_ANDROID_NDK_ROOT:?Path must be provided}"
+
 # one of: Debug, Release
 build_type="${UHR_BUILD_TYPE:-Debug}"
 
-# Android api version to target, 24 == Android7.0
+# Android api version to target, 24 == Android 7.0 Nougat
 target_api_version="${UHR_ANDROID_TARGET_API:-24}"
 
-android_ndk_root="${UHR_ANDROID_NDK_ROOT:-}"
+arch_abi="${UHR_ANDROID_ARCH:-armeabi-v7a}"
 
 mkdir -p .build .prefix
 
 # Pull down third party dependencies (curl, mbedtls, etc)
 ./scripts/util/fetch_deps.sh
 
-IFS='' read -r -d '' cmake_common_android_args <<EOF
--DCMAKE_SYSTEM_NAME=Android \
--DCMAKE_ANDROID_API="$target_api_version" \
--DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
--DCMAKE_ANDROID_NDK="$android_ndk_root" \
+export PATH="$(pwd)../../.prefix:$PATH"
+
+read -r cmake_common_args <<EOF
+    -DCMAKE_BUILD_TYPE=$build_type \
+    -DCMAKE_FIND_DEBUG_MODE:BOOL=true \
+    -DCMAKE_PREFIX_PATH=$(pwd)/../../.prefix \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DCMAKE_MODULE_PATH=$(pwd)/CMake \
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DANDROID_ABI=$arch_abi \
+    -DANDROID_NDK=$UHR_ANDROID_NDK_ROOT \
+    -DANDROID_PLATFORM=android-$target_api_version \
+    -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_SYSTEM_VERSION=$target_api_version \
+    -DCMAKE_ANDROID_ARCH_ABI=$arch_abi \
+    -DCMAKE_ANDROID_NDK=$UHR_ANDROID_NDK_ROOT \
+    -DCMAKE_TOOLCHAIN_FILE=$UHR_ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake
+)
 EOF
+
+echo $cmake_common_args
 
 # utfcpp
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DUTF8_TESTS=false \
-    -DUTF8_SAMPLES=false \
-    -DUTF8_INSTALL=true \
-    "$cmake_common_android_args" \
-    ../../uhr/cpp/deps/utfcpp
+cmake $cmake_common_args -DUTF8_TESTS:BOOL=false -DUTF8_SAMPLES:BOOL=false -DUTF8_INSTALL:BOOL=true ../../uhr/cpp/deps/utfcpp
 make "-j$(nproc)" && make install
 popd
 
 # zlib
 mkdir -p .build/zlib
 pushd .build/zlib
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DBUILD_SHARED_LIBS:BOOL=false \
-    "$cmake_common_android_args" \
-    ../../uhr/cpp/deps/zlib
+cmake $cmake_common_args -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
 make "-j$(nproc)" && make install
 popd
 
 # mbedtls
 mkdir -p .build/mbedtls
 pushd .build/mbedtls
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DENABLE_TESTING:BOOL=false \
-    -DENABLE_PROGRAMS:BOOL=false \
-    "$cmake_common_android_args" \
-    ../../uhr/cpp/deps/mbedtls
+cmake $cmake_common_args -DENABLE_TESTING:BOOL=false -DENABLE_PROGRAMS:BOOL=false ../../uhr/cpp/deps/mbedtls
 make "-j$(nproc)" && make install
 popd
 
@@ -72,24 +72,18 @@ popd
 # which we'll achieve by statically linking zlib ourselves.
 mkdir -p .build/curl
 pushd .build/curl
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DZLIB_ROOT=../../.prefix \
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DCURL_HIDDEN_SYMBOLS:BOOL=true \
+cmake $cmake_common_args \
     -DBUILD_SHARED_LIBS:BOOL=false \
     -DBUILD_CURL_EXE:BOOL=false \
     -DBUILD_TESTING:BOOL=false \
     -DHTTP_ONLY:BOOL=true \
+    -DCURL_ZLIB=ON \
     -DCMAKE_USE_LIBSSH2:BOOL=false \
     -DCMAKE_USE_OPENSSL:BOOL=false \
-    -DCMAKE_USE_MBEDTLS:BOOL=true \
     -DCMAKE_USE_SCHANNEL:BOOL=false \
-    -DCMAKE_USE_ZLIB:BOOL=true \
-    -DCMAKE_CURL_ZLIB="" \
+    -DCMAKE_USE_MBEDTLS:BOOL=true \
     -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
     -DHAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT="" \
-    "$cmake_common_android_args" \
     ../../uhr/cpp/deps/curl
 make "-j$(nproc)" && make install
 popd
@@ -97,10 +91,7 @@ popd
 # uhr
 mkdir -p .build/uhr
 pushd .build/uhr
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    "$cmake_common_android_args" \
-    ../../uhr/cpp
+cmake $cmake_common_args ../../uhr/cpp
 make "-j$(nproc)" && make install
 popd
 

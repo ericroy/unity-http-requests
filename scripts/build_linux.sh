@@ -15,74 +15,58 @@ mkdir -p .build .prefix
 # Pull down third party dependencies (curl, mbedtls, etc)
 ./scripts/util/fetch_deps.sh
 
+read -r cmake_common_args <<EOF
+    -DCMAKE_BUILD_TYPE=$build_type \
+    -DCMAKE_FIND_DEBUG_MODE:BOOL=true \
+    -DCMAKE_PREFIX_PATH=$(pwd)/../../.prefix \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DCMAKE_MODULE_PATH=$(pwd)/CMake \
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
+)
+EOF
+
 # utfcpp
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DUTF8_TESTS=false \
-    -DUTF8_SAMPLES=false \
-    -DUTF8_INSTALL=true \
-    ../../uhr/cpp/deps/utfcpp
+cmake $cmake_common_args -DUTF8_TESTS:BOOL=false -DUTF8_SAMPLES:BOOL=false -DUTF8_INSTALL:BOOL=true ../../uhr/cpp/deps/utfcpp
 make "-j$(nproc)" && make install
 popd
 
 # zlib
 mkdir -p .build/zlib
 pushd .build/zlib
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DBUILD_SHARED_LIBS:BOOL=false \
-    ../../uhr/cpp/deps/zlib
+cmake $cmake_common_args -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
 make "-j$(nproc)" && make install
 popd
 
 # mbedtls
 mkdir -p .build/mbedtls
 pushd .build/mbedtls
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DENABLE_TESTING:BOOL=false \
-    -DENABLE_PROGRAMS:BOOL=false \
-    ../../uhr/cpp/deps/mbedtls
+cmake $cmake_common_args -DENABLE_TESTING:BOOL=false -DENABLE_PROGRAMS:BOOL=false ../../uhr/cpp/deps/mbedtls
 make "-j$(nproc)" && make install
 popd
 
 # curl
-# USE_ZLIB=true means build curl with features that rely on zlib.
-# CURL_ZLIB="" means don't call find_package for zlib.  We will be responsible
-# for making sure that zlib functions are available in the final binary,
-# which we'll achieve by statically linking zlib ourselves.
 mkdir -p .build/curl
 pushd .build/curl
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+cmake $cmake_common_args \
     -DBUILD_SHARED_LIBS:BOOL=false \
     -DBUILD_CURL_EXE:BOOL=false \
     -DBUILD_TESTING:BOOL=false \
     -DHTTP_ONLY:BOOL=true \
+    -DCURL_ZLIB=ON \
     -DCMAKE_USE_LIBSSH2:BOOL=false \
     -DCMAKE_USE_OPENSSL:BOOL=false \
-    -DCMAKE_USE_MBEDTLS:BOOL=true \
     -DCMAKE_USE_SCHANNEL:BOOL=false \
-    -DCMAKE_USE_ZLIB:BOOL=true \
-    -DCMAKE_CURL_ZLIB="" \
+    -DCMAKE_USE_MBEDTLS:BOOL=true \
     ../../uhr/cpp/deps/curl
 make "-j$(nproc)" && make install
 popd
 
 # uhr
-# ZLIB_ROOT=<install prefix> ensrures that the version of zlib
-# that we find is the one we built, not a system version.
 mkdir -p .build/uhr
 pushd .build/uhr
-cmake -DCMAKE_BUILD_TYPE="$build_type" \
-    -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DZLIB_ROOT=../../.prefix \
-    ../../uhr/cpp
+cmake $cmake_common_args ../../uhr/cpp
 make "-j$(nproc)" && make install
 popd
 

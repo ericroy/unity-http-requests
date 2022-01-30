@@ -1,0 +1,41 @@
+find_path(ZLIB_INCLUDE_DIRS zlib.h PATHS ${CMAKE_INSTALL_PREFIX}/include NO_DEFAULT_PATH)
+find_library(ZLIB_LIBRARY libz.a PATHS ${CMAKE_INSTALL_PREFIX}/lib NO_DEFAULT_PATH)
+
+set(ZLIB_LIBRARIES "${ZLIB_LIBRARY}")
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(ZLIB DEFAULT_MSG ZLIB_INCLUDE_DIRS ZLIB_LIBRARY)
+mark_as_advanced(ZLIB_INCLUDE_DIRS ZLIB_LIBRARY)
+
+
+if(ZLIB_FOUND)
+    set(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIR})
+
+    if(NOT ZLIB_LIBRARIES)
+      set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
+    endif()
+
+    if(NOT TARGET ZLIB::ZLIB)
+      add_library(ZLIB::ZLIB UNKNOWN IMPORTED)
+      set_target_properties(ZLIB::ZLIB PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES "${ZLIB_INCLUDE_DIRS}")
+
+      if(ZLIB_LIBRARY_RELEASE)
+        set_property(TARGET ZLIB::ZLIB APPEND PROPERTY
+          IMPORTED_CONFIGURATIONS RELEASE)
+        set_target_properties(ZLIB::ZLIB PROPERTIES
+          IMPORTED_LOCATION_RELEASE "${ZLIB_LIBRARY_RELEASE}")
+      endif()
+
+      if(ZLIB_LIBRARY_DEBUG)
+        set_property(TARGET ZLIB::ZLIB APPEND PROPERTY
+          IMPORTED_CONFIGURATIONS DEBUG)
+        set_target_properties(ZLIB::ZLIB PROPERTIES
+          IMPORTED_LOCATION_DEBUG "${ZLIB_LIBRARY_DEBUG}")
+      endif()
+
+      if(NOT ZLIB_LIBRARY_RELEASE AND NOT ZLIB_LIBRARY_DEBUG)
+        set_property(TARGET ZLIB::ZLIB APPEND PROPERTY
+          IMPORTED_LOCATION "${ZLIB_LIBRARY}")
+      endif()
+    endif()
+endif()
