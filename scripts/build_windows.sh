@@ -28,12 +28,11 @@ mkdir -p .build/utfcpp
 pushd .build/utfcpp
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DUTF8_TESTS=false \
     -DUTF8_SAMPLES=false \
     -DUTF8_INSTALL=true \
-	../../uhr/cpp/deps/utfcpp
+    ../../uhr/cpp/deps/utfcpp
 $make_cmd && $make_cmd install
 popd
 
@@ -42,10 +41,9 @@ mkdir -p .build/zlib
 pushd .build/zlib
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DSKIP_INSTALL_FILES=true \
-	../../uhr/cpp/deps/zlib
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DBUILD_SHARED_LIBS:BOOL=false \
+    ../../uhr/cpp/deps/zlib
 $make_cmd && $make_cmd install
 popd
 
@@ -54,20 +52,18 @@ mkdir -p .build/curl
 pushd .build/curl
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DZLIB_INCLUDE_DIR="../../.prefix/include" \
-    -DZLIB_LIBRARY="../../.prefix/lib/zlibstatic$( [[ "$build_type" == "Debug" ]] && echo "d" ).lib" \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DCURL_STATIC_CRT:BOOL=true \
-	-DBUILD_SHARED_LIBS:BOOL=false \
-	-DBUILD_CURL_EXE:BOOL=false \
-	-DBUILD_TESTING:BOOL=false \
-	-DHTTP_ONLY:BOOL=true \
-	-DCMAKE_USE_LIBSSH2:BOOL=false \
-	-DCMAKE_USE_OPENSSL:BOOL=false \
-	-DCMAKE_USE_MBEDTLS:BOOL=false \
-	-DCMAKE_USE_SCHANNEL:BOOL=true \
-	../../uhr/cpp/deps/curl
+    -DBUILD_SHARED_LIBS:BOOL=false \
+    -DBUILD_CURL_EXE:BOOL=false \
+    -DBUILD_TESTING:BOOL=false \
+    -DHTTP_ONLY:BOOL=true \
+    -DCMAKE_USE_LIBSSH2:BOOL=false \
+    -DCMAKE_USE_OPENSSL:BOOL=false \
+    -DCMAKE_USE_MBEDTLS:BOOL=false \
+    -DCMAKE_USE_SCHANNEL:BOOL=true \
+    ../../uhr/cpp/deps/curl
 $make_cmd && $make_cmd install
 popd
 
@@ -76,8 +72,8 @@ mkdir -p .build/uhr
 pushd .build/uhr
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	../../uhr/cpp
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    ../../uhr/cpp
 $make_cmd && $make_cmd install
 popd
 

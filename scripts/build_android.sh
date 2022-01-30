@@ -21,12 +21,12 @@ mkdir -p .build .prefix
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DUTF8_TESTS=false \
     -DUTF8_SAMPLES=false \
     -DUTF8_INSTALL=true \
-	../../uhr/cpp/deps/utfcpp
+    ../../uhr/cpp/deps/utfcpp
 make "-j$(nproc)" && make install
 popd
 
@@ -34,10 +34,9 @@ popd
 mkdir -p .build/zlib
 pushd .build/zlib
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
-    -DSKIP_INSTALL_FILES=true \
-	../../uhr/cpp/deps/zlib
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DBUILD_SHARED_LIBS:BOOL=false \
+    ../../uhr/cpp/deps/zlib
 make "-j$(nproc)" && make install
 popd
 
@@ -60,23 +59,23 @@ popd
 mkdir -p .build/curl
 pushd .build/curl
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
-	-DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DCURL_HIDDEN_SYMBOLS:BOOL=true \
-	-DBUILD_SHARED_LIBS:BOOL=false \
-	-DBUILD_CURL_EXE:BOOL=false \
-	-DBUILD_TESTING:BOOL=false \
-	-DHTTP_ONLY:BOOL=true \
-	-DCMAKE_USE_LIBSSH2:BOOL=false \
-	-DCMAKE_USE_OPENSSL:BOOL=false \
-	-DCMAKE_USE_MBEDTLS:BOOL=true \
-	-DCMAKE_USE_SCHANNEL:BOOL=false \
+    -DBUILD_SHARED_LIBS:BOOL=false \
+    -DBUILD_CURL_EXE:BOOL=false \
+    -DBUILD_TESTING:BOOL=false \
+    -DHTTP_ONLY:BOOL=true \
+    -DCMAKE_USE_LIBSSH2:BOOL=false \
+    -DCMAKE_USE_OPENSSL:BOOL=false \
+    -DCMAKE_USE_MBEDTLS:BOOL=true \
+    -DCMAKE_USE_SCHANNEL:BOOL=false \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK="$android_ndk_root" \
     -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
     -DHAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT="" \
-	../../uhr/cpp/deps/curl
+    ../../uhr/cpp/deps/curl
 make "-j$(nproc)" && make install
 popd
 
@@ -84,11 +83,11 @@ popd
 mkdir -p .build/uhr
 pushd .build/uhr
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
-	-DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DCMAKE_SYSTEM_NAME=Android \
     -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
     -DCMAKE_ANDROID_NDK="$android_ndk_root" \
-	../../uhr/cpp
+    ../../uhr/cpp
 make "-j$(nproc)" && make install
 popd
 
@@ -104,9 +103,9 @@ echo "Depends on:"
 readelf -d $artifact | grep NEEDED
 echo "Exports:"
 readelf -s "$artifact" | while read -r num _ _ type bind _ index name _ ; do
-	[ "$type" = "FUNC" ] || continue
-	[ "$bind" = "GLOBAL" ] || continue
-	[ "${num::-1}" = "$((${num::-1}))" ] || continue
-	[ "$index" = "$((index))" ] || continue
-	printf '\t%s\n' "$name"
+    [ "$type" = "FUNC" ] || continue
+    [ "$bind" = "GLOBAL" ] || continue
+    [ "${num::-1}" = "$((${num::-1}))" ] || continue
+    [ "$index" = "$((index))" ] || continue
+    printf '\t%s\n' "$name"
 done

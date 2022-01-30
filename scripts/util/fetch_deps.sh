@@ -7,9 +7,11 @@ utfcpp_url=https://github.com/nemtrif/utfcpp/archive/refs/tags/v${utfcpp_version
 utfcpp_hash=04c614fc761a03de239fd290760800dc26091046
 utfcpp_file=uhr/cpp/deps/utfcpp-${utfcpp_version}.tar.gz
 
-zlib_version=1.2.11
-zlib_url=http://zlib.net/fossils/zlib-${zlib_version}.tar.gz
-zlib_hash=e6d119755acdf9104d7ba236b1242696940ed6dd
+# Although I would like to use one of the tagged releases, the new updated
+# CMakeLists.txt that we need hasn't been officially released yet.
+zlib_version=959b4ea305821e753385e873ec4edfaa9a5d49b7
+zlib_url=https://github.com/cloudflare/zlib/archive/${zlib_version}.tar.gz
+zlib_hash=cabd8213e517ba9f93f2c529844f9f840d4a9d68
 zlib_file=uhr/cpp/deps/zlib-${zlib_version}.tar.gz
 
 curl_version=7.75.0
@@ -23,18 +25,18 @@ mbedtls_hash=746ab10dec0aaadba746c2ecb3df24807329dce1
 mbedtls_file=uhr/cpp/deps/mbedtls-${mbedtls_version}.tar.gz
 
 function get () {
-	local url=$1
-	local file=$2
-	local hash=$3
-	if [ -f "$file" ]; then
-		./scripts/util/verify.sh "$file" "$hash" || (
-			./scripts/util/download.sh "$url" "$file"
-			./scripts/util/verify.sh "$file" "$hash"
-		)
-	else
-		./scripts/util/download.sh "$url" "$file"
-		./scripts/util/verify.sh "$file" "$hash"
-	fi
+    local url=$1
+    local file=$2
+    local hash=$3
+    if [ -f "$file" ]; then
+        ./scripts/util/verify.sh "$file" "$hash" || (
+            ./scripts/util/download.sh "$url" "$file"
+            ./scripts/util/verify.sh "$file" "$hash"
+        )
+    else
+        ./scripts/util/download.sh "$url" "$file"
+        ./scripts/util/verify.sh "$file" "$hash"
+    fi
 }
 
 get $utfcpp_url $utfcpp_file $utfcpp_hash
