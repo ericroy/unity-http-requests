@@ -40,13 +40,13 @@ namespace UnityHttpRequests
 
     #if UHR_TESTS
         #if UHR_TESTS_WINDOWS
-            public const string Name = "../../../Assets/Plugins/x86_64/" + NameWin64;
+            public const string Name = "../../Assets/Plugins/x86_64/" + NameWin64;
         #elif UHR_TESTS_LINUX
-            public const string Name = "../../../Assets/Plugins/x86_64/" + NameLinux64;
+            public const string Name = "../../Assets/Plugins/x86_64/" + NameLinux64;
         #elif UHR_TESTS_MAC
-            public const string Name = "../../../Assets/Plugins/iOS/" + NameMac64;
+            public const string Name = "../../Assets/Plugins/iOS/" + NameMac64;
         #elif UHR_TESTS_ANDROID
-            public const string Name = "../../../Assets/Plugins/Android/" + NameAndroid;
+            public const string Name = "../../Assets/Plugins/Android/" + NameAndroid;
         #elif UHR_TESTS_IOS
             public const string Name = NameIOS;
         #else

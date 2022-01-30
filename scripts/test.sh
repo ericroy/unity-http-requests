@@ -31,15 +31,25 @@ else
     exit 1
 fi
 
+
+export DOTNET_NOLOGO=1
+
 config=Debug
+out_dir="unity/bin/$config"
+
+dotnet --info
 
 dotnet restore unity/uhr_tests.csproj
+
 dotnet build unity/uhr_tests.csproj \
     --configuration "$config" \
+    --output "$out_dir" \
     --no-incremental \
     --no-restore \
     "-p:Constants=$constants"
+
 dotnet test unity/uhr_tests.csproj \
     --configuration "$config" \
+    --output "$out_dir" \
     --no-build \
     --verbosity normal
