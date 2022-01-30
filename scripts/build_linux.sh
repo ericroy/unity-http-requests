@@ -51,6 +51,10 @@ make "-j$(nproc)" && make install
 popd
 
 # curl
+# USE_ZLIB=true means build curl with features that rely on zlib.
+# CURL_ZLIB="" means don't call find_package for zlib.  We will be responsible
+# for making sure that zlib functions are available in the final binary,
+# which we'll achieve by statically linking zlib ourselves.
 mkdir -p .build/curl
 pushd .build/curl
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
@@ -64,15 +68,20 @@ cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_USE_OPENSSL:BOOL=false \
     -DCMAKE_USE_MBEDTLS:BOOL=true \
     -DCMAKE_USE_SCHANNEL:BOOL=false \
+    -DCMAKE_USE_ZLIB:BOOL=true \
+    -DCMAKE_CURL_ZLIB="" \
     ../../uhr/cpp/deps/curl
 make "-j$(nproc)" && make install
 popd
 
 # uhr
+# ZLIB_ROOT=<install prefix> ensrures that the version of zlib
+# that we find is the one we built, not a system version.
 mkdir -p .build/uhr
 pushd .build/uhr
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DZLIB_ROOT=../../.prefix \
     ../../uhr/cpp
 make "-j$(nproc)" && make install
 popd

@@ -53,6 +53,7 @@ pushd .build/curl
 cmake -G "$generator" \
     -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DZLIB_ROOT=../../.prefix \
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DCURL_STATIC_CRT:BOOL=true \
     -DBUILD_SHARED_LIBS:BOOL=false \
@@ -63,6 +64,7 @@ cmake -G "$generator" \
     -DCMAKE_USE_OPENSSL:BOOL=false \
     -DCMAKE_USE_MBEDTLS:BOOL=false \
     -DCMAKE_USE_SCHANNEL:BOOL=true \
+    -DCMAKE_USE_ZLIB:BOOL=true \
     ../../uhr/cpp/deps/curl
 $make_cmd && $make_cmd install
 popd

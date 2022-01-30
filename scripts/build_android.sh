@@ -20,6 +20,13 @@ mkdir -p .build .prefix
 # Pull down third party dependencies (curl, mbedtls, etc)
 ./scripts/util/fetch_deps.sh
 
+IFS='' read -r -d '' cmake_common_android_args <<EOF
+-DCMAKE_SYSTEM_NAME=Android \
+-DCMAKE_ANDROID_API="$target_api_version" \
+-DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
+-DCMAKE_ANDROID_NDK="$android_ndk_root" \
+EOF
+
 # utfcpp
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
@@ -29,10 +36,7 @@ cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DUTF8_TESTS=false \
     -DUTF8_SAMPLES=false \
     -DUTF8_INSTALL=true \
-    -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_API="$target_api_version" \
-    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
+    "$cmake_common_android_args" \
     ../../uhr/cpp/deps/utfcpp
 make "-j$(nproc)" && make install
 popd
@@ -43,10 +47,7 @@ pushd .build/zlib
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
     -DBUILD_SHARED_LIBS:BOOL=false \
-    -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_API="$target_api_version" \
-    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
+    "$cmake_common_android_args" \
     ../../uhr/cpp/deps/zlib
 make "-j$(nproc)" && make install
 popd
@@ -59,19 +60,21 @@ cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DENABLE_TESTING:BOOL=false \
     -DENABLE_PROGRAMS:BOOL=false \
-    -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_API="$target_api_version" \
-    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
+    "$cmake_common_android_args" \
     ../../uhr/cpp/deps/mbedtls
 make "-j$(nproc)" && make install
 popd
 
 # curl
+# USE_ZLIB=true means build curl with features that rely on zlib.
+# CURL_ZLIB="" means don't call find_package for zlib.  We will be responsible
+# for making sure that zlib functions are available in the final binary,
+# which we'll achieve by statically linking zlib ourselves.
 mkdir -p .build/curl
 pushd .build/curl
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
+    -DZLIB_ROOT=../../.prefix \
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
     -DCURL_HIDDEN_SYMBOLS:BOOL=true \
     -DBUILD_SHARED_LIBS:BOOL=false \
@@ -82,12 +85,11 @@ cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_USE_OPENSSL:BOOL=false \
     -DCMAKE_USE_MBEDTLS:BOOL=true \
     -DCMAKE_USE_SCHANNEL:BOOL=false \
-    -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_API="$target_api_version" \
-    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
+    -DCMAKE_USE_ZLIB:BOOL=true \
+    -DCMAKE_CURL_ZLIB="" \
     -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
     -DHAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT="" \
+    "$cmake_common_android_args" \
     ../../uhr/cpp/deps/curl
 make "-j$(nproc)" && make install
 popd
@@ -97,10 +99,7 @@ mkdir -p .build/uhr
 pushd .build/uhr
 cmake -DCMAKE_BUILD_TYPE="$build_type" \
     -DCMAKE_INSTALL_PREFIX=../../.prefix \
-    -DCMAKE_SYSTEM_NAME=Android \
-    -DCMAKE_ANDROID_API="$target_api_version" \
-    -DCMAKE_ANDROID_ARCH_ABI=armeabi-v7a \
-    -DCMAKE_ANDROID_NDK="$android_ndk_root" \
+    "$cmake_common_android_args" \
     ../../uhr/cpp
 make "-j$(nproc)" && make install
 popd

@@ -13,10 +13,8 @@ else()
 	string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,ALL")
 endif()
 
-message("CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}")
-message("CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}")
-message("CMAKE_FRAMEWORK_PATH ${CMAKE_FRAMEWORK_PATH}")
-
+# All of these packages should be found in our install prefix.
+find_package(ZLIB REQUIRED)
 find_package(utf8cpp REQUIRED CONFIG)
 find_package(CURL REQUIRED CONFIG)
 
@@ -34,7 +32,7 @@ target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(uhr PRIVATE utf8cpp CURL::libcurl)
+target_link_libraries(uhr PRIVATE utf8cpp CURL::libcurl ZLIB::ZLIB)
 target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)
