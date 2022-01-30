@@ -13,6 +13,10 @@ else()
 	string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,ALL")
 endif()
 
+message("CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}")
+message("CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}")
+message("CMAKE_FRAMEWORK_PATH ${CMAKE_FRAMEWORK_PATH}")
+
 find_package(utf8cpp REQUIRED CONFIG)
 find_package(CURL REQUIRED CONFIG)
 
