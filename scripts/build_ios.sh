@@ -7,7 +7,7 @@ build_type="${UHR_BUILD_TYPE:-Debug}"
 
 mkdir -p .build/uhr
 
-if [[ "$build_type" = "Release" ]]; then 
+if [[ "$build_type" == "Release" ]]; then 
     # Optimize
     build_type='-O2'
 else

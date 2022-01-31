@@ -11,7 +11,7 @@
 #define LITERALIZE_HELPER(x) #x
 #define LITERALIZE(x) @LITERALIZE_HELPER(x)
 
-#define kErrorStrings @{
+static NSArray* const kErrorStrings = @[
     /* UHR_ERR_OK */                            @"Ok",
     /* UHR_ERR_INVALID_SESSION */               @"The session handle was invalid",
     /* UHR_ERR_MISSING_REQUIRED_PARAMETER */    @"A required function parameter was missing or null",
@@ -20,9 +20,9 @@
     /* UHR_ERR_UNKNOWN_ERROR_CODE */            @"Unknown error code",
     /* UHR_ERR_FAILED_TO_CREATE_SESSION */      @"Failed to create session",
     /* UHR_ERR_FAILED_TO_UPDATE_SESSION */      @"Failed to update session",
-}
+];
 
-#define kMethodStrings @{
+static NSArray* const kMethodStrings = @[
 	/* UHR_METHOD_GET */        @"GET",
 	/* UHR_METHOD_HEAD */       @"HEAD",
 	/* UHR_METHOD_POST */       @"POST",
@@ -32,7 +32,7 @@
 	/* UHR_METHOD_CONNECT */    @"CONNECT",
 	/* UHR_METHOD_OPTIONS */    @"OPTIONS",
 	/* UHR_METHOD_TRACE */      @"TRACE",
-};
+];
 
 
 UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback callback, void* userData) {
