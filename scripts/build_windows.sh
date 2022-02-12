@@ -24,33 +24,33 @@ else
     make_cmd="nmake"
 fi
 
-read -r common_args <<EOF
--G "$generator" \
--DCMAKE_BUILD_TYPE=$build_type \
--DCMAKE_FIND_DEBUG_MODE:BOOL=true \
--DCMAKE_PREFIX_PATH="$root/.prefix" \
--DCMAKE_INSTALL_PREFIX="$root/.prefix" \
+common_args=(
+-G "$generator"
+-DCMAKE_BUILD_TYPE="$build_type"
+-DCMAKE_FIND_DEBUG_MODE:BOOL=true
+-DCMAKE_PREFIX_PATH="$root/.prefix"
+-DCMAKE_INSTALL_PREFIX="$root/.prefix"
 -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
-EOF
+)
 
 # utfcpp
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
-cmake $common_args -DUTF8_TESTS:BOOL=false -DUTF8_SAMPLES:BOOL=false -DUTF8_INSTALL:BOOL=true ../../uhr/cpp/deps/utfcpp
+cmake "${common_args[@]}" -DUTF8_TESTS:BOOL=false -DUTF8_SAMPLES:BOOL=false -DUTF8_INSTALL:BOOL=true ../../uhr/cpp/deps/utfcpp
 $make_cmd && $make_cmd install
 popd
 
 # zlib
 mkdir -p .build/zlib
 pushd .build/zlib
-cmake $common_args -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
+cmake "${common_args[@]}" -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
 $make_cmd && $make_cmd install
 popd
 
 # curl
 mkdir -p .build/curl
 pushd .build/curl
-cmake $common_args \
+cmake "${common_args[@]}" \
     -DZLIB_ROOT=../../.prefix \
     -DCURL_STATIC_CRT:BOOL=true \
     -DBUILD_SHARED_LIBS:BOOL=false \
@@ -69,7 +69,7 @@ popd
 # uhr
 mkdir -p .build/uhr
 pushd .build/uhr
-cmake $common_args ../../uhr/cpp
+cmake "${common_args[@]}" ../../uhr/cpp
 $make_cmd && $make_cmd install
 popd
 
