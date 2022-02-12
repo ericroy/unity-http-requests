@@ -17,12 +17,12 @@ mkdir -p .build .prefix
 ./scripts/util/fetch_deps.sh
 
 common_args=(
--DCMAKE_BUILD_TYPE="$build_type" \
--DCMAKE_FIND_DEBUG_MODE:BOOL=true \
--DCMAKE_PREFIX_PATH="$root/.prefix" \
--DCMAKE_INSTALL_PREFIX="$root/.prefix" \
--DCMAKE_MODULE_PATH="$root/CMake" \
--DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
+    -DCMAKE_BUILD_TYPE="$build_type"
+    -DCMAKE_FIND_DEBUG_MODE:BOOL=true
+    -DCMAKE_PREFIX_PATH="$root/.prefix"
+    -DCMAKE_INSTALL_PREFIX="$root/.prefix"
+    -DCMAKE_MODULE_PATH="$root/CMake"
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
 )
 
 # utfcpp

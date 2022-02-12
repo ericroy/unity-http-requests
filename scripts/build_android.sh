@@ -24,20 +24,20 @@ mkdir -p .build .prefix
 ./scripts/util/fetch_deps.sh
 
 common_args=(
--DCMAKE_BUILD_TYPE="$build_type" \
--DCMAKE_FIND_DEBUG_MODE:BOOL=true \
--DCMAKE_PREFIX_PATH="$root/.prefix" \
--DCMAKE_INSTALL_PREFIX="$root/.prefix" \
--DCMAKE_MODULE_PATH="$root/CMake" \
--DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true \
--DANDROID_ABI="$arch_abi" \
--DANDROID_NDK="$UHR_ANDROID_NDK_ROOT" \
--DANDROID_PLATFORM="android-$target_api_version" \
--DCMAKE_SYSTEM_NAME=Android \
--DCMAKE_SYSTEM_VERSION="$target_api_version" \
--DCMAKE_ANDROID_ARCH_ABI="$arch_abi" \
--DCMAKE_ANDROID_NDK="$UHR_ANDROID_NDK_ROOT" \
--DCMAKE_TOOLCHAIN_FILE="$UHR_ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
+    -DCMAKE_BUILD_TYPE="$build_type"
+    -DCMAKE_FIND_DEBUG_MODE:BOOL=true
+    -DCMAKE_PREFIX_PATH="$root/.prefix"
+    -DCMAKE_INSTALL_PREFIX="$root/.prefix"
+    -DCMAKE_MODULE_PATH="$root/CMake"
+    -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
+    -DANDROID_ABI="$arch_abi"
+    -DANDROID_NDK="$UHR_ANDROID_NDK_ROOT"
+    -DANDROID_PLATFORM="android-$target_api_version"
+    -DCMAKE_SYSTEM_NAME=Android
+    -DCMAKE_SYSTEM_VERSION="$target_api_version"
+    -DCMAKE_ANDROID_ARCH_ABI="$arch_abi"
+    -DCMAKE_ANDROID_NDK="$UHR_ANDROID_NDK_ROOT"
+    -DCMAKE_TOOLCHAIN_FILE="$UHR_ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
 )
 
 # utfcpp
