@@ -1,6 +1,7 @@
 #!/bin/bash -e
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-pushd "$here/.."
+root="$here/.."
+pushd "$root"
 
 # one of: Debug, Release
 build_type="${UHR_BUILD_TYPE:-Debug}"
