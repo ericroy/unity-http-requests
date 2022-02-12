@@ -1,4 +1,6 @@
 #!/bin/bash -e
+set -e
+set -x
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 root="$here/.."
 pushd "$root"
@@ -28,7 +30,7 @@ common_args=(
     -DCMAKE_FIND_DEBUG_MODE:BOOL=true
     -DCMAKE_PREFIX_PATH="$root/.prefix"
     -DCMAKE_INSTALL_PREFIX="$root/.prefix"
-    -DCMAKE_MODULE_PATH="$root/CMake"
+    -DCMAKE_MODULE_PATH="../../CMake"
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
     -DANDROID_ABI="$arch_abi"
     -DANDROID_NDK="$UHR_ANDROID_NDK_ROOT"
