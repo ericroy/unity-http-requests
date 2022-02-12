@@ -23,8 +23,6 @@ mkdir -p .build .prefix
 # Pull down third party dependencies (curl, mbedtls, etc)
 ./scripts/util/fetch_deps.sh
 
-#export PATH="$root/.prefix:$PATH"
-
 read -r common_args <<EOF
 -DCMAKE_BUILD_TYPE=$build_type \
 -DCMAKE_FIND_DEBUG_MODE:BOOL=true \
