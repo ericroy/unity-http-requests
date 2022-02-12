@@ -28,8 +28,8 @@ read -r common_args <<EOF
 -G "$generator" \
 -DCMAKE_BUILD_TYPE=$build_type \
 -DCMAKE_FIND_DEBUG_MODE:BOOL=true \
--DCMAKE_PREFIX_PATH=$root/.prefix \
--DCMAKE_INSTALL_PREFIX=$root/.prefix \
+-DCMAKE_PREFIX_PATH="$root/.prefix" \
+-DCMAKE_INSTALL_PREFIX="$root/.prefix" \
 -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
 EOF
 
