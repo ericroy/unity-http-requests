@@ -1,6 +1,7 @@
 name: Build unity plugins
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'unity/package.json'
