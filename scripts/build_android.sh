@@ -1,6 +1,4 @@
 #!/bin/bash -e
-set -e
-set -x
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 root="$here/.."
 pushd "$root"
@@ -28,46 +26,43 @@ mkdir -p .build .prefix
 common_args=(
     -DCMAKE_FIND_DEBUG_MODE:BOOL=true
     -DCMAKE_BUILD_TYPE="$build_type"
-    -DCMAKE_PREFIX_PATH="$root/.prefix"
     -DCMAKE_INSTALL_PREFIX="$root/.prefix"
-    -DCMAKE_MODULE_PATH="$root/cmake"
+    -DCMAKE_FIND_ROOT_PATH="$root/.prefix"
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
+
+    -DCMAKE_TOOLCHAIN_FILE="$UHR_ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
     -DANDROID_ABI="$arch_abi"
     -DANDROID_NDK="$UHR_ANDROID_NDK_ROOT"
     -DANDROID_PLATFORM="android-$target_api_version"
-    -DCMAKE_SYSTEM_NAME=Android
-    -DCMAKE_SYSTEM_VERSION="$target_api_version"
-    -DCMAKE_ANDROID_ARCH_ABI="$arch_abi"
-    -DCMAKE_ANDROID_NDK="$UHR_ANDROID_NDK_ROOT"
-    -DCMAKE_TOOLCHAIN_FILE="$UHR_ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
 )
 
 # utfcpp
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
 cmake "${common_args[@]}" -DUTF8_TESTS:BOOL=false -DUTF8_SAMPLES:BOOL=false -DUTF8_INSTALL:BOOL=true ../../uhr/cpp/deps/utfcpp
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 # zlib
 mkdir -p .build/zlib
 pushd .build/zlib
-cmake "${common_args[@]}" -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
-make "-j$(nproc)" && make install
+cmake "${common_args[@]}" -DBUILD_SHARED_LIBS:BOOL=false -DSKIP_INSTALL_FILES:BOOL=true ../../uhr/cpp/deps/zlib
+make "-j$(nproc)" install
 popd
+
+# Don't have enough control over curl's cmake build process to
+# force it to link zlib statically instead of dynamically.  Work around this
+# by just removing the .so so it won't be found.
+rm "$root/.prefix/lib/libz.so"
 
 # mbedtls
 mkdir -p .build/mbedtls
 pushd .build/mbedtls
 cmake "${common_args[@]}" -DENABLE_TESTING:BOOL=false -DENABLE_PROGRAMS:BOOL=false ../../uhr/cpp/deps/mbedtls
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 # curl
-# USE_ZLIB=true means build curl with features that rely on zlib.
-# CURL_ZLIB="" means don't call find_package for zlib.  We will be responsible
-# for making sure that zlib functions are available in the final binary,
-# which we'll achieve by statically linking zlib ourselves.
 mkdir -p .build/curl
 pushd .build/curl
 cmake "${common_args[@]}" \
@@ -83,14 +78,14 @@ cmake "${common_args[@]}" \
     -DHAVE_POLL_FINE_EXITCODE:BOOL=false \
     -DHAVE_POLL_FINE_EXITCODE__TRYRUN_OUTPUT="" \
     ../../uhr/cpp/deps/curl
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 # uhr
 mkdir -p .build/uhr
 pushd .build/uhr
 cmake "${common_args[@]}" ../../uhr/cpp
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 artifact=unity/Assets/Plugins/Android/uhr-android.armeabi-v7a.so

@@ -24,7 +24,7 @@ namespace uhr {
 			Acquired(LogSink *sink);
 			Acquired(const Acquired &) = delete;
 			LogSink *sink_;
-			std::lock_guard<std::mutex> lock_;
+			std::unique_lock<std::mutex> lock_;
 			std::ostringstream oss_;
 		};
 

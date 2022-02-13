@@ -13,6 +13,9 @@ else()
 	string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,ALL")
 endif()
 
+# So cmake can location FindUTF8CPP.cmake
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
+
 # All of these packages should be found in our install prefix.
 find_package(UTF8CPP REQUIRED)
 find_package(CURL REQUIRED)

@@ -17,10 +17,10 @@ mkdir -p .build .prefix
 ./scripts/util/fetch_deps.sh
 
 common_args=(
+    -DCMAKE_FIND_DEBUG_MODE:BOOL=true
     -DCMAKE_BUILD_TYPE="$build_type"
-    -DCMAKE_PREFIX_PATH="$root/.prefix"
     -DCMAKE_INSTALL_PREFIX="$root/.prefix"
-    -DCMAKE_MODULE_PATH="$root/cmake"
+    -DCMAKE_FIND_ROOT_PATH="$root/.prefix"
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
 )
 
@@ -28,21 +28,26 @@ common_args=(
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
 cmake "${common_args[@]}" -DUTF8_TESTS:BOOL=false -DUTF8_SAMPLES:BOOL=false -DUTF8_INSTALL:BOOL=true ../../uhr/cpp/deps/utfcpp
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 # zlib
 mkdir -p .build/zlib
 pushd .build/zlib
 cmake "${common_args[@]}" -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
+
+# Don't have enough control over curl's cmake build process to
+# force it to link zlib statically instead of dynamically.  Work around this
+# by just removing the .so so it won't be found.
+rm "$root/.prefix/lib/libz.so"
 
 # mbedtls
 mkdir -p .build/mbedtls
 pushd .build/mbedtls
 cmake "${common_args[@]}" -DENABLE_TESTING:BOOL=false -DENABLE_PROGRAMS:BOOL=false ../../uhr/cpp/deps/mbedtls
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 # curl
@@ -59,14 +64,14 @@ cmake "${common_args[@]}" \
     -DCMAKE_USE_SCHANNEL:BOOL=false \
     -DCMAKE_USE_MBEDTLS:BOOL=true \
     ../../uhr/cpp/deps/curl
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 # uhr
 mkdir -p .build/uhr
 pushd .build/uhr
 cmake "${common_args[@]}" ../../uhr/cpp
-make "-j$(nproc)" && make install
+make "-j$(nproc)" install
 popd
 
 artifact=unity/Assets/Plugins/x86_64/uhr-linux.x86_64.so

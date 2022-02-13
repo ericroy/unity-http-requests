@@ -37,14 +37,16 @@ common_args=(
 mkdir -p .build/utfcpp
 pushd .build/utfcpp
 cmake "${common_args[@]}" -DUTF8_TESTS:BOOL=false -DUTF8_SAMPLES:BOOL=false -DUTF8_INSTALL:BOOL=true ../../uhr/cpp/deps/utfcpp
-$make_cmd && $make_cmd install
+$make_cmd
+$make_cmd install
 popd
 
 # zlib
 mkdir -p .build/zlib
 pushd .build/zlib
 cmake "${common_args[@]}" -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
-$make_cmd && $make_cmd install
+$make_cmd
+$make_cmd install
 popd
 
 # curl
@@ -63,14 +65,16 @@ cmake "${common_args[@]}" \
     -DCMAKE_USE_SCHANNEL:BOOL=true \
     -DCMAKE_USE_ZLIB:BOOL=true \
     ../../uhr/cpp/deps/curl
-$make_cmd && $make_cmd install
+$make_cmd
+$make_cmd install
 popd
 
 # uhr
 mkdir -p .build/uhr
 pushd .build/uhr
 cmake "${common_args[@]}" ../../uhr/cpp
-$make_cmd && $make_cmd install
+$make_cmd
+$make_cmd install
 popd
 
 artifact=unity/Assets/Plugins/x86_64/uhr-windows.x86_64.dll
