@@ -17,6 +17,9 @@ endif()
 find_package(UTF8CPP REQUIRED)
 find_package(CURL REQUIRED)
 find_package(ZLIB REQUIRED)
+if(NOT WIN32)
+	find_package(MBEDTLS REQUIRED)
+endif()
 
 add_library(uhr SHARED
 	src/ca_certs.cc src/ca_certs.h
@@ -28,6 +31,7 @@ add_library(uhr SHARED
 	src/request_builder.cc src/request_builder.h
 	src/util.cc src/util.h
 )
+
 target_include_directories(uhr PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 	${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -39,11 +43,14 @@ target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED -DCURL_STATICLIB)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)
 	target_link_libraries(uhr PRIVATE ws2_32 crypt32)
-endif()
-if(MSVC)
-  target_compile_options(uhr PRIVATE /W4 /WX)
 else()
-  target_compile_options(uhr PRIVATE -Wall -Wextra -Wpedantic -Werror)
+	target_link_libraries(uhr PRIVATE ${MBEDTLS_LIBRARY} ${MBEDX509_LIBRARY} ${MBEDCRYPTO_LIBRARY})
+endif()
+
+if(MSVC)
+	target_compile_options(uhr PRIVATE /W4 /WX)
+else()
+	target_compile_options(uhr PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 
 install(TARGETS uhr RUNTIME)
