@@ -52,7 +52,8 @@ popd
 # Don't have enough control over curl's cmake build process to
 # force it to link zlib statically instead of dynamically.  Work around this
 # by just removing the .dll so it won't be found.
-rm "$root/.prefix/bin/"zlib*.dll
+rm -f "$root/.prefix/bin/"zlib{,d}.dll
+rm -f "$root/.prefix/lib/"zlib{,d}.lib
 
 # curl
 mkdir -p .build/curl
