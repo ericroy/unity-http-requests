@@ -26,11 +26,11 @@ mkdir -p .build .prefix
 ./scripts/util/fetch_deps.sh
 
 common_args=(
-    -DCMAKE_BUILD_TYPE="$build_type"
     -DCMAKE_FIND_DEBUG_MODE:BOOL=true
+    -DCMAKE_BUILD_TYPE="$build_type"
     -DCMAKE_PREFIX_PATH="$root/.prefix"
     -DCMAKE_INSTALL_PREFIX="$root/.prefix"
-    -DCMAKE_MODULE_PATH="$root/CMake"
+    -DCMAKE_MODULE_PATH="$root/cmake"
     -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=true
     -DANDROID_ABI="$arch_abi"
     -DANDROID_NDK="$UHR_ANDROID_NDK_ROOT"
@@ -55,7 +55,6 @@ pushd .build/zlib
 cmake "${common_args[@]}" -DBUILD_SHARED_LIBS:BOOL=false ../../uhr/cpp/deps/zlib
 make "-j$(nproc)" && make install
 popd
-
 
 # mbedtls
 mkdir -p .build/mbedtls
@@ -93,7 +92,6 @@ pushd .build/uhr
 cmake "${common_args[@]}" ../../uhr/cpp
 make "-j$(nproc)" && make install
 popd
-
 
 artifact=unity/Assets/Plugins/Android/uhr-android.armeabi-v7a.so
 mkdir -p "$(dirname "$artifact")"
