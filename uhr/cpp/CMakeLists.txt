@@ -16,6 +16,7 @@ endif()
 # All of these packages should be found in our install prefix.
 find_package(UTF8CPP REQUIRED)
 find_package(CURL REQUIRED)
+find_package(ZLIB REQUIRED)
 
 add_library(uhr SHARED
 	src/ca_certs.cc src/ca_certs.h
@@ -33,10 +34,11 @@ target_include_directories(uhr PRIVATE
 	${UTF8CPP_INCLUDE_DIRS}
 	${CURL_INCLUDE_DIRS}
 )
-target_link_libraries(uhr PRIVATE ${CURL_LIBRARY})
-target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED)
+target_link_libraries(uhr PRIVATE ${CURL_LIBRARY} ${ZLIB_LIBRARY})
+target_compile_definitions(uhr PRIVATE -DUHR_BUILDING_SHARED -DCURL_STATICLIB)
 if(WIN32)
 	target_compile_definitions(uhr PRIVATE -DNOMINMAX)
+	target_link_libraries(uhr PRIVATE ws2_32 crypt32)
 endif()
 if(MSVC)
   target_compile_options(uhr PRIVATE /W4 /WX)
