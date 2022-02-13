@@ -41,7 +41,7 @@ popd
 # Don't have enough control over curl's cmake build process to
 # force it to link zlib statically instead of dynamically.  Work around this
 # by just removing the .so so it won't be found.
-rm "$root/.prefix/lib/libz.so"
+rm "$root/.prefix/lib/"libz.so*
 
 # mbedtls
 mkdir -p .build/mbedtls
