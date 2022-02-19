@@ -34,7 +34,7 @@ namespace UnityHttpRequests
     {
         private const string NameWin64 = "uhr-windows.x86_64";
         private const string NameLinux64 = "uhr-linux.x86_64";
-        private const string NameMac64 = "uhr-mac.x86_64";
+        private const string NameMac = "uhr-mac.fat";
         private const string NameIOS = "__Internal";
         private const string NameAndroid = "uhr-android.armeabi-v7a";
 
@@ -44,7 +44,7 @@ namespace UnityHttpRequests
         #elif UHR_TESTS_LINUX
             public const string Name = "../../Assets/Plugins/x86_64/" + NameLinux64;
         #elif UHR_TESTS_MAC
-            public const string Name = "../../Assets/Plugins/iOS/" + NameMac64;
+            public const string Name = "../../Assets/Plugins/" + NameMac;
         #elif UHR_TESTS_ANDROID
             public const string Name = "../../Assets/Plugins/Android/" + NameAndroid;
         #elif UHR_TESTS_IOS
@@ -61,7 +61,7 @@ namespace UnityHttpRequests
             #endif
         #elif (UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX)
             #if UNITY_64
-            public const string Name = NameMac64;
+            public const string Name = NameMac;
             #else
             #error "OSX 32 bit not supported"
             #endif

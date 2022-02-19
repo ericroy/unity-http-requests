@@ -20,7 +20,6 @@ echo "Clang version: $(clang++ --version)"
 
 common_args=(
     -fvisibility=hidden
-    -fobjc-constant-literals
     -Weverything
     -pedantic
     "$build_type"
@@ -39,7 +38,6 @@ iphone_archs=(
 
 simulator_archs=(
     i386
-    x86_64
 )
 
 all_archs=(
@@ -79,9 +77,7 @@ for arch in "${all_archs[@]}"; do
 done
 lipo -create "${lipo_args[@]}" -output .build/uhr/uhr.dylib
 
-# List expoted symbols:
-nm -gU .build/uhr/uhr.dylib
-
+# Install to plugins directory
 artifact=unity/Assets/Plugins/iOS/uhr-ios.fat.dylib
 mkdir -p "$(dirname "$artifact")"
 cp .build/uhr/uhr.dylib "$artifact"

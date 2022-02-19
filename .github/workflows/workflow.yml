@@ -88,6 +88,25 @@ jobs:
   #         path: unity/Assets
   #         retention-days: 1
 
+  build-plugin-mac:
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      UHR_BUILD_TYPE: Release
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Build mac fat
+        run: scripts/build_mac.sh
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: artifact-mac
+          path: unity/Assets
+          retention-days: 1
+
   build-plugin-ios:
     runs-on: macos-latest
     defaults:
@@ -98,7 +117,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Build iOS fat
+      - name: Build ios fat
         run: scripts/build_ios.sh
       
       - uses: actions/upload-artifact@v2
@@ -109,7 +128,7 @@ jobs:
 
   # package-plugin:
   #   runs-on: ubuntu-latest
-  #   needs: [build-plugin-linux, build-plugin-android, build-plugin-windows]
+  #   needs: [build-plugin-linux, build-plugin-windows, build-plugin-android, build-plugin-mac, build-plugin-ios]
   #   defaults:
   #     run:
   #       shell: bash
@@ -130,7 +149,17 @@ jobs:
   #       with:
   #         name: artifact-windows
   #         path: unity/Assets
-      
+
+  #     - uses: actions/download-artifact@v2
+  #       with:
+  #         name: artifact-ios
+  #         path: unity/Assets
+
+  #     - uses: actions/download-artifact@v2
+  #       with:
+  #         name: artifact-mac
+  #         path: unity/Assets
+
   #     - uses: actions/setup-node@v2
   #       with:
   #         node-version: '12.x'
