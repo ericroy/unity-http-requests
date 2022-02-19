@@ -1,4 +1,5 @@
 #import "Session.h"
+#import "Logging.h"
 
 @implementation Session
 @synthesize tasks;
@@ -28,6 +29,7 @@
             session = [[NSURLSession sessionWithConfiguration:config
                                     delegate:nil
                                     delegateQueue:[NSOperationQueue mainQueue]] retain];
+            UHR_LOG_DEBUG(@"Created NSURLSession");
         }
 
         resultsLock = [[NSLock alloc] init];
@@ -61,6 +63,7 @@
     resultStorage = nil;
 
     [super dealloc];
+    UHR_LOG_DEBUG(@"Destroyed NSURLSession");
 }
 
 @end

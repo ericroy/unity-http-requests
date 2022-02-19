@@ -3,6 +3,7 @@
 #import "ResultStorage.h"
 #import "HeaderStorage.h"
 #import "Session.h"
+#import "Logging.h"
 
 #ifdef ARC
 #error UnityHttpRequests implementation does not support ARC
