@@ -31,34 +31,53 @@ common_args=(
     ./uhr/objc/src/*.m
 )
 
+iphone_archs=(
+    armv7
+    armv7s
+    arm64
+)
+
+simulator_archs=(
+    i386
+    x86_64
+)
+
+all_archs=(
+    "${iphone_archs[@]}"
+    "${simulator_archs[@]}"
+)
+
 # Make simulator fat dylib
 echo "Building simulator dylib"
 sysroot=$(xcrun --sdk iphonesimulator --show-sdk-path)
 echo "Sysroot: $sysroot"
-clang++ "${common_args[@]}" -isysroot "$sysroot" -mios-simulator-version-min=7.0 \
-    -arch i386 \
-    -arch x86_64 \
-    -o .build/uhr/uhr-iphonesimulator.dylib
+for arch in "${simulator_archs[@]}"; do
+    echo "Building $arch (simulator)"
+    clang++ "${common_args[@]}" -isysroot "$sysroot" \
+        -mios-simulator-version-min=7.0 \
+        -arch "$arch" \
+        -o ".build/uhr/uhr-${arch}.dylib"
+done
 
 # Make iphone fat dylib
 echo "Building iphone dylib"
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
 echo "Sysroot: $sysroot"
-clang++ "${common_args[@]}" -isysroot "$sysroot" -miphoneos-version-min=7.0 \
-    -arch armv7 \
-    -arch armv7s \
-    -arch arm64 \
-    -o .build/uhr/uhr-iphoneos.dylib
+for arch in "${iphone_archs[@]}"; do
+    echo "Building $arch (iphoneos)"
+    clang++ "${common_args[@]}" -isysroot "$sysroot" \
+        -miphoneos-version-min=7.0 \
+        -arch "$arch" \
+        -o ".build/uhr/uhr-${arch}.dylib"
+done
 
 # Combine into uber fat dylib
 echo "Lipo fat dylib"
-lipo -create \
-    -arch i386 .build/uhr/uhr-iphonesimulator.dylib \
-    -arch x86_64 .build/uhr/uhr-iphonesimulator.dylib \
-    -arch armv7 .build/uhr/uhr-iphoneos.dylib \
-    -arch armv7s .build/uhr/uhr-iphoneos.dylib \
-    -arch arm64 .build/uhr/uhr-iphoneos.dylib \
-    -output .build/uhr/uhr.dylib
+lipo_args=()
+for arch in "${all_archs[@]}"; do
+    lipo_args+=(-arch "$arch" ".build/uhr/uhr-${arch}.dylib")
+done
+lipo -create "${lipo_args[@]}" -output .build/uhr/uhr.dylib
 
 # List expoted symbols:
 nm -gU .build/uhr/uhr.dylib
