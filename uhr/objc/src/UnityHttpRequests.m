@@ -169,7 +169,7 @@ UHR_Error UHR_Update(UHR_HttpSession httpSessionHandle, UHR_Response* responsesO
             UHR_Response res;
             res.request_id = result.rid;
             res.http_status = result.status;
-            res.headers.count = result.headers.count;
+            res.headers.count = (uint32_t)result.headers.count;
             res.headers.headers = res.headers.count > 0 ? &result.headerRefs[0] : nil;
             res.body.length = result.body.length;
             res.body.body = res.body.length > 0 ? (const char*)[result.body bytes] : nil;
