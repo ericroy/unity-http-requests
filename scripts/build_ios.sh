@@ -16,29 +16,45 @@ else
     build_type='-g3'
 fi
 
-sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
+common_args=(
+    -fvisibility=hidden
+    -Weverything
+    -pedantic
+    "$build_type"
+    -dynamiclib
+    -I./uhr/include
+    -I./uhr/objc/src
+    -framework Foundation
+    ./uhr/objc/src/*.m
+)
 
+# Make simulator fat dylib
+sysroot=$(xcrun --sdk iphonesimulator --show-sdk-path)
 echo "Sysroot is: $sysroot"
-clang++ \
-    -isysroot "$sysroot" \
+clang++ "${common_args[@]}" -isysroot "$sysroot" -mios-simulator-version-min=7.0 \
     -arch i386 \
-    -arch arm64 \
+    -arch x86_64 \
+    -o .build/uhr/uhr-iphonesimulator.dylib
+
+# Make iphone fat dylib
+sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
+echo "Sysroot is: $sysroot"
+clang++ "${common_args[@]}" -isysroot "$sysroot" -miphoneos-version-min=7.0 \
     -arch armv7 \
     -arch armv7s \
-    -miphoneos-version-min=7.0 \
-    -mios-simulator-version-min=7.0 \
-    -fvisibility=hidden \
-    -Weverything \
-    -pedantic \
-    "$build_type" \
-    -dynamiclib \
-    -I./uhr/include \
-    -I./uhr/objc/src \
-    -framework Foundation \
-    -o .build/uhr/uhr.dylib \
-    ./uhr/objc/src/*.m
+    -arch arm64 \
+    -o .build/uhr/uhr-iphoneos.dylib
 
-# list expoted symbols:
+# Combine into uber fat dylib
+lipo -create \
+    -arch i386 .build/uhr/uhr-iphonesimulator.dylib \
+    -arch x86_64 .build/uhr/uhr-iphonesimulator.dylib \
+    -arch armv7 .build/uhr/uhr-iphoneos.dylib \
+    -arch armv7s .build/uhr/uhr-iphoneos.dylib \
+    -arch arm64 .build/uhr/uhr-iphoneos.dylib \
+    -output .build/uhr/uhr.dylib
+
+# List expoted symbols:
 nm -gU .build/uhr/uhr.dylib
 
 artifact=unity/Assets/Plugins/iOS/uhr-ios.fat.dylib
