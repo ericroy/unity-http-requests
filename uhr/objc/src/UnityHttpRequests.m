@@ -35,17 +35,19 @@ static NSArray* const kMethodStrings = @[
 ];
 
 
-UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback /* callback */, void* /* userData */) {
+UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback callback, void* userData) {
 	// I don't think we really have anything interesting to log in our objc implementation.
     // This logging mechanism is more useful for the curl implementation, since curl
     // has dozens of apis that might (but shouldn't) fail.
+	(void)callback;
+	(void)userData;
 }
 
 UHR_Error UHR_ErrorToString(UHR_Error err, UHR_StringRef* errorMessageOut) {
     if (errorMessageOut == nil)
         return UHR_ERR_MISSING_REQUIRED_PARAMETER;
 
-    if (err >= kErrorStrings.length)
+    if (err >= kErrorStrings.count)
         return UHR_ERR_UNKNOWN_ERROR_CODE;
 
     NSString* str = kErrorStrings[err];
@@ -95,7 +97,7 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
         if (session == nil)
             return UHR_ERR_INVALID_SESSION;
 
-        if (method >= kMethodStrings.length)
+        if (method >= kMethodStrings.count)
             return UHR_ERR_INVALID_HTTP_METHOD;
 
         NSString* methodStr = kMethodStrings[method];
