@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -8,6 +9,28 @@ using UnityHttpRequests;
 
 namespace Tests
 {
+	public class Updater
+	{
+		public bool Done { get; set; }
+
+		private HttpSession session;
+
+		public Updater(HttpSession session)
+		{
+			this.session = session;
+		}
+
+		public void Run(TimeSpan timeout)
+		{
+			var start = DateTime.Now;
+			while (!Done && DateTime.Now - start < timeout)
+            {
+                session.Update();
+                Thread.Sleep(100);
+            }
+			Assert.IsTrue(Done, "Timed out waiting for response");
+		}
+	}
 
     [TestFixture]
     public class TestSuite
@@ -38,10 +61,11 @@ namespace Tests
             headers["Accept-Encoding"] = "gzip";
             var rid = session.Get("https://httpbin.org/get", headers);
 
-            bool done = false;
+            var updater = new Updater(session);
             session.RequestComplete += (ref Response res) =>
             {
-                done = true;
+                updater.Done = true;
+
                 TestContext.Out.WriteLine(res.Body.ToStringAlloc());
                 
                 Assert.AreEqual(rid, res.RequestId, "Request id mismatch");
@@ -66,13 +90,7 @@ namespace Tests
                 Assert.IsTrue(res.Body.ToStringAlloc().Contains("origin"));
             };
 
-            for (var i = 0; !done && i < 50; ++i)
-            {
-                session.Update();
-                Thread.Sleep(100);
-            }
-
-            Assert.IsTrue(done, "Response never arrived");
+            updater.Run(TimeSpan.FromSeconds(32));
         }
 
         [Test]
@@ -86,10 +104,10 @@ namespace Tests
             var postBody = Encoding.UTF8.GetBytes("{\"foo\": \"bar\", \"baz\": 33}");
             var rid = session.Post("https://httpbin.org/post", postBody, postBody.Length, headers);
 
-            bool done = false;
+            var updater = new Updater(session);
             session.RequestComplete += (ref Response res) =>
             {
-                done = true;
+                updater.Done = true;
                 TestContext.Out.WriteLine(res.Body.ToStringAlloc());
                 
                 Assert.AreEqual(rid, res.RequestId, "Request id mismatch");
@@ -114,13 +132,7 @@ namespace Tests
                 Assert.IsTrue(res.Body.ToStringAlloc().Contains("\"baz\""));
             };
 
-            for (var i = 0; !done && i < 50; ++i)
-            {
-                session.Update();
-                Thread.Sleep(100);
-            }
-
-            Assert.IsTrue(done, "Response never arrived");
+            updater.Run(TimeSpan.FromSeconds(32));
         }
     }
 }
