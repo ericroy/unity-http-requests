@@ -16,9 +16,11 @@ else
     build_type='-g3'
 fi
 
+echo "Clang version: $(clang++ --version)"
+
 common_args=(
     -fvisibility=hidden
-    -fno-objc-constant-literals
+    -fobjc-constant-literals
     -Weverything
     -pedantic
     "$build_type"
@@ -30,16 +32,18 @@ common_args=(
 )
 
 # Make simulator fat dylib
+echo "Building simulator dylib"
 sysroot=$(xcrun --sdk iphonesimulator --show-sdk-path)
-echo "Sysroot is: $sysroot"
+echo "Sysroot: $sysroot"
 clang++ "${common_args[@]}" -isysroot "$sysroot" -mios-simulator-version-min=7.0 \
     -arch i386 \
     -arch x86_64 \
     -o .build/uhr/uhr-iphonesimulator.dylib
 
 # Make iphone fat dylib
+echo "Building iphone dylib"
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
-echo "Sysroot is: $sysroot"
+echo "Sysroot: $sysroot"
 clang++ "${common_args[@]}" -isysroot "$sysroot" -miphoneos-version-min=7.0 \
     -arch armv7 \
     -arch armv7s \
@@ -47,6 +51,7 @@ clang++ "${common_args[@]}" -isysroot "$sysroot" -miphoneos-version-min=7.0 \
     -o .build/uhr/uhr-iphoneos.dylib
 
 # Combine into uber fat dylib
+echo "Lipo fat dylib"
 lipo -create \
     -arch i386 .build/uhr/uhr-iphonesimulator.dylib \
     -arch x86_64 .build/uhr/uhr-iphonesimulator.dylib \
