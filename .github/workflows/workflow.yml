@@ -51,7 +51,10 @@ jobs:
       
       - name: Build mac fat
         run: scripts/build_mac.sh
-      
+
+      - name: Test mac x86_64
+        run: scripts/test.sh
+     
       - uses: actions/upload-artifact@v2
         with:
           name: artifact-mac
