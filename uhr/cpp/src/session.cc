@@ -108,6 +108,7 @@ namespace uhr {
 		while ((msg = curl_multi_info_read(multi_, &remaining_in_queue)) != nullptr) {
 			if(msg->msg != CURLMSG_DONE)
 				continue;
+
 			// All easy handles must have a Request userdata.
 			void *user_data;
 			if (curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &user_data) != CURLE_OK) {

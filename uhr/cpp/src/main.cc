@@ -26,6 +26,7 @@ const std::unordered_map<UHR_Error, const std::u16string> g_error_strings = {
 	{ UHR_ERR_INVALID_SESSION,            uhr::ToUTF16("The session handle was invalid") },
 	{ UHR_ERR_MISSING_REQUIRED_PARAMETER, uhr::ToUTF16("A required function parameter was missing or null") },
 	{ UHR_ERR_INVALID_HTTP_METHOD,        uhr::ToUTF16("Invalid HTTP method") },
+	{ UHR_ERR_INVALID_URL,                uhr::ToUTF16("Invalid URL") },
 	{ UHR_ERR_FAILED_TO_CREATE_REQUEST,   uhr::ToUTF16("Failed to create request") },
 	{ UHR_ERR_UNKNOWN_ERROR_CODE,         uhr::ToUTF16("Unknown error code") },
 	{ UHR_ERR_FAILED_TO_CREATE_SESSION,   uhr::ToUTF16("Failed to create session") },

@@ -16,6 +16,7 @@ static NSArray* const kErrorStrings = @[
     /* UHR_ERR_INVALID_SESSION */               @"The session handle was invalid",
     /* UHR_ERR_MISSING_REQUIRED_PARAMETER */    @"A required function parameter was missing or null",
     /* UHR_ERR_INVALID_HTTP_METHOD */           @"Invalid HTTP method",
+    /* UHR_ERR_INVALID_URL */                   @"Invalid URL",
     /* UHR_ERR_FAILED_TO_CREATE_REQUEST */      @"Failed to create request",
     /* UHR_ERR_UNKNOWN_ERROR_CODE */            @"Unknown error code",
     /* UHR_ERR_FAILED_TO_CREATE_SESSION */      @"Failed to create session",
@@ -107,11 +108,11 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
         if (session.nextRequestID == 0)
             session.nextRequestID = 1;
 
-        NSMutableURLRequest* request = [NSMutableURLRequest
-            requestWithURL: [NSURL
-                URLWithString: [NSString
-                    stringWithCharacters:url.characters length:url.length]]];
-        
+        NSURL *parsedURL = [NSURL URLWithString:[NSString stringWithCharacters:url.characters length:url.length]];
+        if (parsedURL == nil)
+            return UHR_ERR_INVALID_URL;
+
+        NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:parsedURL];
         request.HTTPMethod = methodStr;
 
         if (bodyLength > 0)
@@ -196,7 +197,7 @@ UHR_Error UHR_DestroyRequests(UHR_HttpSession httpSessionHandle, UHR_RequestId* 
             return UHR_ERR_INVALID_SESSION;
 
         for (int32_t i = 0; i < requestIDsCount; ++i) {
-            NSNumber* ridKey = [NSNumber numberWithInt:requestIDs[i]];
+            NSNumber* ridKey = [NSNumber numberWithUnsignedInt:requestIDs[i]];
             NSURLSessionDataTask* task = session.tasks[ridKey];
             if (task != nil) {
                 [task cancel];
