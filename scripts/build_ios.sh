@@ -26,6 +26,7 @@ clang++ \
     -arch armv7 \
     -arch armv7s \
     -miphoneos-version-min=7.0 \
+    -mios-simulator-version-min=7.0 \
     -fvisibility=hidden \
     -Weverything \
     -pedantic \
