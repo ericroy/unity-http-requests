@@ -3,6 +3,7 @@
 @implementation HeaderStorage
 @synthesize key;
 @synthesize value;
+
 - (id)initWithKey:(NSString *)aKey andValue:(NSString *)aValue {
     self = [super init];
     if (self) {
@@ -11,6 +12,7 @@
     }
     return self;
 }
+
 - (void)dealloc {
     [key release];
     key = nil;
@@ -20,4 +22,5 @@
 
     [super dealloc];
 }
+
 @end

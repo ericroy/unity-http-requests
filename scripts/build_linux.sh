@@ -76,13 +76,13 @@ popd
 
 artifact=unity/Assets/Plugins/x86_64/uhr-linux.x86_64.so
 mkdir -p "$(dirname "$artifact")"
-cp .prefix/lib/libuhr.so $artifact
+cp .prefix/lib/libuhr.so "$artifact"
 
 # For the benefit of the ci job log:
 echo "Artifact:"
-ls -alR $artifact
+ls -alR "$artifact"
 echo "Depends on:"
-readelf -d $artifact | grep NEEDED
+readelf -d "$artifact" | grep NEEDED
 echo "Exports:"
 readelf -s "$artifact" | while read -r num _ _ type bind _ index name _ ; do
     [ "$type" = "FUNC" ] || continue

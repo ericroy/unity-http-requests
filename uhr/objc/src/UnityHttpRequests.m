@@ -132,7 +132,7 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
             completionHandler:^(NSData* responseBody, NSURLResponse* response, NSError* error) {
                 ResultStorage* result = [[ResultStorage alloc]
                     initWithRid:rid
-                    response:(NSHTTPURLResponse* )response
+                    response:(NSHTTPURLResponse*)response
                     body:responseBody
                     error:error];
                 [session.resultsLock lock];

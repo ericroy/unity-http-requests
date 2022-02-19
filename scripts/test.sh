@@ -35,6 +35,7 @@ fi
 export DOTNET_NOLOGO=1
 
 config=Debug
+constants="DEBUG,${constants}"
 out_dir="unity/bin/$config"
 
 dotnet --info

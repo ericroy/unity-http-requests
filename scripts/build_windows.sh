@@ -85,9 +85,9 @@ popd
 
 artifact=unity/Assets/Plugins/x86_64/uhr-windows.x86_64.dll
 mkdir -p "$(dirname "$artifact")"
-cp .prefix/bin/uhr.dll $artifact
+cp .prefix/bin/uhr.dll "$artifact"
 
 # For the benefit of the ci job log:
-ls -alR $artifact
-dumpbin -NOLOGO -DEPENDENTS $artifact
-dumpbin -NOLOGO -EXPORTS $artifact
+ls -alR "$artifact"
+dumpbin -NOLOGO -DEPENDENTS "$artifact"
+dumpbin -NOLOGO -EXPORTS "$artifact"

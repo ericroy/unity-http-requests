@@ -1,7 +1,6 @@
 #import "Session.h"
 
 @implementation Session
-
 @synthesize tasks;
 @synthesize session;
 @synthesize resultsLock;
