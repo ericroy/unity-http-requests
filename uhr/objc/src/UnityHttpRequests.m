@@ -11,7 +11,7 @@
 #define LITERALIZE_HELPER(x) #x
 #define LITERALIZE(x) @LITERALIZE_HELPER(x)
 
-static NSArray* const kErrorStrings = @[
+static NSArray* kErrorStrings = @[
     /* UHR_ERR_OK */                            @"Ok",
     /* UHR_ERR_INVALID_SESSION */               @"The session handle was invalid",
     /* UHR_ERR_MISSING_REQUIRED_PARAMETER */    @"A required function parameter was missing or null",
@@ -22,7 +22,7 @@ static NSArray* const kErrorStrings = @[
     /* UHR_ERR_FAILED_TO_UPDATE_SESSION */      @"Failed to update session",
 ];
 
-static NSArray* const kMethodStrings = @[
+static NSArray* kMethodStrings = @[
 	/* UHR_METHOD_GET */        @"GET",
 	/* UHR_METHOD_HEAD */       @"HEAD",
 	/* UHR_METHOD_POST */       @"POST",
@@ -35,7 +35,7 @@ static NSArray* const kMethodStrings = @[
 ];
 
 
-UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback callback, void* userData) {
+UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback /* callback */, void* /* userData */) {
 	// I don't think we really have anything interesting to log in our objc implementation.
     // This logging mechanism is more useful for the curl implementation, since curl
     // has dozens of apis that might (but shouldn't) fail.
