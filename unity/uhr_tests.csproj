@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>UHR_TESTS;$(Constants)</DefineConstants>
+    <DefineConstants>DEBUG;UHR_TESTS;$(Constants)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="NUnit" Version="3.12.0" />
