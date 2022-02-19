@@ -8,7 +8,7 @@
 #error UnityHttpRequests implementation does not support ARC
 #endif
 
-static NSArray* const kErrorStrings = @[
+static NSString* const kErrorStrings[] = {
     /* UHR_ERR_OK */                            @"Ok",
     /* UHR_ERR_INVALID_SESSION */               @"The session handle was invalid",
     /* UHR_ERR_MISSING_REQUIRED_PARAMETER */    @"A required function parameter was missing or null",
@@ -18,9 +18,10 @@ static NSArray* const kErrorStrings = @[
     /* UHR_ERR_UNKNOWN_ERROR_CODE */            @"Unknown error code",
     /* UHR_ERR_FAILED_TO_CREATE_SESSION */      @"Failed to create session",
     /* UHR_ERR_FAILED_TO_UPDATE_SESSION */      @"Failed to update session",
-];
+};
+static const int kErrorStringsCount = sizeof(kErrorStrings) / sizeof(kErrorStrings[0]);
 
-static NSArray* const kMethodStrings = @[
+static NSString* const kMethodStrings[] = {
 	/* UHR_METHOD_GET */        @"GET",
 	/* UHR_METHOD_HEAD */       @"HEAD",
 	/* UHR_METHOD_POST */       @"POST",
@@ -30,7 +31,8 @@ static NSArray* const kMethodStrings = @[
 	/* UHR_METHOD_CONNECT */    @"CONNECT",
 	/* UHR_METHOD_OPTIONS */    @"OPTIONS",
 	/* UHR_METHOD_TRACE */      @"TRACE",
-];
+};
+static const int kMethodStringsCount = sizeof(kMethodStrings) / sizeof(kMethodStrings[0]);
 
 
 UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback callback, void* userData) {
@@ -45,7 +47,7 @@ UHR_Error UHR_ErrorToString(UHR_Error err, UHR_StringRef* errorMessageOut) {
     if (errorMessageOut == nil)
         return UHR_ERR_MISSING_REQUIRED_PARAMETER;
 
-    if (err >= kErrorStrings.count)
+    if (err >= kErrorStringsCount)
         return UHR_ERR_UNKNOWN_ERROR_CODE;
 
     NSString* str = kErrorStrings[err];
@@ -95,7 +97,7 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
         if (session == nil)
             return UHR_ERR_INVALID_SESSION;
 
-        if (method >= kMethodStrings.count)
+        if (method >= kMethodStringsCount)
             return UHR_ERR_INVALID_HTTP_METHOD;
 
         NSString* methodStr = kMethodStrings[method];
