@@ -20,6 +20,7 @@ echo "Clang version: $(clang++ --version)"
 
 common_args=(
     -fvisibility=hidden
+    -fno-objc-arc
     -Weverything
     -pedantic
     "$build_type"

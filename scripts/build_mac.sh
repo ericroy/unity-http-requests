@@ -22,6 +22,7 @@ echo "Clang version: $(clang++ --version)"
 echo "Building fat dylib"
 clang++ \
     -fvisibility=hidden \
+    -fno-objc-arc \
     -Weverything \
     -pedantic \
     "$build_type" \
