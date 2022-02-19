@@ -46,3 +46,4 @@ echo "Depends on:"
 otool -L "$artifact"
 echo "Exports:"
 nm -gU "$artifact"
+
