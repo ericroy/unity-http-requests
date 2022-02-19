@@ -18,6 +18,7 @@ fi
 
 common_args=(
     -fvisibility=hidden
+    -fobjc-constant-literals
     -Weverything
     -pedantic
     "$build_type"

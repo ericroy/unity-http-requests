@@ -11,7 +11,7 @@
 #define LITERALIZE_HELPER(x) #x
 #define LITERALIZE(x) @LITERALIZE_HELPER(x)
 
-static NSArray* kErrorStrings = @[
+static NSArray* const kErrorStrings = @[
     /* UHR_ERR_OK */                            @"Ok",
     /* UHR_ERR_INVALID_SESSION */               @"The session handle was invalid",
     /* UHR_ERR_MISSING_REQUIRED_PARAMETER */    @"A required function parameter was missing or null",
@@ -22,7 +22,7 @@ static NSArray* kErrorStrings = @[
     /* UHR_ERR_FAILED_TO_UPDATE_SESSION */      @"Failed to update session",
 ];
 
-static NSArray* kMethodStrings = @[
+static NSArray* const kMethodStrings = @[
 	/* UHR_METHOD_GET */        @"GET",
 	/* UHR_METHOD_HEAD */       @"HEAD",
 	/* UHR_METHOD_POST */       @"POST",
