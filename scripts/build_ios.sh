@@ -47,7 +47,7 @@ all_archs=(
     "${simulator_archs[@]}"
 )
 
-# Make simulator fat dylib
+# Make simulator dylibs
 echo "Building simulator dylib"
 sysroot=$(xcrun --sdk iphonesimulator --show-sdk-path)
 echo "Sysroot: $sysroot"
@@ -59,7 +59,7 @@ for arch in "${simulator_archs[@]}"; do
         -o ".build/uhr/uhr-${arch}.dylib"
 done
 
-# Make iphone fat dylib
+# Make iphone dylibs
 echo "Building iphone dylib"
 sysroot=$(xcrun --sdk iphoneos --show-sdk-path)
 echo "Sysroot: $sysroot"
