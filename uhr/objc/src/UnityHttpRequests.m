@@ -8,9 +8,6 @@
 #error UnityHttpRequests implementation does not support ARC
 #endif
 
-#define LITERALIZE_HELPER(x) #x
-#define LITERALIZE(x) @LITERALIZE_HELPER(x)
-
 static NSArray* const kErrorStrings = @[
     /* UHR_ERR_OK */                            @"Ok",
     /* UHR_ERR_INVALID_SESSION */               @"The session handle was invalid",
@@ -118,7 +115,7 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
         if (bodyLength > 0)
             request.HTTPBody = [NSData dataWithBytes:body length:bodyLength];
 
-        for (int32_t i = 0; i < headersCount; ++i) {
+        for (uint32_t i = 0; i < headersCount; ++i) {
             [request
                 setValue: [NSString
                     stringWithCharacters:headers[i].name.characters
@@ -130,11 +127,11 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
 
         NSURLSessionDataTask* task = [session.session
             dataTaskWithRequest:request
-            completionHandler:^(NSData* body, NSURLResponse* response, NSError* error) {
+            completionHandler:^(NSData* responseBody, NSURLResponse* response, NSError* error) {
                 ResultStorage* result = [[ResultStorage alloc]
                     initWithRid:rid
                     response:(NSHTTPURLResponse* )response
-                    body:body
+                    body:responseBody
                     error:error];
                 [session.resultsLock lock];
                 [session.results insertObject:result atIndex:0];
@@ -173,7 +170,7 @@ UHR_Error UHR_Update(UHR_HttpSession httpSessionHandle, UHR_Response* responsesO
             res.headers.count = result.headers.count;
             res.headers.headers = res.headers.count > 0 ? &result.headerRefs[0] : nil;
             res.body.length = result.body.length;
-            res.body.body = res.body.length > 0 ? (char*)[result.body bytes] : nil;
+            res.body.body = res.body.length > 0 ? (const char*)[result.body bytes] : nil;
             responsesOut[count] = res;
 
             NSNumber* ridKey = [NSNumber numberWithUnsignedInt:result.rid];
@@ -196,7 +193,7 @@ UHR_Error UHR_DestroyRequests(UHR_HttpSession httpSessionHandle, UHR_RequestId* 
         if (session == nil)
             return UHR_ERR_INVALID_SESSION;
 
-        for (int32_t i = 0; i < requestIDsCount; ++i) {
+        for (uint32_t i = 0; i < requestIDsCount; ++i) {
             NSNumber* ridKey = [NSNumber numberWithUnsignedInt:requestIDs[i]];
             NSURLSessionDataTask* task = session.tasks[ridKey];
             if (task != nil) {
