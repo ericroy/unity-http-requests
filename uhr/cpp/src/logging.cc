@@ -3,6 +3,9 @@
 
 namespace uhr {
 
+	// Not inside anonymous namespace, so it can be accessed by the logging macros used in other code units.
+	LogSink g_log_sink;
+
 	LogSink::Acquired::~Acquired() {
 		if (sink_->callback_ != nullptr) {
 			auto s = ToUTF16(oss_.str());
@@ -22,9 +25,5 @@ namespace uhr {
 		user_data_ = user_data;
 		callback_ = callback;
 	}
-
-	// Not inside anonymous namespace, so it can be accessed by the clue
-	// logging macros in other code units.
-	LogSink g_log_sink;
 
 } // namespace uhr

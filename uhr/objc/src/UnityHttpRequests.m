@@ -36,11 +36,7 @@ static const int kMethodStringsCount = sizeof(kMethodStrings) / sizeof(kMethodSt
 
 
 UHR_API void UHR_SetLoggingCallback(UHR_LoggingCallback callback, void* userData) {
-	// I don't think we really have anything interesting to log in our objc implementation.
-    // This logging mechanism is more useful for the curl implementation, since curl
-    // has dozens of apis that might (but shouldn't) fail.
-	(void)callback;
-	(void)userData;
+	[gLogSink set:callback userData:userData];
 }
 
 UHR_Error UHR_ErrorToString(UHR_Error err, UHR_StringRef* errorMessageOut) {
