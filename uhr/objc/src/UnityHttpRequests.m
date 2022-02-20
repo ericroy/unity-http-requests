@@ -127,6 +127,7 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
         NSURLSessionDataTask* task = [session.session
             dataTaskWithRequest:request
             completionHandler:^(NSData* responseBody, NSURLResponse* response, NSError* error) {
+                UHR_LOG_DEBUG(@"Requestion complete: %@\n%@\n%@", responseBody, response, error);
                 ResultStorage* result = [[ResultStorage alloc]
                     initWithRid:rid
                     response:(NSHTTPURLResponse*)response
