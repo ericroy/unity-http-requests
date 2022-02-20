@@ -21,7 +21,6 @@
         @autoreleasepool {
             // Retain explicitly.
             _session = [[NSURLSession sessionWithConfiguration:config delegate:nil delegateQueue:nil] retain];
-            UHR_LOG_DEBUG(@"Created NSURLSession");
         }
 
         _results = [[NSMutableArray alloc] initWithCapacity:16];
@@ -51,8 +50,6 @@
     _resultStorage = nil;
 
     [super dealloc];
-
-    UHR_LOG_DEBUG(@"Destroyed NSURLSession");
 }
 
 @end
