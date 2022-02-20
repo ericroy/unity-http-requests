@@ -33,7 +33,7 @@
                 headerRef.name.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.key);
                 headerRef.value.length = (uint32_t)storage.value.length;
                 headerRef.value.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
-                headerRefs[i++] = headerRef;
+                _headerRefs[i++] = headerRef;
 
                 [_headers addObject:storage];
                 [storage release];

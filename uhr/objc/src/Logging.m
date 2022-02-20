@@ -1,5 +1,10 @@
 #import "Logging.h"
 
+NSString* const kLogTagDebug = @"UHR[DEBUG]: ";
+NSString* const kLogTagInfo = @"UHR[INFO]: ";
+NSString* const kLogTagError = @"UHR[ERROR]: ";
+NSString* const kLogTagCritical = @"UHR[CRITICAL]: ";
+
 LogSink* gLogSink = [[LogSink alloc] init];
 
 @interface LogSink()
