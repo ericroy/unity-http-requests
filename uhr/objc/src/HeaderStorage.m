@@ -1,8 +1,6 @@
 #import "HeaderStorage.h"
 
 @implementation HeaderStorage
-@synthesize key;
-@synthesize value;
 
 - (id)initWithKey:(NSString *)aKey andValue:(NSString *)aValue {
     self = [super init];

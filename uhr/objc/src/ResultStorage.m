@@ -2,12 +2,6 @@
 #import "HeaderStorage.h"
 
 @implementation ResultStorage
-@synthesize rid;
-@synthesize error;
-@synthesize status;
-@synthesize headers;
-@synthesize headerRefs;
-@synthesize body;
 
 - (id)initWithRid:(UHR_RequestId)aRid response:(NSHTTPURLResponse *)response body:(NSData *)aBody error:(NSError *)aError {
     self = [super init];
