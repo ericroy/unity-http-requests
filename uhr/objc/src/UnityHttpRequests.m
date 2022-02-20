@@ -138,6 +138,7 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
                 [session.resultsLock unlock];
                 [result release];
             }];
+        UHR_LOG_DEBUG(@"Starting request: %@ [%@]", parsedURL, rid);
         [task resume];
         [session.tasks setObject:task forKey:[NSNumber numberWithUnsignedInt:rid]];
 
