@@ -20,9 +20,7 @@
         // - In our classes dealloc method, release it, refcount=0
         @autoreleasepool {
             // Retain explicitly.
-            _session = [[NSURLSession sessionWithConfiguration:config
-                                    delegate:nil
-                                    delegateQueue:[NSOperationQueue mainQueue]] retain];
+            _session = [[NSURLSession sessionWithConfiguration:config delegate:nil delegateQueue:nil] retain];
             UHR_LOG_DEBUG(@"Created NSURLSession");
         }
 
