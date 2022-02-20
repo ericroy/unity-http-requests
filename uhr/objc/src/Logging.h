@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #include "UnityHttpRequests.h"
 
-#define uhr_LOG_EXPRESSION( prefix, ... ) [::gLogSink log:[prefix stringByAppendingFormat:__VA_ARGS__]]
+#define uhr_LOG_EXPRESSION( prefix, ... ) [gLogSink log:[prefix stringByAppendingFormat:__VA_ARGS__]]
 
 #define UHR_LOG_DEBUG(...) uhr_LOG_EXPRESSION(kLogTagDebug, __VA_ARGS__)
 #define UHR_LOG_INFO(...) uhr_LOG_EXPRESSION(kLogTagInfo, __VA_ARGS__)
