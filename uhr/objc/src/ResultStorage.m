@@ -4,7 +4,8 @@
 @implementation ResultStorage
 
 - (id)initWithRid:(UHR_RequestId)rid response:(NSHTTPURLResponse *)response body:(NSData *)body error:(NSError *)error {
-    if (self = [super init]) {
+    self = [super init];
+    if (self != nil) {
         _rid = rid;
         _error = [error retain];
         _body = [body retain];

@@ -4,7 +4,8 @@
 @implementation Session
 
 - (id)init {
-    if (self = [super init]) {
+    self = [super init];
+    if (self != nil) {
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
         _tasks = [[NSMutableDictionary alloc] initWithCapacity:16];
 

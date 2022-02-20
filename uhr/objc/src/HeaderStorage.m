@@ -3,7 +3,8 @@
 @implementation HeaderStorage
 
 - (id)initWithKey:(NSString *)key andValue:(NSString *)value {
-    if (self = [super init]) {
+    self = [super init];
+    if (self != nil) {
         _key = [key retain];
         _value = [value retain];
     }
