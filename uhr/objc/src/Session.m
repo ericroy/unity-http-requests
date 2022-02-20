@@ -4,8 +4,7 @@
 @implementation Session
 
 - (id)init {
-    self = [super init];
-    if (self) {
+    if (self = [super init]) {
         NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
         _tasks = [[NSMutableDictionary alloc] initWithCapacity:16];
 
@@ -57,7 +56,7 @@
     _resultStorage = nil;
 
     [super dealloc];
-    
+
     UHR_LOG_DEBUG(@"Destroyed NSURLSession");
 }
 

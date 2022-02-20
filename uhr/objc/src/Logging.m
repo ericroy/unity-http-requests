@@ -5,18 +5,37 @@ NSString* const kLogTagInfo = @"UHR[INFO]: ";
 NSString* const kLogTagError = @"UHR[ERROR]: ";
 NSString* const kLogTagCritical = @"UHR[CRITICAL]: ";
 
-LogSink* gLogSink = [[LogSink alloc] init];
+static LogSink* gLogSink = nil;
 
 @interface LogSink()
 @property (nonatomic) UHR_LoggingCallback callback;
 @property (nonatomic) void* userData;
+- (id)init;
+- (void)set:(UHR_LoggingCallback)callback userData:(void *)userData;
+- (void)log:(NSString*)str;
+- (void)dealloc;
 @end
 
 @implementation LogSink
 
++ (void)log:(NSString*)str {
+    @synchronized(self) {
+        if (gLogSink == nil)
+            gLogSink = [[self alloc] init];
+        [gLogSink log:str];
+    }
+}
+
++ (void)set:(UHR_LoggingCallback)callback userData:(void *)userData {
+    @synchronized(self) {
+        if (gLogSink == nil)
+            gLogSink = [[self alloc] init];
+        [gLogSink set:callback userData:userData];
+    }
+}
+
 - (id)init {
-    self = [super init];
-    if (self) {
+    if (self = [super init]) {
         _callback = nil;
         _userData = nil;
     }
@@ -24,20 +43,16 @@ LogSink* gLogSink = [[LogSink alloc] init];
 }
 
 - (void)set:(UHR_LoggingCallback)callback userData:(void *)userData {
-    @synchronized(self) {
-        self.callback = callback;
-        self.userData = userData;
-    }
+    self.callback = callback;
+    self.userData = userData;
 }
 
 - (void)log:(NSString*)str {
-    @synchronized(self) {
-        if (self.callback != nil) {
-            UHR_StringRef ref;
-            ref.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef)str);
-            ref.length = (uint32_t)str.length;
-            self.callback(ref, self.userData);
-        }
+    if (self.callback != nil) {
+        UHR_StringRef ref;
+        ref.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef)str);
+        ref.length = (uint32_t)str.length;
+        self.callback(ref, self.userData);
     }
 }
 
