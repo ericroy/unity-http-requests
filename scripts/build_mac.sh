@@ -25,6 +25,7 @@ clang++ \
     -fno-objc-arc \
     -Weverything \
     -pedantic \
+    -Wno-objc-missing-property-synthesis    # We use auto prop synthesis, so don't warn
     "$build_type" \
     -dynamiclib \
     -arch arm64 \
