@@ -20,18 +20,18 @@ LogSink* gLogSink = [[LogSink alloc] init];
 
 - (void)set:(UHR_LoggingCallback)callback userData:(void *)userData {
     @synchronized(self) {
-        _callback = callback;
-        _userData = userData;
+        self.callback = callback;
+        self.userData = userData;
     }
 }
 
 - (void)log:(NSString*)str {
     @synchronized(self) {
-        if (_callback != nil) {
+        if (self.callback != nil) {
             UHR_StringRef ref;
             ref.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef)str);
             ref.length = (uint32_t)str.length;
-            _callback(ref, _userData);
+            self.callback(ref, self.userData);
         }
     }
 }

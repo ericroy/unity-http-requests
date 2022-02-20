@@ -5,8 +5,8 @@
 - (id)initWithKey:(NSString *)key andValue:(NSString *)value {
     self = [super init];
     if (self) {
-        self.key = key;
-        self.value = value;
+        _key = [key retain];
+        _value = [value retain];
     }
     return self;
 }

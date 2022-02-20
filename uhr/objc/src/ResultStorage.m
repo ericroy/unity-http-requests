@@ -7,8 +7,8 @@
     self = [super init];
     if (self) {
         _rid = rid;
-        self.error = error;
-        self.body = body;
+        _error = [error retain];
+        _body = [body retain];
         
         if (response == nil) {
             // Inidcating a network error
