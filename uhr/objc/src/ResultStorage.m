@@ -3,24 +3,24 @@
 
 @implementation ResultStorage
 
-- (id)initWithRid:(UHR_RequestId)aRid response:(NSHTTPURLResponse *)response body:(NSData *)aBody error:(NSError *)aError {
+- (id)initWithRid:(UHR_RequestId)rid response:(NSHTTPURLResponse *)response body:(NSData *)body error:(NSError *)error {
     self = [super init];
     if (self) {
-        rid = aRid;
-        error = [aError retain];
-        body = [aBody retain];
+        _rid = rid;
+        self.error = error;
+        self.body = body;
         
         if (response == nil) {
             // Inidcating a network error
-            status = 0;
-            headers = [[NSMutableArray alloc] initWithCapacity:0];
-            headerRefs = nil;
+            _status = 0;
+            _headers = [[NSMutableArray alloc] initWithCapacity:0];
+            _headerRefs = nil;
         } else {
-            status = (uint32_t)response.statusCode;
+            _status = (uint32_t)response.statusCode;
 
             NSDictionary *responseHeaders = response.allHeaderFields;
-            headers = [[NSMutableArray alloc] initWithCapacity:responseHeaders.count];
-            headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * responseHeaders.count);
+            _headers = [[NSMutableArray alloc] initWithCapacity:responseHeaders.count];
+            _headerRefs = (UHR_Header *)malloc(sizeof(UHR_Header) * responseHeaders.count);
 
             int i = 0;
             for(id key in responseHeaders) {
@@ -35,7 +35,7 @@
                 headerRef.value.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef) storage.value);
                 headerRefs[i++] = headerRef;
 
-                [headers addObject:storage];
+                [_headers addObject:storage];
                 [storage release];
             }
         }
@@ -44,18 +44,18 @@
 }
 
 - (void)dealloc {
-    [error release];
-    error = nil;
+    [_error release];
+    _error = nil;
     
-    [headers release];
-    headers = nil;
+    [_headers release];
+    _headers = nil;
 
-    [body release];
-    body = nil;
+    [_body release];
+    _body = nil;
 
-    if (headerRefs != nil) {
-        free(headerRefs);
-        headerRefs = nil;
+    if (_headerRefs != nil) {
+        free(_headerRefs);
+        _headerRefs = nil;
     }
 
     [super dealloc];

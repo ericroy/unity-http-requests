@@ -12,31 +12,33 @@ LogSink* gLogSink = [[LogSink alloc] init];
 - (id)init {
     self = [super init];
     if (self) {
-        self.callback = nil;
-        self.userData = nil;
+        _callback = nil;
+        _userData = nil;
     }
     return self;
 }
 
 - (void)set:(UHR_LoggingCallback)callback userData:(void *)userData {
     @synchronized(self) {
-        self.callback = callback;
-        self.userData = userData;
+        _callback = callback;
+        _userData = userData;
     }
 }
 
 - (void)log:(NSString*)str {
     @synchronized(self) {
-        if (self.callback != nil) {
+        if (_callback != nil) {
             UHR_StringRef ref;
             ref.characters = (const uint16_t*)CFStringGetCharactersPtr((__bridge CFStringRef)str);
             ref.length = (uint32_t)str.length;
-            self.callback(ref, self._userData);
+            _callback(ref, _userData);
         }
     }
 }
 
 - (void)dealloc {
+    _callback = nil;
+    _userData = nil;
     [super dealloc];
 }
 

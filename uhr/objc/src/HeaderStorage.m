@@ -2,21 +2,21 @@
 
 @implementation HeaderStorage
 
-- (id)initWithKey:(NSString *)aKey andValue:(NSString *)aValue {
+- (id)initWithKey:(NSString *)key andValue:(NSString *)value {
     self = [super init];
     if (self) {
-        key = [aKey retain];
-        value = [aValue retain];
+        self.key = key;
+        self.value = value;
     }
     return self;
 }
 
 - (void)dealloc {
-    [key release];
-    key = nil;
+    [_key release];
+    _key = nil;
     
-    [value release];
-    value = nil;
+    [_value release];
+    _value = nil;
 
     [super dealloc];
 }
