@@ -30,7 +30,7 @@ namespace UnityHttpRequests
         Trace = 8,
     }
 
-    class NativeLibrary
+    static class NativeLibrary
     {
         private const string NameWin64 = "uhr-windows.x86_64";
         private const string NameLinux64 = "uhr-linux.x86_64";
