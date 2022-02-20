@@ -2,7 +2,10 @@
 
 LogSink* gLogSink = [[LogSink alloc] init];
 
-@implementation LogSink
+@implementation LogSink {
+    UHR_LoggingCallback _callback;
+	void* _userData;
+}
 
 - (id)init {
     self = [super init];

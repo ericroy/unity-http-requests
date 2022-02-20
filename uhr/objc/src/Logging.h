@@ -8,10 +8,7 @@
 #define UHR_LOG_ERROR(fmt, ...) uhr_LOG_EXPRESSION("UHR[ERROR]: ", fmt, __VA_ARGS__)
 #define UHR_LOG_CRITICAL(fmt, ...) uhr_LOG_EXPRESSION("UHR[CRITICAL]: ", fmt, __VA_ARGS__)
 
-@interface LogSink : NSObject {
-	UHR_LoggingCallback _callback;
-	void* _userData;
-}
+@interface LogSink : NSObject {}
 - (id)init;
 - (void)set:(UHR_LoggingCallback)callback userData:(void *)userData;
 - (void)log:(NSString*)str;
