@@ -26,7 +26,6 @@
             UHR_LOG_DEBUG(@"Created NSURLSession");
         }
 
-        _resultsLock = [[NSLock alloc] init];
         _results = [[NSMutableArray alloc] initWithCapacity:16];
         _resultStorage = [[NSMutableDictionary alloc] initWithCapacity:16];
         _nextRequestID = 1;
@@ -46,9 +45,6 @@
 
     [_session release];
     _session = nil;
-
-    [_resultsLock release];
-    _resultsLock = nil;
 
     [_results release];
     _results = nil;

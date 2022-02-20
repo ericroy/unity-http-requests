@@ -133,9 +133,9 @@ UHR_Error UHR_CreateRequest(UHR_HttpSession httpSessionHandle,
                     response:(NSHTTPURLResponse*)response
                     body:responseBody
                     error:error];
-                [session.resultsLock lock];
-                [session.results insertObject:result atIndex:0];
-                [session.resultsLock unlock];
+                @synchronized(session.results) {
+                    [session.results insertObject:result atIndex:0];
+                }
                 [result release];
             }];
         UHR_LOG_DEBUG(@"Starting request: %@ [%u]", parsedURL, rid);
@@ -161,24 +161,24 @@ UHR_Error UHR_Update(UHR_HttpSession httpSessionHandle, UHR_Response* responsesO
 
         uint32_t count = 0;
 
-        [session.resultsLock lock];
-        for (; count < responsesCapacity && session.results.count > 0; ++count) {
-            ResultStorage* result = (ResultStorage*)[session.results lastObject];
+        @synchronized(session.results) {
+            for (; count < responsesCapacity && session.results.count > 0; ++count) {
+                ResultStorage* result = (ResultStorage*)[session.results lastObject];
 
-            UHR_Response res;
-            res.request_id = result.rid;
-            res.http_status = result.status;
-            res.headers.count = (uint32_t)result.headers.count;
-            res.headers.headers = res.headers.count > 0 ? &result.headerRefs[0] : nil;
-            res.body.length = (uint32_t)result.body.length;
-            res.body.body = res.body.length > 0 ? (const char*)[result.body bytes] : nil;
-            responsesOut[count] = res;
+                UHR_Response res;
+                res.request_id = result.rid;
+                res.http_status = result.status;
+                res.headers.count = (uint32_t)result.headers.count;
+                res.headers.headers = res.headers.count > 0 ? &result.headerRefs[0] : nil;
+                res.body.length = (uint32_t)result.body.length;
+                res.body.body = res.body.length > 0 ? (const char*)[result.body bytes] : nil;
+                responsesOut[count] = res;
 
-            NSNumber* ridKey = [NSNumber numberWithUnsignedInt:result.rid];
-            [session.resultStorage setObject:result forKey:ridKey];
-            [session.results removeObjectAtIndex:session.results.count-1];
+                NSNumber* ridKey = [NSNumber numberWithUnsignedInt:result.rid];
+                [session.resultStorage setObject:result forKey:ridKey];
+                [session.results removeObjectAtIndex:session.results.count-1];
+            }
         }
-        [session.resultsLock unlock];
 
         *responseCountOut = count;
         return UHR_ERR_OK;
