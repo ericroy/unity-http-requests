@@ -22,8 +22,8 @@ common_args=(
     -fvisibility=hidden
     -fno-objc-arc
     -Weverything
+    -Wno-objc-missing-property-synthesis
     -pedantic
-    -Wno-objc-missing-property-synthesis    # We use auto prop synthesis, so don't warn
     "$build_type"
     -dynamiclib
     -I./uhr/include
