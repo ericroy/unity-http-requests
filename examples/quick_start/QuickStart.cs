@@ -18,7 +18,7 @@ public class QuickStart : MonoBehaviour
 	
 	private byte[] buffer = new byte[4096];
 
-	// We'll use this class from the ZString library as an example,  class for serialization, but what you use is up to you.
+	// We'll use this class from the ZString library as an example serialization method
 	private Utf8ValueStringBuilder stringBuilder = ZString.CreateUtf8StringBuilder();
 	
 	private int lastRid = 0;
@@ -36,7 +36,7 @@ public class QuickStart : MonoBehaviour
 		stringBuilder.AppendFormat("{\"foo\": \"{0}\", \"baz\": {1}}", "bar", 33);
 		stringBuilder.TryCopyTo(buffer, out bodyLen);
 			
-		// The `rid` returned by from the Post() method is a unique request identifier.
+		// The `rid` (Request ID) returned by from the Post() method is a unique request identifier.
 		// Incoming responses will contain the rid so you can associate them with the request, if you want.
 		lastRid = session.Post("https://httpbin.org/post", buffer, bodyLen, requestHeaders);
 	}

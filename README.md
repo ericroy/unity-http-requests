@@ -18,12 +18,12 @@
 
 Add the package dependency to your `Packages/manifest.json`:
 
-```json
+```js
 // To get the latest:
-"com.ericroy.uhr": "https://github.com/ericroy/unity-http-requests.git",
+"com.ericroy.unity-http-requests": "https://github.com/ericroy/unity-http-requests.git",
 
 // Or, to pin at a certain version:
-"com.ericroy.uhr": "https://github.com/ericroy/unity-http-requests.git#v1.0.13",
+"com.ericroy.unity-http-requests": "https://github.com/ericroy/unity-http-requests.git#v1.0.13",
 ```
 
 ## Basic usage
@@ -36,7 +36,7 @@ Add the package dependency to your `Packages/manifest.json`:
 
 ### Windows
 
-On Windows, the C++ implementation statically links CURL and zlib.  It dynamically links against SChannel as its TLS/Crypto provider since SChannel ships with windows.  SChannel exists as far back as Windows Vista, so that's likely the lowest supported version of Windows, though I have not tested this.
+On Windows, the C++ implementation statically links CURL and zlib.  It dynamically links against SChannel as its TLS/Crypto provider since SChannel ships with windows.  SChannel exists as far back as Windows Vista, so that's likely the lowest supported version of Windows, though I have not verified this.
 
 Only the x86_64 architecture is supported, there is no 32 bit library.
 
@@ -65,5 +65,5 @@ On iOS, armv7, armv7s, and arm64 architectures are supported, built as a fat dyl
   - License: [Apache 2.0](https://github.com/ARMmbed/mbedtls/blob/development/LICENSE)
 - [utf8cpp](https://github.com/nemtrif/utfcpp)
   - License: [Boost 1.0](https://github.com/nemtrif/utfcpp/blob/master/LICENSE)
-- [Cloudflare fork](https://github.com/cloudflare/zlib) of [zlib](http://zlib.net/)
+- [zlib](http://zlib.net/)
   - License: [Permissive](http://zlib.net/zlib_license.html)
