@@ -57,7 +57,7 @@ namespace UnityHttpRequests
             {
                 for (var i = 0; i < prefix.Length; ++i)
                 {
-                    if (s[i] != characters[i])
+                    if (prefix[i] != characters[i])
                         return false;
                 }
             }
@@ -65,7 +65,7 @@ namespace UnityHttpRequests
             {
                 for (var i = 0; i < prefix.Length; ++i)
                 {
-                    if (char.ToLowerInvariant(s[i]) != char.ToLowerInvariant(characters[i]))
+                    if (char.ToLowerInvariant(prefix[i]) != char.ToLowerInvariant(characters[i]))
                         return false;
                 }
             }

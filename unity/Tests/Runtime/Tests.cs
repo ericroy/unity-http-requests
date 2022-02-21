@@ -83,9 +83,7 @@ namespace Tests
                 Assert.AreEqual("Content-Type", headerName);
                 Assert.AreEqual("application/json", headerValue);
 
-                string headerValue2;
-                Assert.IsTrue(res.Headers.TryGetHeaderAlloc("Content-Type", out headerValue2));
-                Assert.AreEqual("application/json", headerValue2);
+                Assert.AreEqual("application/json", res.Headers.GetHeaderAlloc("Content-Type"));
 
                 Assert.IsTrue(res.Body.ToStringAlloc().Contains("origin"));
             };
@@ -125,9 +123,7 @@ namespace Tests
                 Assert.AreEqual("Content-Type", headerName);
                 Assert.AreEqual("application/json", headerValue);
 
-                string headerValue2;
-                Assert.IsTrue(res.Headers.TryGetHeaderAlloc("Content-Type", out headerValue2));
-                Assert.AreEqual("application/json", headerValue2);
+                Assert.AreEqual("application/json", res.Headers.GetHeaderAlloc("Content-Type"));
 
                 Assert.IsTrue(res.Body.ToStringAlloc().Contains("\"baz\""));
             };
