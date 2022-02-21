@@ -35,6 +35,18 @@ namespace UnityHttpRequests
             return headers[headerIndex].Value.ToStringAlloc();
         }
 
+		// Returns the value for the specified name, or null if there
+		// is no such header.
+        public string GetHeaderAlloc(string headerName)
+        {
+			var headerIndex = FindHeader(headerName);
+			if (headerIndex < 0)
+			{
+				return null;
+			}
+			return GetHeaderAlloc(headerIndex);
+        }
+
         // Gets the name and value of the specified header and writes them to the out params
         public void GetHeaderAlloc(int headerIndex, out string headerName, out string headerValue)
         {
@@ -44,20 +56,6 @@ namespace UnityHttpRequests
             }
             headerName = headers[headerIndex].Name.ToStringAlloc();
             headerValue = headers[headerIndex].Value.ToStringAlloc();
-        }
-
-        // Tries to get a header with the specified name, and writes it to the out param if it exists.
-        // Returns true if successful, false otherwise.
-        public bool TryGetHeaderAlloc(string headerName, out string valueOut)
-        {
-            int i = FindHeader(headerName);
-            if (i == -1)
-            {
-                valueOut = null;
-                return false;
-            }
-            valueOut = headers[i].Value.ToStringAlloc();
-            return true;
         }
 
         public bool HeaderEquals(int headerIndex, string expectedValue, bool valueCaseSensitive = true)
@@ -77,6 +75,25 @@ namespace UnityHttpRequests
                 return false;                
             }
             return headers[i].Value.Equals(expectedValue, valueCaseSensitive);
+        }
+
+        public bool HeaderStartsWith(int headerIndex, string expectedPrefix, bool valueCaseSensitive = true)
+        {
+            if (headerIndex < 0 || headerIndex >= Count)
+            {
+                throw new IndexOutOfRangeException();
+            }
+            return headers[headerIndex].Value.StartsWith(expectedPrefix, valueCaseSensitive);
+        }
+
+        public bool HeaderStartsWith(string headerName, string expectedPrefix, bool valueCaseSensitive = true)
+        {
+            int i = FindHeader(headerName);
+            if (i == -1)
+            {
+                return false;                
+            }
+            return headers[i].Value.StartsWith(expectedPrefix, valueCaseSensitive);
         }
     }
 

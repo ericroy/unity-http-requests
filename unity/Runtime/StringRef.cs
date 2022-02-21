@@ -47,6 +47,31 @@ namespace UnityHttpRequests
             return true;
         }
 
+        public bool StartsWith(string prefix, bool caseSensitive = true)
+        {
+            if (prefix.Length > Length)
+            {
+                return false;
+            }
+            if (caseSensitive)
+            {
+                for (var i = 0; i < prefix.Length; ++i)
+                {
+                    if (s[i] != characters[i])
+                        return false;
+                }
+            }
+            else
+            {
+                for (var i = 0; i < prefix.Length; ++i)
+                {
+                    if (char.ToLowerInvariant(s[i]) != char.ToLowerInvariant(characters[i]))
+                        return false;
+                }
+            }
+            return true;
+        }
+
         public override string ToString()
         {
             throw new NotImplementedException();
