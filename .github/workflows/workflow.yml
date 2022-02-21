@@ -162,6 +162,8 @@ jobs:
           node-version: '12.x'
           registry-url: 'https://npm.pkg.github.com'
 
+      - run: cp README.md unity
+
       - run: npm publish
         working-directory: unity
         env:
