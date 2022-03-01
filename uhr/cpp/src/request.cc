@@ -1,7 +1,5 @@
 #include "request.h"
 #include "logging.h"
-#include <cstring>
-#include <sstream>
 #include "util.h"
 
 namespace uhr {

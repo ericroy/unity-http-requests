@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <optional>
 #include <curl/curl.h>
 #include "UnityHttpRequests.h"
 
@@ -18,8 +17,8 @@ namespace uhr {
         CACerts(const CACerts &) = delete;
         CACerts &operator=(const CACerts &) = delete;
 
-        std::optional<std::string> cert_bundle_;
-        std::optional<std::string> cert_directory_;
+        std::string cert_bundle_;
+        std::string cert_directory_;
     };
 
 } // namespace uhr

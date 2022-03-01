@@ -1,6 +1,4 @@
 #include "util.h"
-#include <locale>
-#include <codecvt>
 #include "utf8cpp/utf8.h"
 
 namespace uhr {

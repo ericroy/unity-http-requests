@@ -1,7 +1,6 @@
 #pragma once
 #include <memory>
 #include <unordered_map>
-#include <optional>
 #include <curl/curl.h>
 #include "UnityHttpRequests.h"
 #include "request_builder.h"

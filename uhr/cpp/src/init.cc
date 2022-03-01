@@ -1,24 +1,27 @@
 #include "init.h"
-#include <locale>
-#include <codecvt>
-#include <atomic>
+#include <mutex>
 #include <curl/curl.h>
 
 namespace uhr {
 
 	namespace {
-		std::atomic_int g_init_count = 0;
+		std::mutex g_init_mutext;
+		bool g_initialized = 0;
 	}
 	
 	void Init() {
-		if (std::atomic_fetch_add_explicit(&g_init_count, 1, std::memory_order_relaxed) == 0) {
+		std::lock_guard<std::mutex> lock(g_init_mutext);
+		if (!g_initialized) {
 			curl_global_init(CURL_GLOBAL_DEFAULT);
+			g_initialized = true;
 		}
 	}
 
 	void Deinit() {
-		if (std::atomic_fetch_sub_explicit(&g_init_count, 1, std::memory_order_relaxed) == 1) {
+		std::lock_guard<std::mutex> lock(g_init_mutext);
+		if (g_initialized) {
 			curl_global_cleanup();
+			g_initialized = false;
 		}
 	}
 

@@ -34,14 +34,14 @@ namespace uhr {
 
         for (const auto &file : cert_files) {
             if (stat(file.c_str(), &sb) == 0 && !S_ISDIR(sb.st_mode)) {
-                cert_bundle_ = std::make_optional(file);
+                cert_bundle_ = file;
                 return true;
             }
         }
         
         for (const auto &directory : cert_directories) {
             if (stat(directory.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) {
-                cert_directory_ = std::make_optional(directory);
+                cert_directory_ = directory;
                 return true;
             }
         }
@@ -54,10 +54,10 @@ namespace uhr {
 
     bool CACerts::Apply(CURL *easy) const {
     #if !defined(_WIN32) && !defined(WIN32)
-        if (cert_bundle_)
-            return curl_easy_setopt(easy, CURLOPT_CAINFO, cert_bundle_.value().c_str()) == CURLE_OK;
-        if (cert_directory_)
-            return curl_easy_setopt(easy, CURLOPT_CAPATH, cert_directory_.value().c_str()) == CURLE_OK;
+        if (!cert_bundle_.empty())
+            return curl_easy_setopt(easy, CURLOPT_CAINFO, cert_bundle_.c_str()) == CURLE_OK;
+        if (!cert_directory_.empty())
+            return curl_easy_setopt(easy, CURLOPT_CAPATH, cert_directory_.c_str()) == CURLE_OK;
         return false;
     #else
         (void)easy;

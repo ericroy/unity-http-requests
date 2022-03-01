@@ -1,13 +1,7 @@
 #include <string>
 #include <mutex>
 #include <sstream>
-#include <functional>
 #include <unordered_map>
-
-// For example program
-#include <iostream>
-#include <thread>
-#include <chrono>
 
 #include <curl/curl.h>
 
